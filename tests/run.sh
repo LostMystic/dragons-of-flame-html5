@@ -281,6 +281,8 @@ out=$(env -u DOF_Y_ANY DOF_WARP=w,256,2432 DOF_CONTROLS=updated DOF_BOX_HOLD=0 $
 [[ "$out" == *"mode=combat"* && "$out" == *"lair="* ]] && echo "ok    turning round in a lair leaves the cave intact" || { echo "FAIL  lair turn: $out"; fail=1; }
 out=$(env -u DOF_Y_ANY DOF_WARP=w,256,2432 DOF_CONTROLS=updated DOF_BOX_HOLD=0 $BIN --headless --frames 700 --keys "enter:3,wait:30,enter:3,wait:20,enter:3,wait:20,enter:3,wait:20,map:3,wait:10,map:3,wait:10" | tail -1)
 [[ "$out" == *"mode=combat"* && "$out" == *"lair="* ]] && echo "ok    the map key opens and closes in a lair" || { echo "FAIL  lair map: $out"; fail=1; }
+out=$(DOF_REFUGEE=1 DOF_TEST_WILD=1 DOF_TEST_TYPE=Man DOF_CONTROLS=updated $BIN --headless --frames 1500 --keys "enter:3,wait:60,right:200,wait:20,act:3,wait:60,enter:3,wait:60,enter:3,wait:60" | tail -1)
+[[ "$out" == *"party=9"* && "$out" == *"refugees=1"* ]] && echo "ok    a refugee met on the road joins the party when asked (A beside him)" || { echo "FAIL  refugee: $out"; fail=1; }
 out=$(DOF_TEST_WILD=1 DOF_TEST_TYPE=Troll DOF_FINAL=22 DOF_CONTROLS=updated $BIN --headless --frames 400 --keys "enter:3,wait:400" | tail -1)
 [[ "$out" == *"staff=0"* && "$out" == *"xp=790"* && "$out" == *"leader=Sturm"* ]] && echo "ok    the Final Strike kills the foes for its charges, empties the staff and Raistlin dies (the lead passes on)" || { echo "FAIL  final strike: $out"; fail=1; }
 out=$(DOF_TEST_WILD=1 DOF_TEST_TYPE=Troll DOF_GOD=1 DOF_CONTROLS=updated $BIN --headless --frames 1100 --keys "enter:3,wait:10,attack:2500" | tail -1)

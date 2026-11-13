@@ -102,6 +102,7 @@ struct Enemy {
     int tag = -1;         // index in ienemies_ while a dungeon fight runs
     int lx = 0, ly = 0;   // position in the level (interior creatures); x is the position along the strip while the fight runs
     int hlx = -1, hly = -1, ax = 0;   // where it started (level px) and that point along the strip: a dragon's head is tied to its body there by the neck
+    int refugee = -1;     // a Man met on the road: -1 not decided yet, 1 a refugee (peaceful: press A beside him and he joins), 0 hostile (he is hit, or he was not a refugee)
     bool nocorpse = false, burned = false, revived = false, turned = false;   // turned: frozen by Turn Undead ("Turned" shows over its head)
     //   // revived: a troll that got up again (no experience for it twice)
     //   // drowned (leaves nothing); killed by fire (a troll then stays dead)
@@ -147,7 +148,8 @@ private:
     bool foe_in_reach(bool face);               // a living foe the leader can hit now (turns to face it)
     bool take_item(int idx, bool from_menu);    // put a ground item in the pack (false if it could not be taken)
     bool open_or_shut(bool open, std::string& msg);   // a door in this cell or (opening only) a chest within reach
-    bool context_action();                      // true if it took something or opened something
+    bool context_action();
+    int refugees_recruited_ = 0;                      // true if it took something or opened something
     bool act_used_ = false;                      // controller A with no foe near: take what lies here, else open a door or chest
     std::map<int, ItemStat> istats_;       // data/item_stats.json: who can use an item and what it does
     bool auto_equip(int item_id, std::string& msg, int shots = -1);

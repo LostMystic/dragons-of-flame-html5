@@ -1685,7 +1685,7 @@ void Game::step(const Input& in) {
         // Y / Tab / 0 switch between the map and the side view. In a fight it waits until it has calmed down: while the fight music plays (a live foe within 380 px) it is refused
         // (the debug menu can turn this off)
         bool foes = false;
-        for (auto& e : enemies_) if (e.hp > 0 && abs(e.x - cx_) < 380) foes = true;
+        for (auto& e : enemies_) if (e.hp > 0 && e.refugee != 1 && abs(e.x - cx_) < 380) foes = true;
         if (mode_ == Mode::Combat && foes && !y_exit_any_) {
             message_ = "Foes are all around: you cannot leave yet"; message_steps_ = 18;
             return;
@@ -2015,6 +2015,11 @@ void Game::step_combat(const Input& in) {
         if (e.rcd > 0) e.rcd--;
         if (e.venom > 0) e.venom--;
         if (e.appear > 0) e.appear--;
+        if (t.name == "Man" && !in_level) {   // townsfolk on the road (the manual: refugees may join the party and fight beside it): two in three are refugees, who do not attack unless they are hurt
+            if (e.refugee < 0) e.refugee = getenv("DOF_REFUGEE") ? 1 : (getenv("DOF_FIXED_SPAWN") || lair_active_) ? 0 : (rnd(0, 2) != 0 ? 1 : 0);   // (DOF_REFUGEE: test hook)
+            if (e.refugee == 1 && e.hp < e.hpmax) e.refugee = 0;
+            if (e.refugee == 1) { e.left = dx < 0; e.anim = 0; continue; }
+        }
         {  // ranged attacks (estimates from the cluebook): dragon fire, the bows of Men, Bozak spells
             int range = 0, lo = 0, hi = 0, cd = 0;
             if (t.name == "Dragon") { range = 260; lo = 14; hi = 30; cd = 90; }
@@ -2437,7 +2442,7 @@ void Game::cast(int school, int spell) {
         if (e.hp <= 0) { const MonsterType& mt = mtypes_[e.type]; if (!e.revived) xp_ += mt.xp; kills_++; if (e.type < (int)kills_by_type_.size()) kills_by_type_[e.type]++; }
     };
     bool fighting = false;   // a foe within sight
-    for (auto& en : enemies_) if (en.hp > 0 && abs(en.x - (interior() ? istrip_x() : cx_)) < 175) fighting = true;
+    for (auto& en : enemies_) if (en.hp > 0 && en.refugee != 1 && abs(en.x - (interior() ? istrip_x() : cx_)) < 175) fighting = true;
     const size_t f0 = floaters_.size(), s0 = sparks_.size(), c0 = corpses_.size();
     struct Snap { Enemy* e; int hp, frozen; };
     std::vector<Snap> snaps;   // what each foe was before the spell, to see afterwards whom it touched
@@ -2674,7 +2679,7 @@ bool Game::foe_in_reach(bool face) {
     int hx = in_level ? istrip_x() : cx_, hy = in_level ? 0 : cy_;
     const Enemy* best = nullptr;
     for (const auto& e : enemies_)
-        if (e.hp > 0 && abs(e.x - hx) <= rules_.hero_reach && abs(e.y - hy) <= 24 && (!best || abs(e.x - hx) < abs(best->x - hx))) best = &e;
+        if (e.hp > 0 && e.refugee != 1 && abs(e.x - hx) <= rules_.hero_reach && abs(e.y - hy) <= 24 && (!best || abs(e.x - hx) < abs(best->x - hx))) best = &e;
     if (best && face && jump_t_ < 0 && best->x != hx) face_left_ = best->x < hx;
     return best != nullptr;
 }
@@ -2684,6 +2689,22 @@ bool Game::context_action() {
         lair_chest_taken_ = true;
         give_poi_reward();
         if (box_.empty()) box_ = "The chest is empty.";
+        return true;
+    }
+    for (size_t i = 0; i < enemies_.size(); i++) {   // a refugee on the road: ask him to join
+        Enemy& e = enemies_[i];
+        if (e.hp <= 0 || e.refugee != 1 || mtypes_[e.type].name != "Man" || abs(e.x - cx_) > 48) continue;
+        static const char* kNames[] = {"Old Orrin", "Dalen the Fisher", "Merek", "Tobin", "Harl", "Piet", "Wendel", "Jorund", "Old Bram", "Halvar", "Edric", "Tam"};
+        static const char* kWords[] = {"I fished the White-rage all my life. The dragonmen burned my boat; let me fight beside you.", "I have nothing left in this world. Take me with you.", "My village is ash. I can swing a blade, and I know these roads.", "Elistan taught us to hope. I will walk with you."};
+        bool room = party_.size() < 10; for (auto& m : party_) if (m.nomad) room = true;
+        if (!room) { box_ = "He would join you gladly, but\nyour party is full."; return true; }
+        Hero nh; nh.name = kNames[refugees_recruited_ % 12]; if (refugees_recruited_ >= 12) nh.name += " " + std::to_string(refugees_recruited_ / 12 + 1);
+        nh.sprite = "nomad"; nh.hp = nh.hp_max = 9 + (refugees_recruited_ * 5) % 8; nh.abilities = {12, 11, 10, 12, 12, 10, 9}; nh.armor = 9; nh.nomad = true;
+        nh.actor = assets_.actor("nomad"); equip(nh); nh.clip = 19;   // the old man in the hat: the original's second spare portrait
+        box_ = nh.name + ": " + kWords[refugees_recruited_ % 4] + "\n(He joins the party.)";
+        refugees_recruited_++;
+        join_party(nh); all_heroes_.push_back(nh);
+        enemies_.erase(enemies_.begin() + i);
         return true;
     }
     auto near = items_near(false);
@@ -4156,6 +4177,7 @@ std::string Game::debug() const {
     if (lair_active_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " lair=%d..%d chest=%d%s", lair_x0_, lair_x1_, lair_chest_x_, lair_chest_taken_ ? "(taken)" : ""); }
     if (getenv("DOF_HANDS")) { for (auto& h : party_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " [%.4s:%s:%d]", h.name.c_str(), h.hand_name.c_str(), h.armor); } }   // test hook: what everyone wields
     { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " music=%s", music_track_.empty() ? "-" : music_track_.c_str()); }
+    if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }
     if (mode_ == Mode::Title) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " page=%d sel=%d", title_page_, title_sel_); }
     return b;
