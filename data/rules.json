@@ -1,0 +1,59 @@
+{
+ "comment": "Game rules the engine reads at start. Edit and reload. Values marked (guess) were not yet confirmed against the original.",
+ "tick_hz": 18.2065,
+ "ticks_per_step": 3,
+ "walk_step_px": 8,
+ "fast_walk_px_per_s": 60,
+ "fast_walk_comment": "updated controls only: the party moves every frame at this speed (the original is 8 px per 0.165 s = 48 px/s)",
+ "walk_step_comment": "(guess) pixels the party moves per logic step; the original waits 3 timer ticks per frame in the combat view",
+ "start": {
+  "x": 1024,
+  "y": 1024
+ },
+ "start_comment": "the original starts the party at world (1024,1024): game.exe data 0x361E/0x3622",
+ "leader": "tanis",
+ "blocked": {
+  "mask": 15,
+  "value": 1,
+  "comment": "confirmed: (attribute & 0x0F) == 1 blocks movement"
+ },
+ "walk_frames": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "walk_frames_comment": "(guess) hero frames used for the walking animation",
+ "combat": {
+  "hero_damage": [
+   1,
+   8
+  ],
+  "hero_reach": 34,
+  "enemy_cooldown": 3,
+  "enemy_aggro": 480,
+  "encounter_count": 3,
+  "encounter_types": [
+   "msva",
+   "msvb",
+   "msvc",
+   "msvh"
+  ],
+  "attack_frames": [
+   2,
+   3
+  ],
+  "seed": 12345,
+  "comment": "(guesses) the manual says the Staff of Magius does 1-8; the rest is estimated",
+  "attack_period": 4,
+  "comment_real": "Monster hit points, damage dice, to-hit and the distance bands (touch <32, approach <150, idle >=384) come from game.exe; hero damage 1-8, XP and the attack period are estimates.",
+  "hero_swing_steps": 4,
+  "comment_spells": "AD&D-style guesses: Bless +1 to hit, Prayer +1 to hit and -1 for the monsters, Protection from Evil -2 for the monsters, durations in logic steps."
+ },
+ "wilderness": {
+  "creatures": 14,
+  "sight": 160,
+  "speed": 2,
+  "comment": "ESTIMATES: the original's starting creature list is not decoded. Contact distance (<16 px each way) and the 1-3 monsters per fight are from game.exe."
+ }
+}

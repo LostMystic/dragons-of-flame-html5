@@ -1,0 +1,205 @@
+Haven and Gateway now stand on the two original village tiles of the map (north-east and south-east), instead of invented spots; the carry pack is effectively unlimited.
+Lairs: Down / the turn button no longer scrambles the cave; Back shows a lair map (portal, gold archway between the rooms, treasure, foes, party) and a small map bar sits top right; the archway has gold trim and torches, and the way out is a bright EXIT doorway at the west end (walk into it once the foes are quiet).
+Lairs are bigger: a mini dungeon of two cave rooms (about four screens long) with a rock wall and low archway between them. The party starts near the middle, and the creatures are spread out and come from both sides. The loot is no longer handed over after the fight: it lies in a chest against the far wall of the second room (press A beside it). The party is not taken out of the cave when the fight is won; leave by taking the treasure and pressing Y (Y works once the foes are beaten or have left), or press Y without it, in which case the lair is still there to try again. Also fixed: the walls at both ends of the cave really stop the hero now.
+The shared pack now holds 60 items instead of 12 (the loot of the lairs, three Fireball scrolls and a Flame Tongue among it, overflowed the old limit: "no room").
+Debug menu (F10): two new switches. Ghost mode lets the party walk through walls and anything else that blocks (only the edge of the map stops it; places, doors and links still trigger). Random encounters off stops the wandering monsters of the overland map from starting fights; the lairs, places of interest and the dungeons' creatures are still there. The menu scrolls if it gets longer than the screen.
+Towns on the overland map (Solace, Haven, Gateway) are now a single 16-px village tile (two small houses, one with a chimney, a lane and a tree) instead of the two big houses that spilled over the neighbouring tiles; walk onto the tile to go in.
+Debug menu: the Position line sits at the bottom of the screen now, and the long menu lines fit.
+Y (and Tab / 0) in a fight now follows the music: it is refused only while the fight music plays (a live foe within 380 px); once the music calms down, even with foes still alive further off, you can leave. (Before it also waited for 30 quiet seconds.)
+Lairs are fought inside a small cave: a side-scrolling room of the dungeon's corridor wall recoloured to brown earth, with stalactites, boulders along the floor and solid rock at both ends (you cannot walk out of it); the foes are already in the room. However far the party moves inside, leaving the lair puts it back on the lair's own tile on the map. Only the lairs (the places you fight on arrival) use the cave; other encounters still happen on the open ground.
+Y (and Tab / 0) no longer leaves a fight while foes are still about; it waits until they are beaten, or until 30 seconds have passed without anything being fought ("Foes are all around: you cannot leave yet"). The F10 debug menu has a new switch, "Y leaves any fight at once", that brings back the old behaviour.
+Monsters of an overland encounter now come from either side of the party (a group mostly from one side, sometimes a few from the other, so you can be half surrounded) at random distances, now and then a little closer, and fade in out of the distance before they act.
+A Kapak's acid pool also burns the foes that stand in it (1-8 a round), unless they fly (stirges, wasps, griffons, dragons).
+More lairs, and every place of interest has a map picture now: a cave mouth (troll lair, goblin warren, the two stirge caves, the Aghar lair; the eyes show whose), a camp with a flag (the raiders' camp), a hollow with bones (the wolf den and the war dog kennels), a ruin, a statue on a plinth, a standing stone, a bridge, a waterfall, crossed swords for battlefields, a wagon, a skull. A place not yet visited blinks a yellow diamond over its picture; visited ones turn grey. The towns show two little houses with a signpost between them: walk between the houses to go in. On the quest map the unvisited places are dots (yellow towns, red lairs and camps, cyan the rest).
+New lairs (a fight, then the loot): a goblin warren with ten goblins, a raiders' camp (hobgoblins, goblins and two humans), a wolf den (four dire wolves), the war dog kennels (five war dogs), two stirge caves (six and five stirges), and the Aghar lair far in the west edge of the map (eight gully dwarves guarding a Flame Tongue and three Fireball scrolls). The others hold healing potions, scrolls, arrows and gems.
+Haven moved into the walled field in the north-east, next to the two gems. Every outdoor place of interest is now moved to the nearest spot the party can walk to from the start (the trolls' lair and the hidden valley were out of reach).
+The flashing X for Sla-Mori on the overland map only shows once the party knows where the entrance is (it already did on the quest map).
+The module pass (the book DL2 "Dragons of Flame"):
+- Baaz turn to a metal statue when killed; a hero whose melee blow kills one fails a Dexterity check at -3 and is Stuck with the weapon in it (not Wyrmslayer), held in the swing for a few seconds (a Stuck label over his head). Switching to another hero frees you to act. The statue crumbles in 1-4 rounds.
+- Kapak lick their blades for a round before they fight (envenomed for three more); an envenomed hit that the hero fails to save against paralyses him for a few seconds (Paralyzed), again you can switch heroes. A dead Kapak leaves its acid pool for a few rounds: stand in it and take 1-8 a round.
+- Wyrmslayer does double damage to draconians as well as dragons, gives +3 on saves against dragon breath and Bozak spells, and hums (a buzzing sound) when a dragon is near.
+- Pax Tharkas (levels 4, 6 and 7) is full of draconians: about one passage cell in six now holds a Baaz, Kapak or Bozak, away from where you arrive.
+- Elistan lies wounded among the women of Pax Tharkas (level 6). If Goldmoon is in the party you are asked: A heals him (he sees the true gods, dedicates himself to Paladine, and Goldmoon's medallion duplicates), B leaves him. He stays where he is, and afterwards thanks you and tells you to hurry.
+- The Staff of Magius gives Raistlin +3 protection (until it is shattered); the new Shield +1 gives -1 armor class (only Sturm, Caramon, Riverwind and Tanis can carry it). Both show in the Equip screen's armor class and count in combat.
+- Verminaard's study (level 7, top left): the maps with three daggers stabbed into Qualinesti and two clerical scrolls. Scrolls can be read with Use: Goldmoon the clerical ones, Raistlin the magic-user ones (cure serious / critical wounds, raise dead, fireball, web, magic missile, lightning bolt).
+- 27 points of interest on the overland map from the module (Que Kiri, Solace, Haven, Gateway, the bridge, the caravan tracks, Qualinesti's border and waterfall, the hidden valley, the troll lair with a Shield +1 ...): texts, small treasures, three towns (Solace, Haven, Gateway) with a building or two where the townsfolk heal the party once, and the trolls' lair, a real fight.
+Debug menu (F10): the two "exit door" options now put the party in the corridor two cells north of the exit door of Pax Tharkas, facing it; walk down, press A to open the door and walk through to start the ending. One has all four parts of the quest flagged done (and Laurana with the party), the other none (Laurana taken out of the party).
+Fixed the picture of the freed women and children in the ending: it was being read with each 16-pixel column's halves swapped (the faces and the door were torn apart); it now shows the woman and the running children correctly. The text below the ending pictures starts a little lower so it does not touch the picture.
+The ending now goes from the high scores to the credits, and the credits go back to the main menu. The credits say the HTML5 version was created by Mark Barazzuol, and the first line of the copyright notice (which was one character too wide for the screen, so its C was cut off) is split in two.
+Typing your name for the high scores: letters were often lost (a key typed between two of the game's logic steps was thrown away, which is why some letters seemed not to work at all); every character and Backspace is now kept until the game reads it. V no longer toggles the sound while the ending is showing, so it can be typed.
+The ending is a slide show: the original game's two pictures, which were never shown, now go with the story (the fortress at the start, the freed women and children where the epilogue tells of them). Each press turns one page (before, a single press could skip a page); Left, Up or Back goes to the page before, Enter or any other key goes on. The scores fit their scroll.
+Debug menu (F10): two options to test the endings: "Finish the quest: all done" (everything flagged done, you are put at the south door of Pax Tharkas and the good ending starts) and "nothing done" (the same door with the women, children, Wyrmslayer and Laurana all still to do: the incomplete ending).
+Dragons: the head is now tied to the body by a neck (a chain of red scales that stretches and arches) and can only reach about 100 px from the lair, so the body no longer stays behind while the head floats off. When a dragon dies its body, part of the lair's picture, goes with its head.
+Fixed: spells cast from the menu in the dungeons did no damage (the foes were rebuilt from their old state on the next step); now they count.
+Draconians die as the manual says: a Baaz crumbles to dust (eaten away from the head down, a heap of dust that blows away), a Kapak dissolves into a bubbling puddle of acid that dries up, a Bozak's bones explode (a burst of bone and a blast that hurts the hero and any foe within 48 px, whichever way the Bozak was killed). Each has its own sound.
+Elves find secret doors: each time the party comes into a cell with a hidden door in it or in the walls beside it, Tanis, Gilthanas or Laurana (whoever is in the party) notices it four times in five, and the door is revealed ("Tanis spots a secret door!"). If they miss it, they look again the next time the party comes into that cell. Searching with A still works.
+Open (A) is closer range: a door in the next cell along the corridor is only in reach when you are at the end of your own cell, right up to it (the reach was twice as far); doors in the cell you stand in and in the wall beside you work as before.
+Find Traps and Detect Treasure now last three times as long (200 and 300 seconds; the timer at the top left shows it).
+Four of the captive women on level 2 (the first four in the rooms along the corridors, around cells 20,3 to 28,3) tell you, besides thanking you, where the secret door is and how to get through it: beside the false door at the west end of the long corridor, search the wall with A, then press A again to open it.
+Picking up Wyrmslayer plays a short triumphant fanfare of horns (a sound effect, not music) with the quest message.
+Spell pictures fixed: most of the original's spell sprites (everything but the Fireball's explosion) were being lost when the game read them, so Magic Missile, Sleep, Web, Charm, Burning Hands and the fire streak never showed. They now fly across the view, double size, and a spell's damage, numbers and deaths show when it arrives, not the instant it is cast. The casters only fire at foes in sight, and say "No target in sight" otherwise.
+Secret doors: pressing A beside a hidden door now searches and finds it ("You discover a secret door."), the next press opens it. (On Sla-Mori's first level the real way on is the secret door just east of the "false door": stand in the corridor cell beside it and press A twice.) On the dungeon map a "?" marks a secret door on the route arrow.
+Traps: Find Traps now makes a big shimmering column of light, glitter rings and sparks over each trap. Tasslehoff leading disarms a trap he can see as he touches it. A trap that goes off drops a big flat slab of stone on the hero (the trap's damage), and the slab stays where it fell until the party leaves that cell. Five new hidden traps guard the dead ends with the invisible treasures.
+Each damaging spell now has its own picture where it strikes: Magic Missile an energy splash (a ring of pale blue and pink sparks), Burning Hands small flames licking up the foe, Fireball a huge explosion, Lightning Bolt a crackle of electricity on every foe it passes through, Spiritual Hammer a star of light. The Flame Tongue shows a small flame on a foe it hits.
+The full-screen dungeon map has a light dotted arrow along the quickest way from you to the next level (on level 6 to the end), through shut doors and secret doors as well, with the arrowhead at the X. (The end of the quest, the south door, is on level 6, cell 13,24, marked with a red X; the way from level 4 to level 6 is at the west edge, cell 0,15.)
+Detect invisible is now Detect treasure (Raistlin): for 100 seconds the invisible things in the dungeons show and can be taken. A timer at the top left shows how long.
+New invisible magic items lie in dead ends of Sla-Mori and Pax Tharkas: a Longsword +1, a Ring of Protection +1 and a +2, Plate Armor, a Battle Axe +3 and the Flame Tongue (a +1 sword, +4 against trolls; a troll it kills stays dead). The Longsword +2 and the Potion of Extra Healing of the cluebook are invisible too. Plate armor gives armor class 3 and only Caramon and Sturm can wear it. (Rings of protection now improve the armor class; they used to make it worse.)
+Raistlin: Detect magic is replaced by a second Magic missile spell that fires three missiles (one at each of the nearest three foes). The magic user's Dispel Magic scroll is now a Lightning Bolt scroll (Use it as Raistlin in a fight): a bolt flies from him through every foe on that side and off the screen, 6d6 each, and they stop. Goldmoon's two Dispel Magic spells are two more Prayers.
+The full-screen dungeon map marks the way to the next level with a white X and the end of the quest (the south door of Pax Tharkas, level 7) with a red X.
+The X for Sla-Mori's entrance on the quest map only shows once Laurana is with the party (she marks it) or once the party has searched the dead end at the south west and gets the feeling the way lies to the northeast.
+Spells have their own sounds and pictures. Raistlin: Magic Missile, Burning Hands, Fireball (which explodes where it lands), Charm, Sleep, Web, Detect Magic, Detect Invisible and the Final Strike each sound different; the sprites from the original game's missile file (sparkles, the pink Zs of Sleep, the fire streak, the white swirl of Web, the rainbow darts of Magic Missile) fly straight at the foes they hit and burst there. Goldmoon: every cure sounds the same; Protection from Evil, Find Traps, Hold Person, Spiritual Hammer, Prayer, Bless, Dispel Magic and Turn Undead each have their own, and her Hold, Hammer and Turn Undead send sprites too.
+The Final Strike now fills the whole view with an explosion, does as much damage to every foe as the Staff of Magius has charges left (up to 100), shatters the staff and kills Raistlin. Raise Dead can bring Raistlin back, but he never has a staff again.
+Wyrmslayer (in Sla-Mori) is now a real +3 sword (d10, +3 to hit, +3 damage, double damage against dragons). With the updated controls the first hero to take it up is Caramon, or Sturm if Caramon is not in the party (their old sword goes to the pack). It has its own whiff, hit and glance sounds, with a ringing of magic.
+New sound effects, made by the game itself: a whiff when a swing finds nothing, a thwack when it hits and a glancing "shing" / clack when you are in reach but the blow misses; each of swords, staves (Goldmoon's, Raistlin's and Tasslehoff's hoopak) and Flint's axe has its own three. Arrows, spears, throwing axes and the sling each have a sound when thrown, when they hit and a soft one when they come down on the ground. A hero who is hit makes a sound, and Turn Undead rings.
+Small sparks fly where a foe is hit (by any weapon or spell) and where a hero is hit (red).
+Debug menu (F10): a Run switch, the party walks five times as fast (the foes do not).
+God mode is now only on the F10 debug menu (gone from Settings), and the position / Sla-Mori X coordinates moved from the main menu to the debug menu too.
+Dungeons: Back (gamepad) or Q / the Quest map menu entry now shows the whole explored dungeon level over the full screen (grey where you saw down a passage, blue with white wall lines where you have been, a blinking cross where you stand).
+Sla-Mori level 2: the two-cell rooms along the corridors now hold captives (about two in three: a woman in a tattered dress and chains, Goldmoon's picture reworked) or a pair of gully dwarves who attack. Walk up to a captive to free her: 150 experience and a thank-you, one of thirty different ones. Rooms that already held a creature keep it.
+Side views: a timer at the top left shows how long Find Traps, Protection from Evil, Prayer and Bless still last, with a bar and the seconds. (All the spells count game steps, six a second: Find Traps 67 s, Protection 133 s, Prayer 100 s, Bless 133 s; they now also run down outside fights.)
+Dungeon trolls now rise again after ten seconds too (before, a fallen creature vanished at once in the dungeons).
+Turn Undead destroys zombies again (as before) and freezes wights, wraiths and shadows; a frozen creature has "Turned" blinking over its head. It is never used up.
+Overland: zombies are now very common (they replace many of the other creatures, trolls most of all), griffons are mostly met near the fortress and in the mountains.
+The army fires on the quest map are animated: each of the three sizes has eight frames made from the original sprite (swaying, stretching, flickering), and every fire burns at its own pace (100-150 ms a frame).
+Creatures that die now dither away. A troll falls using its own death frames from the sprite sheet, lies there ten seconds and then rises again (reversed), unless it was killed by a fire spell. The fight does not end while a troll is down; it gives experience only once.
+Goldmoon's Turn Undead no longer kills zombies or makes anything flee: it freezes any undead (zombies, wights, wraiths, shadows), and it is never used up.
+Overland encounters: no wights (zombies instead), stirges are common, trolls are rare. The dungeons keep their wights, trolls and stirges.
+New music: the Elven Hymn, from the sheet music in the reference folder, played on a harp. It plays in the outdoor side view when no foe is near and Laurana is in the party. (The scan is small, so the first eight bars are read note by note and the rest follows the tune's shape; tell me if a phrase sounds wrong.)
+Dungeons: treasure lying in a dead end behind a wall (like the potion in level 2 cell 21,3, which opens from the south) no longer shows through the wall, and loose treasure is drawn as a small chest instead of the yellow block.
+Sturm and Caramon had each other's portraits: fixed.
+Debug menu on F10 (a testing aid): warp to the dungeon entrance (Laurana joins the party), bring everyone into the party, God mode on/off.
+Dungeons now have a small map in the top right corner (scrolls with the party): grey where you can see down a passage, blue with white wall lines once you have been there, and a blinking arrow showing where you stand and which way you face.
+Fixed the hero getting stuck auto-attacking when the attack button is not held (also at traps and chests).
+Messages now stay up for at least three quarters of a second and need a fresh press to dismiss, so a double tap no longer skips them.
+Chests in dungeons have their own picture, and stay open once looted.
+Laurana and Gilthanas had swapped faces: switching to one now shows and names the right hero. (Gilthanas, in the pass, comes first; Laurana is inside Sla-Mori.)
+Music now changes to the fight tune only when a foe is actually close. The Settings menu has Music and Sound switches.
+A opens doors in the side wall, below and ahead in the dungeons; false doors say so.
+Enemies strike with their own attack frames, measured from the original, instead of looking stuck while attacked.
+Water: monsters no longer appear in it and drown if they fall in; heroes cannot walk into it; dropped ammunition lies on the true ground level; arrows fly straight and a miss lands far off screen.
+After a fight outdoors the game waits until you have picked up your fired ammunition before returning to the map.
+
+Fired arrows, bullets, spears and axes now fly across the side view with the original game's own projectile sprites (the spinning axe, the arrow, the long spear), and come down on the ground as items: walk over one and press A (when no foe is in reach) and it goes back to whoever uses it.
+Floating numbers show the damage you do to a foe in the side view, or "Miss", rising and fading away.
+Updated controls: new Equip and Inventory commands in the main menu. Equip shows a hero's character screen (abilities, hit points, hand weapon, ranged weapon, ammunition, protection); choose a slot, then choose from the items in the shared pack that fit it ("There is no equipment here." if none). LB / RB change the hero; the other portraits are greyed and the chosen one has a pulsing border. Inventory lists the shared pack and everything the heroes carry, sorted by kind, with an E and the hero's small face on what is equipped.
+
+Attacks (updated controls): with the stick centred A / X is a low attack, stick up is a high attack; the left trigger (or R on the keyboard) is the ranged attack: the bow, sling, spear or throwing axe while there is ammunition (heroes now start with some; spears, axes, arrows and bullets you pick up are added to the right hero), and for Raistlin and Goldmoon their spells: Raistlin from his weakest damaging spell up, Goldmoon turn undead / hammer / hold person on foes, healing then Bless, Protection from Evil and (underground) Find Traps when none are about. The Disks of Mishakal and Final strike are only used when you pick them from the list. The right trigger turns the side view. Sturm's and the nomads' low attack uses the standing sword thrust.
+You can jump inside Sla-Mori and the other dungeons (the leap pose, 112 px).
+The menu no longer counts a held confirm key twice, with the keyboard or the gamepad.
+
+Updated controls: the main menu no longer lists Hero select (use LB / RB), Take and Open (use A), Give (the pack is shared), Quest map (use Back) or Exit menu (use B), and has a new "Controls (F1)" entry that opens the command list. The classic controls keep the full menu.
+The main menu now shows where you are on the overland map (x, y) and where the Sla-Mori X is, so you can line things up; in a dungeon it shows the level, cell and position.
+The quest map (zoomed-out overland map) shows a pulsing X at Sla-Mori's entrance.
+
+Sla-Mori's entrance is now marked on the map with a flashing X (in the mountain nook at about world (640, 2690), reached from the east along the southern passage). Touching the X takes you in at once.
+With the updated controls the party now slips round corners (up to 8 pixels) so it can enter the one-tile-wide passages that were hard to line up with.
+
+New music, all loopable and played in the browser: the title theme (the original tune, arranged), the overland theme, a calmer one for the side view without monsters, an outdoor battle theme, a dungeon theme and a dungeon battle theme (Sla-Mori and Pax Tharkas), and one for the ending. The music follows what you are doing and cross-fades. Settings has a Music switch back to the original PC-speaker title tune; V mutes everything.
+The front of Pax Tharkas now says "You cannot gain entrance in this way. The fortress is far too well guarded. There must be another way..."
+If Laurana has not been rescued yet, you meet her in the mountain passage on the last leg to Sla-Mori's secret entrance (she dithers in, speaks and joins; that counts as her rescue).
+
+Updated controls have a shared pack: when you pick something up it goes straight to the hero who can use it and gains most, with a message ("Caramon equipped the Longsword +2."). A hero's old weapon is offered to the others in turn, or kept in the pack. Swords go to the fighters, battle axes to Flint, the hoopak to Tasslehoff, spears to Caramon, arrows to an archer (Tanis, Riverwind, Gilthanas or Laurana), rings to whoever is least protected. Who can use what is in data/item_stats.json. (The classic controls keep the original's pack.)
+
+The gamepad Start button opens the pause menu again (on the map, in the side view and from the overlay map, where it shows the main menu).
+The front of Pax Tharkas is shut: walking up to its gate now tells you so. The way in is Sla-Mori's secret entrance in the mountains to the north, at about world (640, 2690); from the start it is a long walk south, then west into the mountains and east along the southern passage. The entrance is also easier to hit (any part of the party touching it counts).
+Jump and attack poses are per hero: Sturm, the nomads and Gilthanas use their own frames (these three still need checking one by one).
+
+Heroes now use the original's own jumping poses (leaping up with the sword raised, then the falling pose) and their real attack poses: straight (hand to hand, or the bow / sling / spear pose at range), high, and low.
+Classic controls: hold keypad + together with a keypad number to attack: 4 / 6 left / right, 7 / 9 high, 1 / 3 low. While + is held the number only aims, it does not walk or jump. The F1 help explains this, including that the top-row number keys choose the leader. Gamepad: hold the stick up / down while attacking for a high / low attack.
+
+High scores: the table comes up right after the opening lines, before the title menu, and is on the title menu too (High Scores). Scores are kept in the browser now.
+Exit: the title menu and the in-game main menu both have Exit, which leads to the exit page.
+Meeting a friendly person on the map now works like the original: the view switches to the side view, you walk ahead and the person dithers in, and when you reach them they speak and join (then the map returns).
+Classic controls: Q opens the quest map. F1 lists all the commands (the keyboard commands with the original controls, the gamepad commands with the updated ones); it scrolls with up and down. (The level-jump cheats moved to Shift+F1 to F7.)
+Wolves, war dogs and the griffon no longer glitch.
+
+Fixed the wolves, war dogs and the griffon: they are drawn from two 32-pixel pieces (body and head) side by side, which the game was drawing one piece at a time so they glitched. They are now joined into whole animals.
+
+Gamepad B now backs out of menus one step at a time (and closes the main menu), like Exit menu; on the title screen and in message boxes it goes back too.
+Inspect (main menu) works: in the dungeons it finds a hidden door in the cell you stand in ("You discover a secret door"; the door becomes a normal closed door you can Open), says "This is a false door" at false doors, and otherwise "You find nothing of interest". There are hidden doors on level 2 (Sla-Mori) and on levels 3 and 6.
+
+New title screen: the publishers' lines, then the title picture with a big flame-coloured logo and a menu: Start New Game, Load Game, Intro (a slideshow of the game's back story), Settings and Credits. Arrow keys or the gamepad move, Enter or A chooses, the mouse hovers and clicks, Esc goes back. After the ending or a lost game you return to this menu.
+The gamepad Start button only opens the pause menu; it no longer closes it.
+
+Gamepad (updated controls): B is the jump button; pushing the stick up or down no longer jumps or turns the side view (up and down only walk on the map); either trigger turns the side view to the next perpendicular direction. Start opens the pause menu and no longer closes it again (B or Exit menu does).
+Gamepad A: a foe in reach is always attacked first; otherwise it picks up what lies within reach, otherwise it opens a door or chest, and if there is nothing to take or use it just swings the sword.
+Jumps now travel sideways exactly as fast as walking does. Walking no longer steps up ledges automatically in the updated controls: you have to jump them, and each hero has their own jump reach (data/jumps.json: Tasslehoff 16 px, Flint and Raistlin 32 px, the others 48 px). With nowhere to land, the hero hops on the spot.
+Settings has a God mode switch: infinite hit points and spells, nobody can die.
+Long messages (like the opening one) no longer run off the scroll: they show six lines, a blinking arrow marks more text, up and down (or the mouse wheel) scroll, the confirm key pages down and then closes it, Esc closes at once.
+The banner at the top of every menu scroll no longer has bars through its title.
+
+Gamepad Back button opens the world map from the map view (and the side view); press Back again to close it.
+
+Updated controls are now the default (Settings, "Original controls" switches back to the keypad scheme).
+The camera on the world map stops at the edge of the playable land, so you no longer scroll out over the grey border; you have to walk there.
+Jumps (updated controls) follow the original's measured arc: 112 px long and 18 px high, played as a smooth jump. Each hero can have their own jump in data/jumps.json (Tasslehoff, who is "too small to jump rivers" in the cluebook, jumps shorter and lower).
+Mouse (updated controls): hover and click menu rows to choose them, click outside the scroll to go back, the wheel scrolls lists, click a portrait to make that hero leader, click in the view to attack a foe in reach, pick up what lies here or open a door or chest (it does not walk the party), and click through message boxes.
+Gamepad: Start is pause: it opens the main menu (the game stands still while it is open) and Start again resumes; A is contextual (attack, take, open).
+
+Updated controls (Settings, turn "Original controls" off) are now responsive: the party moves on the very frame you press a key, walks smoothly a pixel at a time instead of in 8-pixel hops, the walking animation starts at once and stops when you let go, and a jump is a smooth arc instead of a teleport. This applies on the map and in the side view.
+Gamepad support (updated controls only): left stick or d-pad moves, B jumps (backs out in menus), triggers jump left and right, Y switches map and side view, shoulder buttons change the party leader, Start or Back opens the menu, X attacks.
+The gamepad's A button is contextual: if a foe is within reach it attacks (hold it to keep swinging), otherwise it picks up what lies at your feet, otherwise it opens a door or chest here. In menus and message boxes A confirms.
+
+Developer tools: a memory harness for the original game (tools/emu/mem.py) and the debug page; monster damage numbers confirmed against the original.
+
+Combat uses weapons and to-hit rolls from the manual (AD&D style); spells have real effects (Bless, Prayer, Hold Person, Sleep, Fire Ball ...); dragons breathe fire, Men shoot, trolls regenerate.
+Hero status screen and the magic spell list look like the original.
+
+Nomads and Gilthanas join the party when you meet them (Gilthanas is at the pass in the south, Eben just south of the start); ten party slots; dead heroes show the dithered portrait.
+If the dragon armies reach Pax Tharkas before you, the quest is lost.
+
+Gilthanas waits at the pass to Pax Tharkas and joins your party.
+The figures wandering the wilderness at the start are people who give advice; monsters now appear along the edge of the view, more of them where the dragon armies are strong.
+High score name entry.
+
+Hidden traps in the dungeons (Tasslehoff can disarm them; Find traps / Detect invisible reveal them); pickup rules and messages from the original.
+New epilogue pages after the ending, with a hint of what comes next.
+
+The story: rescue Laurana (level 3), free the children and the women, take Wyrmslayer; the south door of Pax Tharkas ends the game with the scores and high scores.
+Dungeon monsters from the original placement table (zombies and wraiths in Sla-Mori, Aghar and Kapak, two dragons, and more).
+Item names fixed (ids start at 1); finds give experience.
+
+Quest map is now the original: the real terrain map, scrolling, with fire marks where the dragon armies are, and the armies advance over time (about once a minute).
+
+Panel redrawn to match the original: granite, framed compass cell with crossed swords, bar wells and portrait boxes; hit-point bar turns red when low.
+
+Settings menu (mouse or keyboard): original controls on/off, 16-colour graphics (256-colour placeholder).
+Scrolls use the original graphics; ten equal portrait slots like the original.
+Top-down figures and monsters turn to face the way they move.
+Side view: you start on the ground, monsters face you, stop at striking distance and no longer overlap.
+
+Compass shows which way the party faces (the red point).
+Doors in dungeons: closed and open versions in every view, Open and Shut in the menu; turn into a crossing passage from the dark middle of a cell.
+Outdoor side view: the party stands on the ground (bridges, hills, rivers), jumps climb up to three tiles.
+
+Dungeons are now the original's side view: columns, arches, walls and floor; walk along the passage and turn into crossing passages with up/down.
+In the wilderness combat view you also walk along one axis only; up/down turn to the other axis, keypad 7/9 (or Q/E) jump.
+Cleric spell list like the original (separate Cure light wounds, "--- used ---" section); scrolls have rollers and unroll.
+
+Take, Open, Use and Drop work: items on the ground (small squares) can be picked up from the menu, chests can be opened.
+Clerical and Magic user spell menus with the original's spell lists, charges and the hand mark for spent spells; healing and attack spells work.
+Panel: portraits and the two thin bars next to them now sit where the original has them.
+Esc opens the menu in combat.
+
+Items show as small squares in the wilderness; fixed guard monsters at known places start a fight when touched.
+
+Menu looks like the original (scroll, Hero select status screens, Xp list with the real monster names). 0 switches views again; Rest is in the menu.
+Walking onto Sla-Mori's entrance enters the cave (and back out); level changes follow the original's table.
+Real monster names, XP values, and the dog and goblin sprites that the DOS game shares.
+
+The map now matches the original: tiles were off by one (rocks, river and bushes were drawn wrong). The party starts where the original starts and is a small figure.
+Opening message on start; 0 rests; creatures start where the original puts them, and interiors have the original's monsters.
+Interior walls block as outdoors.
+
+Real monster rules: hit points, damage, to-hit and encounter sizes now come from the original game's tables.
+Creatures wander the wilderness; touching one starts a fight, and you return when it is won.
+Interiors: F1-F6 enter levels 2-7 (Sla-Mori, Pax Tharkas), F7 goes back outdoors.
+New sound effects (noise bursts) for hits.
+Menu on Enter: party, experience, rest, quest map and the game's texts.
+
+# Shown on the Exit page ("What's new"), newest first. One line each.
+2026-11-11: Combat! Press Tab or numpad 0 in the world to enter the combat view: enemies approach, hold Space (or numpad +) to attack, keys 1-8 choose the party leader, the panel shows each hero's health. The party's hit points come from the original game. Monster strength is estimated for now.
+2026-11-11: The title music plays (the original's PC speaker theme, looping) and a short effect when the party falls. V turns sound off and on.
+2026-11-11: F5 saves your game and F9 restores it (kept in this browser). The save holds the party's health, the leader, experience and position.
+2026-11-11: A banner appears when a newer version is online.
+2026-11-11: First online build. Title screen, walking the world map as Tanis, the hero panel, and a combat view (Tab or numpad 0) built from the original's terrain tables.

@@ -1,0 +1,187 @@
+{
+ "comment": "The 13 nomads who can join the party (hero records 10-22 at game.exe data 0x6048+36*i). Touching the NPC of type T joins hero T-20; a nomad takes a free slot or replaces another nomad (fn 60D0).",
+ "nomads": [
+  {
+   "index": 10,
+   "name": "Eben Shatterstone",
+   "hp": 28,
+   "abilities": [
+    14,
+    15,
+    7,
+    8,
+    13,
+    15,
+    4
+   ]
+  },
+  {
+   "index": 11,
+   "name": "Akar",
+   "hp": 29,
+   "abilities": [
+    13,
+    14,
+    15,
+    13,
+    15,
+    12,
+    6
+   ]
+  },
+  {
+   "index": 12,
+   "name": "Toragan",
+   "hp": 39,
+   "abilities": [
+    14,
+    12,
+    12,
+    16,
+    18,
+    11,
+    2
+   ]
+  },
+  {
+   "index": 13,
+   "name": "Valdor",
+   "hp": 27,
+   "abilities": [
+    12,
+    10,
+    9,
+    15,
+    10,
+    6,
+    6
+   ]
+  },
+  {
+   "index": 14,
+   "name": "Cedric",
+   "hp": 28,
+   "abilities": [
+    14,
+    13,
+    10,
+    15,
+    15,
+    11,
+    5
+   ]
+  },
+  {
+   "index": 15,
+   "name": "Hanal",
+   "hp": 21,
+   "abilities": [
+    10,
+    11,
+    13,
+    14,
+    11,
+    18,
+    7
+   ]
+  },
+  {
+   "index": 16,
+   "name": "Ash",
+   "hp": 19,
+   "abilities": [
+    14,
+    9,
+    16,
+    10,
+    10,
+    14,
+    7
+   ]
+  },
+  {
+   "index": 17,
+   "name": "Barac",
+   "hp": 26,
+   "abilities": [
+    11,
+    12,
+    11,
+    16,
+    11,
+    15,
+    6
+   ]
+  },
+  {
+   "index": 18,
+   "name": "Gerath",
+   "hp": 20,
+   "abilities": [
+    12,
+    10,
+    8,
+    13,
+    14,
+    8,
+    7
+   ]
+  },
+  {
+   "index": 19,
+   "name": "Camar",
+   "hp": 15,
+   "abilities": [
+    13,
+    8,
+    14,
+    12,
+    16,
+    11,
+    5
+   ]
+  },
+  {
+   "index": 20,
+   "name": "Garian",
+   "hp": 18,
+   "abilities": [
+    13,
+    15,
+    7,
+    9,
+    13,
+    12,
+    7
+   ]
+  },
+  {
+   "index": 21,
+   "name": "Issus",
+   "hp": 14,
+   "abilities": [
+    14,
+    11,
+    15,
+    10,
+    12,
+    13,
+    7
+   ]
+  },
+  {
+   "index": 22,
+   "name": "Rencel",
+   "hp": 10,
+   "abilities": [
+    10,
+    8,
+    9,
+    11,
+    15,
+    11,
+    6
+   ]
+  }
+ ]
+}

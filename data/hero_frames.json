@@ -1,0 +1,90 @@
+{
+ "comment": "Which frame of a hero's sprite sheet is which pose. 'default' was measured in the original (Caramon; Tanis, Goldmoon, Raistlin, Riverwind, Laurana, Flint and Tasslehoff have the same 34-frame layout): jump rising 18 / falling 19, crouch 9, hand to hand 11, ranged 15-16, high attack 12-13-14, low attack 28-29-30. Sturm and the nomads (28 frames) and Gilthanas (37) have their own layouts, read off their sheets (not measured in the original): check them one by one.",
+ "default": {
+  "jump": [
+   18,
+   19
+  ],
+  "crouch": 9,
+  "melee": 11,
+  "ranged": [
+   15,
+   16
+  ],
+  "high": [
+   12,
+   13,
+   14
+  ],
+  "low": [
+   28,
+   29,
+   30
+  ]
+ },
+ "sheets": {
+  "sturm": {
+   "jump": [
+    15,
+    16
+   ],
+   "crouch": 9,
+   "melee": 26,
+   "ranged": [
+    26
+   ],
+   "high": [
+    12,
+    13,
+    14
+   ],
+   "low": [
+    26,
+    25
+   ],
+   "guess": true,
+   "note": "low attack: the standing sword thrusts 26, 25 (frame 27 is a crouch behind the shield, it looked like a block)"
+  },
+  "nomad": {
+   "jump": [
+    15,
+    16
+   ],
+   "crouch": 9,
+   "melee": 26,
+   "ranged": [
+    26
+   ],
+   "high": [
+    12,
+    13,
+    14
+   ],
+   "low": [
+    26,
+    25
+   ],
+   "guess": true,
+   "note": "low attack: the standing sword thrusts 26, 25 (frame 27 is a crouch behind the shield, it looked like a block)"
+  },
+  "gilth": {
+   "jump": [
+    21,
+    22
+   ],
+   "crouch": 9,
+   "melee": 25,
+   "ranged": [
+    19,
+    20
+   ],
+   "high": [
+    17
+   ],
+   "low": [
+    33
+   ],
+   "guess": true
+  }
+ }
+}

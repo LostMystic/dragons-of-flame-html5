@@ -1,0 +1,489 @@
+{
+ "comment": "Points of interest (callbacks to the module DL2 Dragons of Flame). x, y are world pixels outdoors (snapped to the nearest walkable spot when loaded) or level pixels inside; level 1 = outdoors. 'heal' heals the party once, 'town' marks a town visit, 'guard' starts a fight against count creatures of that monster slot, items are item ids (names in item_names.json).",
+ "pois": [
+  {
+   "name": "Que Kiri",
+   "level": 1,
+   "x": 500,
+   "y": 500,
+   "text": "QUE KIRI. The town is a black ruin. Splintered timbers, scorched stones and a crossbeam where an old man lay pinned: 'What shall become of my garden?' Among the ash, a cellar door the fire missed holds a flask.",
+   "items": [
+    39
+   ],
+   "xp": 200,
+   "icon": "ruins"
+  },
+  {
+   "name": "Solace",
+   "level": 1,
+   "x": 880,
+   "y": 760,
+   "text": "SOLACE. The tree-city lies on the ground: vallenwoods hacked, burned, stumps and stakes in the square, a pole fence going up. Kapak patrols bully the widows. Half of the Inn of the Last Home still stands, open for business.\n\nINN OF THE LAST HOME: Otik's spiced potatoes still sizzle. Tika presses a heaping plate on the party: 'Eat! You look like a pack of starved rats.' (Everyone is healed.)\n\nTHE SMITHY: the great forge on the ground is the dragonmen's now, but old Hilda the washerwoman presses a bundle of herbs into your hand: 'Theros Ironfeld hid elves here until they took his arm. Take this; I would only lose it.'",
+   "items": [
+    39
+   ],
+   "heal": 1,
+   "xp": 500,
+   "town": true,
+   "icon": "town"
+  },
+  {
+   "name": "Mishakal's statue",
+   "level": 1,
+   "x": 700,
+   "y": 1000,
+   "text": "A weathered statue of a woman with a staff: Mishakal, goddess of healing. 'Your journey is not complete; you must leave here, must search for a true Leader of the People.' Goldmoon's medallion grows warm. (The party is healed.)",
+   "heal": 1,
+   "xp": 300,
+   "icon": "statue"
+  },
+  {
+   "name": "Burned farmhouse",
+   "level": 1,
+   "x": 350,
+   "y": 900,
+   "text": "A farmhouse gutted by fire, black scars stretching hundreds of yards across the plain, many clawed footprints around it. A child's wooden horse lies in the ashes. Nothing alive remains here.",
+   "items": [
+    16
+   ],
+   "icon": "ruins"
+  },
+  {
+   "name": "Dragonarmy camp",
+   "level": 1,
+   "x": 1600,
+   "y": 1000,
+   "text": "The remains of a draconian camp: trampled ground, wheel ruts of crude two-wheeled carts, stakes where prisoners were tied. Piles of grey dust are all that remain of a few Baaz who fell here. A scroll case has been left behind.",
+   "items": [
+    28
+   ],
+   "xp": 150,
+   "icon": "camp"
+  },
+  {
+   "name": "Haven",
+   "level": 1,
+   "x": 1936,
+   "y": 640,
+   "text": "HAVEN, behind its boulder wall. The town of the Seekers is quiet and frightened. Draconian banners hang from the Temple of the false gods, whose priest Elistan was taken to the mines of Pax Tharkas.\n\nTHE TEMPLE: a Seeker shows you the empty chair. 'Elistan taught us to doubt. He was marched south in chains with the other men. If anyone can heal what he believes, it is a true cleric.'\n\nTHE HERBALIST: she binds the party's wounds and gives you a vial. (Everyone is healed.)",
+   "items": [
+    51
+   ],
+   "heal": 1,
+   "xp": 500,
+   "town": true,
+   "icon": "village"
+  },
+  {
+   "name": "Fallen knight",
+   "level": 1,
+   "x": 1900,
+   "y": 900,
+   "text": "A skeleton in rusted plate armour lies with a cracked Solamnic shield, a rose crushed in its gauntlet. Sturm would know the oath: Est Sularus oth Mithas. Its longsword is still sound.",
+   "items": [
+    10
+   ],
+   "xp": 200,
+   "icon": "battle"
+  },
+  {
+   "name": "Dead kender",
+   "level": 1,
+   "x": 1100,
+   "y": 1250,
+   "text": "A kender lies in the grass, a pouch still clutched in his hand, curiosity the last thing he ever indulged. Tasslehoff would have found the pouch first.",
+   "items": [
+    39,
+    52
+   ],
+   "xp": 250,
+   "icon": "bones"
+  },
+  {
+   "name": "Gateway",
+   "level": 1,
+   "x": 1600,
+   "y": 1808,
+   "text": "GATEWAY. The town is dark and silent, shutters nailed, the dragonmen's work plain. They are rounding up what is left.\n\nTHE EMPTY INN: an old woman peers from a cellar. 'The caravan went south three days ago, wagons full of women and children. The one-eyed smith said the elves would not let it reach Pax Tharkas.'\n\nTHE ARMOURY OF THE GATE-WARDENS: a dwarf trader sells nothing but gives away what he cannot carry: a sheaf of arrows and a spare scroll of mending.",
+   "items": [
+    14,
+    21
+   ],
+   "heal": 1,
+   "xp": 500,
+   "town": true,
+   "icon": "village"
+  },
+  {
+   "name": "White-rage River bridge",
+   "level": 1,
+   "x": 1360,
+   "y": 1430,
+   "text": "The only bridge over the White-rage River. Hundreds of prints in the mud, elk droppings, the crush of heavy cage wheels: the slave caravan crossed here, heading south toward the high pass and Pax Tharkas.",
+   "items": [
+    14
+   ],
+   "icon": "bridge"
+  },
+  {
+   "name": "Caravan tracks",
+   "level": 1,
+   "x": 1180,
+   "y": 1900,
+   "text": "Deep wheel ruts, three wagons, elk. A broken cage lock lies in the road, smashed by something small and determined: a gully dwarf's battle axe, perhaps. Sestun's tin helmet rolls in the wind.",
+   "items": [
+    17
+   ],
+   "xp": 200,
+   "icon": "wagon"
+  },
+  {
+   "name": "Wrecked supply wagon",
+   "level": 1,
+   "x": 1250,
+   "y": 2100,
+   "text": "A goods wagon overturned in a ditch, wheels spinning, an elk dead in the traces. Crates of swords, shields and grain spill across the road, and a goblin's body.",
+   "items": [
+    4,
+    9
+   ],
+   "icon": "wagon"
+  },
+  {
+   "name": "Dragonarmy road",
+   "level": 1,
+   "x": 1500,
+   "y": 1300,
+   "text": "Bootprints, claw marks and ruts pound the road to a hard trench: thousands marched south to Pax Tharkas and then north again to invade Qualinesti. The air tastes of dust and sulphur.",
+   "xp": 100,
+   "icon": "marker"
+  },
+  {
+   "name": "Wyvern's roost",
+   "level": 1,
+   "x": 1500,
+   "y": 2000,
+   "text": "A scatter of bones, bits of elk hide and a great nest of torn sailcloth on a rock shelf: a wyvern lives here and carries off prey. Fewmaster Toede is rumoured to ride one.",
+   "items": [
+    39
+   ],
+   "xp": 300,
+   "icon": "cave",
+   "accent": 14
+  },
+  {
+   "name": "Ambush site",
+   "level": 1,
+   "x": 900,
+   "y": 2300,
+   "text": "A pine clearing churned to mud: hobgoblin and human bodies sprawl in the grass. A battered warrior rises from the pile and hails the party. He seems so well at the end of it that you wonder how much of it is staged. Eben takes the credit.",
+   "items": [
+    10
+   ],
+   "xp": 300,
+   "icon": "battle"
+  },
+  {
+   "name": "Elven ambush",
+   "level": 1,
+   "x": 800,
+   "y": 1700,
+   "text": "A sacred hush hangs in the pines. Arrows with grey fletching stand in the trunks, and bird-calls answer one another from the dark: elven scouts. A pouch of quith-pa, the dried fruit of the elves, hangs from a branch for travellers they approve of.",
+   "items": [
+    39,
+    14
+   ],
+   "heal": 1,
+   "xp": 250,
+   "icon": "battle"
+  },
+  {
+   "name": "Qualinesti border",
+   "level": 1,
+   "x": 420,
+   "y": 1750,
+   "text": "A line where pines give way to silver aspens, ivory in the light. A moss-covered stone says, in elvish: 'Beyond this the land is Qualinesti. The Speaker of Suns bids you walk gently.' Warriors in grey watch from the trees. (Everyone is healed.)",
+   "heal": 1,
+   "xp": 200,
+   "icon": "marker"
+  },
+  {
+   "name": "The Great Waterfall",
+   "level": 1,
+   "x": 250,
+   "y": 2000,
+   "text": "A roaring waterfall plunges from a mile-high cliff of dark granite. Behind the silver curtain a stair cut in the living rock climbs to the plateau of Qualinesti: the secret way to Qualinost. A satchel of elven healing herbs rests on a ledge.",
+   "items": [
+    51
+   ],
+   "xp": 400,
+   "icon": "falls"
+  },
+  {
+   "name": "Footbridge",
+   "level": 1,
+   "x": 600,
+   "y": 1900,
+   "text": "A narrow footbridge slung from sturdy aspens over a hundred-foot chasm; mist rises from the water far below. 'Qualinost is protected on all sides by such barriers,' Gilthanas said once. 'Yet I fear that even these will be of little aid against the dragonarmies.'",
+   "items": [
+    26
+   ],
+   "xp": 250,
+   "icon": "bridge"
+  },
+  {
+   "name": "Pax Tharkas, the west wall",
+   "level": 1,
+   "x": 400,
+   "y": 2790,
+   "text": "The towering Tharkadan wall: a single massive gate, thirty feet tall and twenty wide. Pennants of the Red Wing hang from both towers. Draconian troops march out in columns that raise a dust cloud: the army marches to Qualinesti today.",
+   "xp": 200,
+   "icon": "marker"
+  },
+  {
+   "name": "Kith-Kanan's marker",
+   "level": 1,
+   "x": 1200,
+   "y": 2600,
+   "text": "A weathered boundary stone carved with an elf and a dwarf holding a lute between them, the ancient symbol of peace in Krynn. 'In the Age of Dreams, Kith-Kanan and the Mountain Dwarves built Pax Tharkas here, a monument to peace.' Someone has chipped the lute away.",
+   "xp": 200,
+   "icon": "statue"
+  },
+  {
+   "name": "Tharkadan mines",
+   "level": 1,
+   "x": 900,
+   "y": 2950,
+   "text": "A scar on the mountainside, red with iron ore: hundreds of men with picks and shovels, a few dozen draconians who barely look up. From here you see the smelter's sulphurous smoke. The slaves would revolt if only their families were safe.",
+   "xp": 300,
+   "icon": "cave",
+   "accent": 7
+  },
+  {
+   "name": "Aghar camp",
+   "level": 1,
+   "x": 1000,
+   "y": 2850,
+   "text": "A ragged camp of gully dwarves in oversized tin helmets: Klahd Clan, servants of the draconians, who play a see-saw game with stones. They demand a toy, rope or food before they'll say anything. For a bit of rope they tell you a secret way and the way to the stone-drop. One hands you a rusty throwing axe.",
+   "items": [
+    17
+   ],
+   "xp": 250,
+   "icon": "camp"
+  },
+  {
+   "name": "Hidden valley",
+   "level": 1,
+   "x": 384,
+   "y": 2688,
+   "text": "A narrow vale climbs from the plain into the mountains east of the fortress, a clear brook splashing down it. 'This is the approach of the Sla-Mori, the hidden path,' Gilthanas said. 'The valley is sometimes not a safe place: there are trolls.' Birds fall silent as you enter.",
+   "xp": 150,
+   "icon": "marker"
+  },
+  {
+   "name": "Troll lair",
+   "level": 1,
+   "x": 256,
+   "y": 2432,
+   "text": "THE TROLLS' LAIR. A small cave, thirty feet wide, fifty deep: bones, rusty armour, a rusty key in the rubbish at the back wall, and three huge shapes rising from the dark: trolls! They bellow and charge.",
+   "items": [
+    72,
+    30,
+    30,
+    30
+   ],
+   "xp": 1500,
+   "guard": {
+    "slot": 10,
+    "count": 3
+   },
+   "icon": "cave",
+   "accent": 13
+  },
+  {
+   "name": "Seeker shrine",
+   "level": 1,
+   "x": 1800,
+   "y": 2000,
+   "text": "A crude shrine to the false gods, abandoned in a hurry: a cracked bowl, a silk banner, a hand-copied hymn. Its priests have fled to Haven. Someone has hidden a pouch of coins in the altar stone.",
+   "items": [
+    39
+   ],
+   "xp": 150,
+   "icon": "statue"
+  },
+  {
+   "name": "Refugee fire",
+   "level": 1,
+   "x": 1000,
+   "y": 1800,
+   "text": "A small cold fire in a hollow. Scratched on a rock: 'Go south, then west. Don't trust the road.' A child's mitten, a scrap of blue cloth. People passed here in a hurry; some were running toward Qualinesti.",
+   "xp": 100,
+   "icon": "camp"
+  },
+  {
+   "name": "Verminaard's study",
+   "level": 7,
+   "x": 320,
+   "y": 64,
+   "text": "VERMINAARD'S STUDY. A huge desk covered with maps of Ansalon, each showing the Dragonlords' conquests growing. On top: the map of Qualinesti, the peaceful forest pierced by three great daggers, two from the northeast and northwest and one straight from Pax Tharkas. A second sheet diagrams the chain and stone mechanism that seals the gate.\n\nIn the locked drawer, trapped with sleep gas that you take care to avoid, lie two scrolls: one with cure serious wounds, prayer and find traps, the other with light, augury and cure light wounds.",
+   "items": [
+    73,
+    74
+   ],
+   "xp": 800,
+   "icon": "none"
+  },
+  {
+   "name": "Goblin warren",
+   "level": 1,
+   "x": 1664,
+   "y": 1536,
+   "text": "THE GOBLIN WARREN. Smoke curls from a hole under an uprooted tree, and a stink of cheap ale and wet fur rolls out. Ten goblins burst from the burrow with a yell, jabbing short swords: this is where the Dragonlords' scavengers sleep.",
+   "items": [
+    39,
+    21
+   ],
+   "xp": 900,
+   "guard": [
+    {
+     "slot": 9,
+     "count": 10
+    }
+   ],
+   "icon": "cave",
+   "accent": 6
+  },
+  {
+   "name": "Raiders' camp",
+   "level": 1,
+   "x": 1152,
+   "y": 640,
+   "text": "A RAIDERS' CAMP among the burnt stumps: a hobgoblin sergeant, a few goblins and a pair of turncoat humans in stolen cloaks, drinking over the plunder of the plains. They snatch up their swords.",
+   "items": [
+    16,
+    28
+   ],
+   "xp": 1100,
+   "guard": [
+    {
+     "slot": 8,
+     "count": 3
+    },
+    {
+     "slot": 9,
+     "count": 3
+    },
+    {
+     "slot": 19,
+     "count": 2
+    }
+   ],
+   "icon": "camp",
+   "accent": 6
+  },
+  {
+   "name": "Wolf den",
+   "level": 1,
+   "x": 384,
+   "y": 1920,
+   "text": "THE WOLF DEN. Bones and shreds of hide litter a hollow in the roots of an ancient pine. Yellow eyes in the dark, and a low growl: the dire wolves that follow the dragonarmies for scraps are not going to let you pass.",
+   "items": [
+    51,
+    15
+   ],
+   "xp": 1200,
+   "guard": [
+    {
+     "slot": 6,
+     "count": 4
+    }
+   ],
+   "icon": "den",
+   "accent": 15
+  },
+  {
+   "name": "War dog kennels",
+   "level": 1,
+   "x": 1408,
+   "y": 2432,
+   "text": "THE KENNELS. A ring of crude stakes, chewed chains, a stink of rancid meat: draconian war dogs, abandoned when the army marched off, and savage with hunger. They hurl themselves at you.",
+   "items": [
+    26,
+    39
+   ],
+   "xp": 1100,
+   "guard": [
+    {
+     "slot": 5,
+     "count": 5
+    }
+   ],
+   "icon": "den",
+   "accent": 15
+  },
+  {
+   "name": "Stirge cave",
+   "level": 1,
+   "x": 2048,
+   "y": 640,
+   "text": "A SHALLOW CAVE in the mountainside, floored with droppings and bones. The ceiling stirs: stirges, disgusting flying things with needle-like beaks, drop on you in a shrieking cloud.",
+   "items": [
+    30,
+    30,
+    39
+   ],
+   "xp": 1000,
+   "guard": [
+    {
+     "slot": 17,
+     "count": 6
+    }
+   ],
+   "icon": "cave",
+   "accent": 2
+  },
+  {
+   "name": "Stirge roost",
+   "level": 1,
+   "x": 1536,
+   "y": 2560,
+   "text": "A ROOST under an overhanging cliff, black with dried droppings. A rustling comes from the rock above: more stirges, and the skeleton of a traveller who tried to sleep here.",
+   "items": [
+    22,
+    31
+   ],
+   "xp": 900,
+   "guard": [
+    {
+     "slot": 17,
+     "count": 5
+    }
+   ],
+   "icon": "cave",
+   "accent": 2
+  },
+  {
+   "name": "Aghar lair",
+   "level": 1,
+   "x": 128,
+   "y": 1408,
+   "text": "THE AGHAR LAIR, at the far end of the world. A tangle of thorn and boulders hides a tiny settlement of gully dwarves who have never seen a stranger and do not mean to start now. They wear dented tin helmets and brandish a collection of stolen things, among them a sword that burns with a small flame, and a bundle of scrolls they cannot read. 'Dis OURS!'",
+   "items": [
+    70,
+    25,
+    25,
+    25
+   ],
+   "xp": 1500,
+   "guard": [
+    {
+     "slot": 18,
+     "count": 8
+    }
+   ],
+   "icon": "cave",
+   "accent": 12
+  }
+ ]
+}

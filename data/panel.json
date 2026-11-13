@@ -1,0 +1,70 @@
+{
+ "comment": "Approximate positions from a screenshot of the original (portrait columns x 62,115,171,227,283; rows at panel y 2 and 36). Clip numbers: 2 Goldmoon, 3 Sturm, 4 Caramon, 5 Raistlin, 6 Tanis, 7 Tassle, 8 Riverwind, 9 Flint, 10 Gilthanas, 11 Laurana; 12-15 compass frames. Pixel offsets to be confirmed in stage 4. Corrected from the original running in the browser: portraits at x 64,120,176,232,288; two thin bars (3 px) left of each portrait, green = hit points, yellow = a second value (unknown; the start fractions in bar2 were measured from the original). Slots (10, all identical): portraits 32x32 at x 64+56*column, panel y 3 and 38, measured by matching the portrait clips against a screenshot of the original; bars at x-15 and x-11, 3 px wide, 31 high.",
+ "slots": [
+  {
+   "x": 64,
+   "y": 3,
+   "clip": 0
+  },
+  {
+   "x": 120,
+   "y": 3,
+   "clip": 0
+  },
+  {
+   "x": 176,
+   "y": 3,
+   "clip": 0
+  },
+  {
+   "x": 232,
+   "y": 3,
+   "clip": 0
+  },
+  {
+   "x": 288,
+   "y": 3,
+   "clip": 0
+  },
+  {
+   "x": 64,
+   "y": 38,
+   "clip": 0
+  },
+  {
+   "x": 120,
+   "y": 38,
+   "clip": 0
+  },
+  {
+   "x": 176,
+   "y": 38,
+   "clip": 0
+  },
+  {
+   "x": 232,
+   "y": 38,
+   "clip": 0
+  },
+  {
+   "x": 288,
+   "y": 38,
+   "clip": 0
+  }
+ ],
+ "compass": {
+  "x": 0,
+  "y": 7,
+  "clip": 12
+ },
+ "bar2": [
+  0.9,
+  0.84,
+  0.63,
+  0.53,
+  0.63,
+  0.73,
+  0.66,
+  0.96
+ ]
+}

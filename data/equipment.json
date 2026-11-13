@@ -1,0 +1,166 @@
+{
+ "comment": "Hero weapons and to-hit (THAC0), from the manual's AD&D statistics (equipment, damage) plus educated guesses where it is silent (marked guess). dice x d(sides) + bonus; the strength damage bonus is added in the engine. Names in the status screen: \"Using Range: ... Hand: ...\". 'ammo' = shots each hero starts with for the ranged weapon (arrows, bullets, spears, throwing axes; guess: the manual says arrows must be readied with Use).",
+ "heroes": {
+  "Goldmoon": {
+   "thac0": 18,
+   "hand": [
+    "Quarterstaff +2",
+    1,
+    6,
+    2
+   ],
+   "range": null
+  },
+  "Sturm": {
+   "thac0": 14,
+   "hand": [
+    "2-Handed sword +3",
+    1,
+    10,
+    3
+   ],
+   "range": null
+  },
+  "Caramon": {
+   "thac0": 14,
+   "hand": [
+    "Longsword",
+    1,
+    8,
+    0
+   ],
+   "range": [
+    "Spear",
+    1,
+    6,
+    0
+   ],
+   "ammo": 1
+  },
+  "Raistlin": {
+   "thac0": 19,
+   "hand": [
+    "Staff of Magius",
+    1,
+    8,
+    0
+   ],
+   "range": null,
+   "to_hit": 2
+  },
+  "Tanis": {
+   "thac0": 15,
+   "hand": [
+    "Longsword +2",
+    1,
+    8,
+    2
+   ],
+   "range": [
+    "Bow",
+    1,
+    6,
+    0
+   ],
+   "ammo": 20
+  },
+  "Tasslehoff": {
+   "thac0": 17,
+   "hand": [
+    "Hoopak +2",
+    1,
+    6,
+    2
+   ],
+   "range": [
+    "Sling +1",
+    1,
+    6,
+    1
+   ],
+   "ammo": 20
+  },
+  "Riverwind": {
+   "thac0": 15,
+   "hand": [
+    "Longsword +2",
+    1,
+    8,
+    2
+   ],
+   "range": [
+    "Bow",
+    1,
+    6,
+    0
+   ],
+   "ammo": 20
+  },
+  "Flint": {
+   "thac0": 14,
+   "hand": [
+    "Battle Axe +1",
+    1,
+    8,
+    1
+   ],
+   "range": [
+    "Throwing Axe",
+    1,
+    6,
+    0
+   ],
+   "ammo": 2
+  },
+  "Gilthanas": {
+   "thac0": 17,
+   "hand": [
+    "Longsword",
+    1,
+    8,
+    0
+   ],
+   "range": [
+    "Bow",
+    1,
+    6,
+    0
+   ],
+   "ammo": 20
+  },
+  "Princess Laurana": {
+   "thac0": 17,
+   "hand": [
+    "Longsword",
+    1,
+    8,
+    0
+   ],
+   "range": [
+    "Bow",
+    1,
+    6,
+    0
+   ],
+   "ammo": 20
+  },
+  "nomad": {
+   "thac0": 17,
+   "hand": [
+    "Longsword",
+    1,
+    8,
+    0
+   ],
+   "range": null
+  }
+ },
+ "wyrmslayer": {
+  "name": "Wyrmslayer",
+  "dice": 1,
+  "sides": 10,
+  "bonus": 5,
+  "double_vs": "Dragon",
+  "guess": true
+ }
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Dragons of Flame</title>
+<!-- Where the main menu's Exit leads: the game isn't running here (no sound, nothing in the
+     background). It compares the version kept in this browser with the server's, can download a
+     new one (only the packs that changed, see packs.js) and starts the game again. -->
+<style>
+  :root { --bg: #0b0906; --panel: #15110b; --fg: #e8dcc0; --gold: #d8b048; --dim: #8a8070; --ok: #8fd07a; --line: #d8b04855; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg); font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 48px 16px; }
+  h1 { color: var(--gold); font-weight: normal; letter-spacing: .08em; font-size: 2rem; margin: 0 0 4px; text-align: center; }
+  .sub { color: var(--dim); text-align: center; margin: 0 0 28px; }
+  .card { background: var(--panel); border: 1px solid var(--line); padding: 16px 18px; margin: 0 0 16px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+  .row span:first-child { color: var(--dim); }
+  #state { margin: 10px 0 0; }
+  #state.new { color: var(--gold); }
+  #state.ok { color: var(--ok); }
+  #bar { height: 8px; border: 1px solid var(--gold); margin: 12px 0 4px; }
+  #bar div { height: 100%; width: 0; background: var(--gold); transition: width .15s; }
+  #notes { margin: 6px 0 0; padding-left: 18px; color: var(--fg); }
+  #notes li { margin: 2px 0; }
+  h2 { font-weight: normal; color: var(--gold); font-size: 1rem; margin: 0 0 4px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+  button { font: inherit; padding: 10px 22px; cursor: pointer; border: 1px solid var(--gold); background: transparent; color: var(--fg); }
+  button.main { background: var(--gold); color: #000; }
+  button:disabled { opacity: .45; cursor: default; }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>DRAGONS OF FLAME</h1>
+  <p class="sub">The game is closed. Your saves are kept in this browser.</p>
+  <div class="card">
+    <div class="row"><span>On this computer</span><span id="have">…</span></div>
+    <div class="row"><span>On the server</span><span id="server">checking…</span></div>
+    <p id="state"></p>
+    <div id="bar" hidden><div></div></div>
+    <p id="progress" class="sub" style="margin:0;text-align:left" hidden></p>
+  </div>
+  <div class="card" id="whatsnew" hidden>
+    <h2>What's new</h2>
+    <ul id="notes"></ul>
+  </div>
+  <div class="buttons">
+    <button id="update" class="main" hidden>Update now</button>
+    <button id="start">Start the game</button>
+    <button id="check">Check again</button>
+  </div>
+</main>
+<script src="packs.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  let server = null;
+  const label = v => v ? v.version + (v.built ? ' (' + v.built + ')' : '') : 'none yet';
+
+  async function check() {
+    $('state').className = '';
+    $('state').textContent = '';
+    $('server').textContent = 'checking…';
+    $('have').textContent = label(DofPacks.installed());
+    try {
+      server = await DofPacks.manifest();
+    } catch (e) {
+      $('server').textContent = 'not reachable';
+      $('state').textContent = 'Could not reach the server. Check your connection and try again.';
+      return;
+    }
+    $('server').textContent = label(server);
+    if (server.notes && server.notes.length) {
+      $('notes').replaceChildren(...server.notes.map(n => Object.assign(document.createElement('li'), { textContent: n })));
+      $('whatsnew').hidden = false;
+    }
+    const need = await DofPacks.missing(server);
+    const mb = need.reduce((a, p) => a + p.size, 0) / 1048576;
+    const have = DofPacks.installed();
+    if (!need.length && have && have.version === server.version) {
+      $('state').className = 'ok';
+      $('state').textContent = 'You have the latest version.';
+      $('update').hidden = true;
+      $('start').classList.add('main');
+    } else if (!need.length) {
+      $('state').className = 'ok';
+      $('state').textContent = 'The newest version is downloaded. Start the game to play it.';
+      $('update').hidden = true;
+      $('start').classList.add('main');
+    } else {
+      $('state').className = 'new';
+      $('state').textContent = 'A new version is available: ' + mb.toFixed(1) + ' MB to download (only what changed).';
+      $('update').hidden = false;
+      $('start').classList.remove('main');
+    }
+  }
+
+  $('update').onclick = async () => {
+    if (!server) return;
+    $('update').disabled = $('check').disabled = true;
+    $('bar').hidden = $('progress').hidden = false;
+    try {
+      await DofPacks.fetch_all(server, (done, total) => {
+        $('bar').firstElementChild.style.width = (100 * done / Math.max(1, total)) + '%';
+        $('progress').textContent = (done / 1048576).toFixed(1) + ' of ' + (total / 1048576).toFixed(1) + ' MB';
+      });
+      DofPacks.set_installed(server);
+      DofPacks.prune(server);
+      $('progress').textContent = 'Done.';
+      await check();
+    } catch (e) {
+      $('state').className = '';
+      $('state').textContent = 'The download stopped (' + e.message + '). Try again.';
+    }
+    $('update').disabled = $('check').disabled = false;
+  };
+  $('start').onclick = () => { location.href = './'; };
+  $('check').onclick = check;
+  check();
+</script>
+</body>
+</html>

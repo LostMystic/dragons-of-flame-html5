@@ -1,0 +1,608 @@
+{
+ "comment": "hp_dice/hp_bonus, dmg_sides/dmg_bonus, to_hit, flags are the original table at game.exe data 0x2986 (7 bytes per type, type = slot, msvA=2). hp (average) is only for display; speed and frame lists are still estimates. Monster hit points = hp_dice x d6 + hp_bonus (0 dice = d4 dice); damage = d(dmg_sides)-1 + dmg_bonus; a hit needs d20 >= armor_table[hero armor] + to_hit - 1.",
+ "types": {
+  "msva": {
+   "hp": 7,
+   "damage": [
+    1,
+    3
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 2,
+   "hp_dice": 2,
+   "hp_bonus": 0,
+   "dmg_sides": 8,
+   "dmg_bonus": 1,
+   "field4": 4,
+   "flags": 5,
+   "to_hit": 3,
+   "name": "Baaz",
+   "xp": 90,
+   "sprite": "msva"
+  },
+  "msvb": {
+   "hp": 14,
+   "damage": [
+    1,
+    4
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 3,
+   "hp_dice": 4,
+   "hp_bonus": 0,
+   "dmg_sides": 4,
+   "dmg_bonus": 1,
+   "field4": 2,
+   "flags": 5,
+   "to_hit": 4,
+   "name": "Bozak",
+   "xp": 250,
+   "sprite": "msvb"
+  },
+  "msvc": {
+   "hp": 10,
+   "damage": [
+    1,
+    5
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 4,
+   "hp_dice": 3,
+   "hp_bonus": 0,
+   "dmg_sides": 6,
+   "dmg_bonus": 1,
+   "field4": 4,
+   "flags": 5,
+   "to_hit": 3,
+   "name": "Kapak",
+   "xp": 120,
+   "sprite": "msvc"
+  },
+  "msvf": {
+   "hp": 4,
+   "damage": [
+    1,
+    6
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    0,
+    5,
+    0,
+    5
+   ],
+   "slot": 7,
+   "hp_dice": 1,
+   "hp_bonus": 1,
+   "dmg_sides": 4,
+   "dmg_bonus": 1,
+   "field4": 7,
+   "flags": 0,
+   "to_hit": 1,
+   "name": "Wild Dog",
+   "xp": 35,
+   "sprite": "msvf",
+   "wide": 6
+  },
+  "msvh": {
+   "hp": 2,
+   "damage": [
+    1,
+    3
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 9,
+   "hp_dice": 1,
+   "hp_bonus": -1,
+   "dmg_sides": 6,
+   "dmg_bonus": 1,
+   "field4": 6,
+   "flags": 1,
+   "to_hit": 0,
+   "name": "Goblin",
+   "xp": 15,
+   "sprite": "msvh"
+  },
+  "msvi": {
+   "hp": 27,
+   "damage": [
+    1,
+    4
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 10,
+   "hp_dice": 6,
+   "hp_bonus": 6,
+   "dmg_sides": 3,
+   "dmg_bonus": 3,
+   "field4": 4,
+   "flags": 3,
+   "to_hit": 6,
+   "death_frames": [8, 9, 10, 11],
+   "name": "Troll",
+   "xp": 790,
+   "sprite": "msvi"
+  },
+  "msvj": {
+   "hp": 24,
+   "damage": [
+    1,
+    5
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    0,
+    5,
+    0,
+    5
+   ],
+   "slot": 11,
+   "hp_dice": 7,
+   "hp_bonus": 0,
+   "dmg_sides": 14,
+   "dmg_bonus": 3,
+   "field4": 3,
+   "flags": 2,
+   "to_hit": 6,
+   "name": "Griffon",
+   "xp": 695,
+   "sprite": "msvj",
+   "wide": 6
+  },
+  "msvk": {
+   "hp": 7,
+   "damage": [
+    1,
+    6
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 12,
+   "hp_dice": 2,
+   "hp_bonus": 0,
+   "dmg_sides": 8,
+   "dmg_bonus": 1,
+   "field4": 8,
+   "flags": 1,
+   "to_hit": 3,
+   "name": "Zombie",
+   "xp": 40,
+   "sprite": "msvk"
+  },
+  "msvl": {
+   "hp": 17,
+   "damage": [
+    1,
+    3
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 13,
+   "hp_dice": 4,
+   "hp_bonus": 3,
+   "dmg_sides": 4,
+   "dmg_bonus": 1,
+   "field4": 5,
+   "flags": 1,
+   "to_hit": 4,
+   "name": "Wight",
+   "xp": 645,
+   "sprite": "msvl"
+  },
+  "msvm": {
+   "hp": 20,
+   "damage": [
+    1,
+    4
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 14,
+   "hp_dice": 5,
+   "hp_bonus": 3,
+   "dmg_sides": 6,
+   "dmg_bonus": 1,
+   "field4": 4,
+   "flags": 1,
+   "to_hit": 4,
+   "name": "Wraith",
+   "xp": 730,
+   "sprite": "msvm"
+  },
+  "msvn": {
+   "hp": 77,
+   "damage": [
+    1,
+    5
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    3,
+    0,
+    1,
+    2
+   ],
+   "slot": 15,
+   "hp_dice": 1,
+   "hp_bonus": 74,
+   "dmg_sides": 36,
+   "dmg_bonus": 5,
+   "field4": 2,
+   "flags": 2,
+   "to_hit": 6,
+   "name": "Dragon",
+   "xp": 7760,
+   "sprite": "msvn"
+  },
+  "msvo": {
+   "hp": 14,
+   "damage": [
+    1,
+    6
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 16,
+   "hp_dice": 4,
+   "hp_bonus": 0,
+   "dmg_sides": 6,
+   "dmg_bonus": 3,
+   "field4": 4,
+   "flags": 0,
+   "to_hit": 4,
+   "name": "Giant Wasp",
+   "xp": 395,
+   "sprite": "msvo"
+  },
+  "msvp": {
+   "hp": 4,
+   "damage": [
+    1,
+    3
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    0,
+    4
+   ],
+   "slot": 17,
+   "hp_dice": 1,
+   "hp_bonus": 1,
+   "dmg_sides": 3,
+   "dmg_bonus": 1,
+   "field4": 8,
+   "flags": 0,
+   "to_hit": 1,
+   "name": "Stirge",
+   "xp": 50,
+   "sprite": "msvp"
+  },
+  "msvq": {
+   "hp": 6,
+   "damage": [
+    1,
+    4
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 18,
+   "hp_dice": 0,
+   "hp_bonus": 0,
+   "dmg_sides": 4,
+   "dmg_bonus": 1,
+   "field4": 8,
+   "flags": 0,
+   "to_hit": 3,
+   "name": "Aghar",
+   "xp": 60,
+   "sprite": "msvq"
+  },
+  "msvr": {
+   "hp": 3,
+   "damage": [
+    1,
+    5
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 19,
+   "hp_dice": 1,
+   "hp_bonus": 0,
+   "dmg_sides": 8,
+   "dmg_bonus": 1,
+   "field4": 9,
+   "flags": 0,
+   "to_hit": 0,
+   "name": "Man",
+   "xp": 20,
+   "sprite": "msvr"
+  },
+  "msvd": {
+   "hp": 4,
+   "damage": [
+    1,
+    6
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    0,
+    5,
+    0,
+    5
+   ],
+   "slot": 5,
+   "hp_dice": 2,
+   "hp_bonus": 2,
+   "dmg_sides": 6,
+   "dmg_bonus": 3,
+   "field4": 6,
+   "flags": 0,
+   "to_hit": 3,
+   "name": "War Dog",
+   "xp": 70,
+   "sprite": "msvf",
+   "wide": 6
+  },
+  "msve": {
+   "hp": 4,
+   "damage": [
+    1,
+    6
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    0,
+    5,
+    0,
+    5
+   ],
+   "slot": 6,
+   "hp_dice": 3,
+   "hp_bonus": 3,
+   "dmg_sides": 6,
+   "dmg_bonus": 3,
+   "field4": 6,
+   "flags": 1,
+   "to_hit": 3,
+   "name": "Dire Wolf",
+   "xp": 130,
+   "sprite": "msvf",
+   "wide": 6
+  },
+  "msvg": {
+   "hp": 2,
+   "damage": [
+    1,
+    3
+   ],
+   "speed": 4,
+   "reach": 32,
+   "walk_frames": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "attack_frames": [
+    5,
+    3,
+    4
+   ],
+   "slot": 8,
+   "hp_dice": 1,
+   "hp_bonus": 1,
+   "dmg_sides": 8,
+   "dmg_bonus": 1,
+   "field4": 5,
+   "flags": 1,
+   "to_hit": 1,
+   "name": "Hobgoblin",
+   "xp": 30,
+   "sprite": "msvh"
+  }
+ },
+ "armor_table": [
+  19,
+  18,
+  17,
+  16,
+  15,
+  14,
+  13,
+  12,
+  11,
+  10,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2,
+  1,
+  0,
+  -1,
+  -2,
+  -3
+ ],
+ "encounter_pool_slots": [2, 3, 4, 5, 7, 8, 9, 12, 12, 12, 2, 16, 19, 2, 4, 8, 9, 17, 17, 17, 12, 12, 7, 5, 3, 17, 12, 19, 2, 9, 4, 12, 8, 10, 12],
+ "encounter_pool_comment": "Overland encounters (user request): no Wights (Zombies, slot 12, are very common instead; Wights are for the dungeons), Stirges (slot 17) are common, the Troll (slot 10) is rare outdoors, Griffons (slot 11) are added by code near the fortress and in the mountains (Game::overland_type). A creature appears as often as its slot is listed. The dungeons use data/level_creatures.json, which keeps Wights, Trolls and Stirges.",
+ "kind_to_slot_comment": "wilderness creature kind -> combat type is table 0x1ddc: [0, 0, 28, 31, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 2, 2, 0, 1, 2, 3, 4, 9]",
+ "sprite_note": "Slots 5, 6 and 8 (msvD, msvE, msvG) have no file in the DOS game: the loader (game.exe 402D) leaves the slot pointing at the next file loaded, so War Dog, Dire Wolf and Wild Dog all share msvf, and Hobgoblin/Goblin share msvh. Names and XP are from the cluebook (Appendix B); the HD/AC/damage columns there match the table at 0x2986.",
+ "wide_comment": "wide: the creature is drawn from pairs of 32-px frames side by side (body, head): frames 2k and 2k+1 make 64-px frame k; 6 such frames, the 5 small front views after them are dropped (msvf wolves and dogs, msvj griffon).",
+ "attack_comment": "attack_frames measured in the original (captured the monster striking and matched it against the sheet): standard 32-px monsters strike with frames 5, 3, 4 in turn; the wolves and the griffon (wide) alternate 5 and 0; the dragon (head only) cycles 3, 0, 1, 2; the stirge 5, 0, 4. Each phase is held about four logic steps."
+}

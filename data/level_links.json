@@ -1,0 +1,125 @@
+{
+ "comment": "Level changes from game.exe data 0x287A (fn 3CBE). The trigger rectangle is the party position (x8 outdoors, level pixels inside); mode 3 = interior, destination in CELLS (x128+64 px); mode 2 = wilderness, destination in world pixels. Levels: 1 outdoors, 2 Sla-Mori, 3 Pax Tharkas, 4 and up as in the level table.",
+ "links": [
+  {
+   "from": 1,
+   "flags": 0,
+   "to": 2,
+   "mode": 3,
+   "x1": 4992,
+   "y1": 21504,
+   "x2": 5120,
+   "y2": 21632,
+   "dest_x": 39,
+   "dest_y": 1
+  },
+  {
+   "from": 2,
+   "flags": 0,
+   "to": 1,
+   "mode": 2,
+   "x1": 4992,
+   "y1": 1,
+   "x2": 5120,
+   "y2": 128,
+   "dest_x": 656,
+   "dest_y": 2688
+  },
+  {
+   "from": 2,
+   "flags": 0,
+   "to": 3,
+   "mode": 3,
+   "x1": 1,
+   "y1": 3200,
+   "x2": 128,
+   "y2": 3328,
+   "dest_x": 30,
+   "dest_y": 9
+  },
+  {
+   "from": 3,
+   "flags": 0,
+   "to": 2,
+   "mode": 3,
+   "x1": 3968,
+   "y1": 1152,
+   "x2": 4096,
+   "y2": 1280,
+   "dest_x": 1,
+   "dest_y": 25
+  },
+  {
+   "from": 3,
+   "flags": 1,
+   "to": 4,
+   "mode": 3,
+   "x1": 384,
+   "y1": 1280,
+   "x2": 512,
+   "y2": 1408,
+   "dest_x": 6,
+   "dest_y": 11
+  },
+  {
+   "from": 4,
+   "flags": 1,
+   "to": 3,
+   "mode": 3,
+   "x1": 768,
+   "y1": 1280,
+   "x2": 896,
+   "y2": 1408,
+   "dest_x": 3,
+   "dest_y": 9
+  },
+  {
+   "from": 4,
+   "flags": 1,
+   "to": 7,
+   "mode": 3,
+   "x1": 2688,
+   "y1": 896,
+   "x2": 2816,
+   "y2": 1024,
+   "dest_x": 20,
+   "dest_y": 13
+  },
+  {
+   "from": 7,
+   "flags": 1,
+   "to": 4,
+   "mode": 3,
+   "x1": 2560,
+   "y1": 1536,
+   "x2": 2688,
+   "y2": 1664,
+   "dest_x": 21,
+   "dest_y": 6
+  },
+  {
+   "from": 4,
+   "flags": 0,
+   "to": 6,
+   "mode": 3,
+   "x1": 1,
+   "y1": 1920,
+   "x2": 128,
+   "y2": 2048,
+   "dest_x": 27,
+   "dest_y": 13
+  },
+  {
+   "from": 6,
+   "flags": 0,
+   "to": 4,
+   "mode": 3,
+   "x1": 3584,
+   "y1": 1664,
+   "x2": 3712,
+   "y2": 1792,
+   "dest_x": 1,
+   "dest_y": 15
+  }
+ ]
+}

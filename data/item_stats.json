@@ -1,0 +1,251 @@
+{
+ "comment": "Updated controls: a shared pack. Picking an item up hands it straight to the hero who gains most from it (slot hand = melee weapon, range = ranged weapon, ammo = arrows or bullets for a ranged weapon, ring = protection for the worst-protected hero without one); what a hero puts down is offered to the others the same way. 'heroes' are name prefixes (nomad = any nomad). Items not listed stay in the shared pack. Edit freely.",
+ "items": {
+  "4": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana",
+    "nomad"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 0
+  },
+  "10": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana",
+    "nomad"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 1
+  },
+  "12": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana",
+    "nomad"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 2
+  },
+  "5": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana",
+    "nomad"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 2,
+   "guess": true,
+   "note": "a broadsword +2 (cluebook: worth 800 XP); damage assumed like a longsword +2"
+  },
+  "8": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind"
+   ],
+   "dice": 1,
+   "sides": 10,
+   "bonus": 3,
+   "note": "a two-handed sword: the strong fighters only (guess)"
+  },
+  "11": {
+   "slot": "hand",
+   "heroes": [
+    "Flint"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 1,
+   "note": "cluebook: Flint is the only character who uses axes"
+  },
+  "18": {
+   "slot": "hand",
+   "heroes": [
+    "Flint"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 3
+  },
+  "13": {
+   "slot": "hand",
+   "heroes": [
+    "Goldmoon"
+   ],
+   "dice": 1,
+   "sides": 6,
+   "bonus": 2
+  },
+  "7": {
+   "slot": "hand",
+   "heroes": [
+    "Tasslehoff"
+   ],
+   "dice": 1,
+   "sides": 6,
+   "bonus": 2,
+   "note": "cluebook: only Tasslehoff can use the hoopak and its sling"
+  },
+  "3": {
+   "slot": "range",
+   "heroes": [
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana"
+   ],
+   "dice": 1,
+   "sides": 6,
+   "bonus": 0
+  },
+  "9": {
+   "slot": "ammo",
+   "heroes": [
+    "Caramon"
+   ],
+   "shots": 1,
+   "bonus": 0,
+   "note": "a spear: Caramon throws it (one shot each); cluebook: Caramon is the only character who can use spears"
+  },
+  "17": {
+   "slot": "ammo",
+   "heroes": [
+    "Flint"
+   ],
+   "shots": 1,
+   "bonus": 0,
+   "note": "a throwing axe: Flint throws it (one shot each)"
+  },
+  "6": {
+   "slot": "range",
+   "heroes": [
+    "Tasslehoff"
+   ],
+   "dice": 1,
+   "sides": 6,
+   "bonus": 1
+  },
+  "14": {
+   "slot": "ammo",
+   "heroes": [
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana"
+   ],
+   "shots": 20,
+   "bonus": 0,
+   "note": "cluebook: a quiver of arrows holds 20 shots"
+  },
+  "15": {
+   "slot": "ammo",
+   "heroes": [
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana"
+   ],
+   "shots": 10,
+   "bonus": 2,
+   "note": "a quiver of arrows +2 holds 10 shots"
+  },
+  "16": {
+   "slot": "ammo",
+   "heroes": [
+    "Tasslehoff"
+   ],
+   "shots": 20,
+   "bonus": 1,
+   "note": "the pouch of bullets +1 for the sling"
+  },
+  "52": {
+   "slot": "ring",
+   "bonus": 1,
+   "note": "cluebook: once a character has used a Ring of Protection he will not give it up"
+  },
+  "53": {
+   "slot": "ring",
+   "bonus": 2
+  },
+  "54": {
+   "slot": "ring",
+   "bonus": 3,
+   "note": "Braces of defence AC2 (assumed to help a little more than the rings)"
+  },
+  "19": {
+   "slot": "hand",
+   "heroes": [
+    "Caramon",
+    "Sturm"
+   ],
+   "dice": 1,
+   "sides": 10,
+   "bonus": 3,
+   "note": "Wyrmslayer: a +3 sword (+3 to hit and +3 damage), double damage against dragons. Caramon takes it first, otherwise Sturm; see Game::auto_equip."
+  },
+  "70": {
+   "slot": "hand",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Tanis",
+    "Riverwind",
+    "Gilthanas",
+    "Princess Laurana",
+    "nomad"
+   ],
+   "dice": 1,
+   "sides": 8,
+   "bonus": 1,
+   "note": "Flame Tongue: a longsword +1, +4 against trolls, and a troll it kills is burned: it does not get up again (see Game::step_combat)"
+  },
+  "71": {
+   "slot": "armor",
+   "heroes": [
+    "Caramon",
+    "Sturm"
+   ],
+   "bonus": 3,
+   "note": "Plate armor: armor class 3 (only Caramon and Sturm can wear it); bonus is the armor class it gives"
+  },
+  "72": {
+   "slot": "shield",
+   "heroes": [
+    "Sturm",
+    "Caramon",
+    "Riverwind",
+    "Tanis"
+   ],
+   "bonus": 1,
+   "note": "Shield +1 (the trolls' lair): improves the armor class by 1; only the fighters Sturm, Caramon, Riverwind and Tanis carry it"
+  }
+ }
+}

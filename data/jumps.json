@@ -1,0 +1,46 @@
+{
+ "comment": "Jumps with the updated controls. 'default' is the arc measured in the original (tools/emu, hero leader slots 0-9 all gave the same): 14 ticks of 8 px = 112 px, ground height per tick below. 'speed' is the sideways speed of the jump as a multiple of the hero's walking speed (1.0 = exactly as fast as walking; the original's jump also moves at its walking pace, 8 px per tick). Per-hero entries override single fields; entries marked guess are not measured. 'climb' is the highest ledge in px the hero can jump up onto (the original's jump can climb three tiles = 48); walking never climbs a ledge in the updated controls. A jump with no landing place hops on the spot.",
+ "default": {
+  "distance": 112,
+  "height_scale": 1.0,
+  "profile": [
+   0,
+   6,
+   11,
+   15,
+   17,
+   18,
+   17,
+   16,
+   15,
+   14,
+   13,
+   11,
+   7,
+   2,
+   0
+  ],
+  "climb": 48,
+  "speed": 1.0
+ },
+ "heroes": {
+  "Tasslehoff": {
+   "distance": 72,
+   "height_scale": 0.8,
+   "guess": true,
+   "note": "cluebook: Tasselhoff is too small to successfully jump rivers",
+   "climb": 16
+  },
+  "Flint": {
+   "climb": 32,
+   "distance": 96,
+   "guess": true,
+   "note": "a dwarf: shorter reach (guess)"
+  },
+  "Raistlin": {
+   "climb": 32,
+   "guess": true,
+   "note": "frail (guess)"
+  }
+ }
+}

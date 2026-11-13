@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Dragons of Flame</title>
+<!-- The page around the WebAssembly build: a canvas filling the window, a loading bar, a
+     "click to play" gate (browsers only allow sound after a click or key press), and user/ kept
+     in IndexedDB so saves, armies and settings survive a reload. The game's files come in packs
+     kept in the browser (packs.js): only new or changed ones are downloaded, the soundfont after
+     the game has started. Every few minutes the page looks for a newer version on the server. -->
+<style>
+  :root { --bg: #000; --fg: #e8dcc0; --gold: #d8b048; --dim: #8a8070; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden;
+    font: 16px/1.4 Georgia, "Times New Roman", serif; }
+  #canvas { display: block; width: 100vw; height: 100vh; outline: none; cursor: none; }
+  #gate { position: fixed; inset: 0; display: grid; place-items: center; background: #000c; text-align: center; }
+  #gate h1 { color: var(--gold); font-size: 2.2rem; letter-spacing: .08em; margin: 0 0 12px; font-weight: normal; }
+  #gate p { margin: 6px 0; color: var(--dim); }
+  #status { white-space: pre-line; min-height: 2.8em; }
+  #bar { width: min(420px, 80vw); height: 10px; border: 1px solid var(--gold); margin: 18px auto 8px; }
+  #bar div { height: 100%; width: 0; background: var(--gold); transition: width .2s; }
+  #play { display: none; font: inherit; font-size: 1.2rem; color: #000; background: var(--gold); border: 0;
+    padding: 10px 28px; margin-top: 14px; cursor: pointer; }
+  #gate.ready #play { display: inline-block; }
+  #gate.ready #bar { display: none; }
+  #err { color: #e87060; white-space: pre-wrap; max-width: 80vw; }
+
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<div id="update" hidden style="position:fixed;left:0;right:0;top:0;padding:8px;text-align:center;background:#d8b048;color:#000;z-index:9">A new version is available. <a href="." style="color:#000;font-weight:bold">Reload to update</a> (your game here keeps running until you do).</div>
+<div id="gate">
+  <div>
+    <h1>DRAGONS OF FLAME</h1>
+    <div id="bar"><div></div></div>
+    <p id="status">Loading…</p>
+    <button id="play">Click to play</button>
+    <p>Move: arrow keys, WASD or the numpad &nbsp;·&nbsp; Space: menu &nbsp;·&nbsp; 0: wilderness/combat view &nbsp;·&nbsp; F1: all commands &nbsp;·&nbsp; F11: full screen &nbsp;·&nbsp; <a href="exit.html" style="color:var(--dim)">Updates and exit</a></p>
+    <p id="err"></p>
+  </div>
+</div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const gate = document.getElementById('gate'), statusEl = document.getElementById('status');
+  const bar = document.querySelector('#bar div'), canvas = document.getElementById('canvas');
+  let syncTimer = 0, syncing = false, syncAgain = false;
+
+  // Copy user/ (saves, armies, settings) into IndexedDB, a moment after the last write.
+  function syncNow() {
+    if (syncing) { syncAgain = true; return; }
+    syncing = true;
+    FS.syncfs(false, err => {
+      syncing = false;
+      if (err) console.warn('saving to browser storage failed', err);
+      if (syncAgain) { syncAgain = false; syncNow(); }
+    });
+  }
+
+  // Download progress, for the game program (the .wasm) and the packs together: one bar, the MB so far,
+  // the speed and the time left, and a word when nothing has come for a while (a slow connection
+  // looks the same as a stuck page otherwise).
+  const dl = { wasm: 0, wasmTotal: 0, packs: 0, packsTotal: 0, samples: [], last: 0, timer: 0 };
+  const mb = b => (b / 1048576).toFixed(1);
+  function showProgress() {
+    const total = dl.wasmTotal + dl.packsTotal, done = dl.wasm + dl.packs, now = performance.now();
+    if (done !== (dl.samples.length ? dl.samples[dl.samples.length - 1][1] : -1)) { dl.samples.push([now, done]); dl.last = now; }
+    while (dl.samples.length > 2 && now - dl.samples[0][0] > 6000) dl.samples.shift();
+    if (!total || done >= total) return;
+    bar.style.width = (100 * done / total) + '%';
+    let text = 'Downloading ' + mb(done) + ' of ' + mb(total) + ' MB';
+    const [t0, b0] = dl.samples[0];
+    const rate = now - t0 > 900 ? (done - b0) / ((now - t0) / 1000) : 0;
+    if (rate > 0) {
+      text += ' · ' + (rate >= 1048576 ? mb(rate) + ' MB/s' : Math.round(rate / 1024) + ' KB/s');
+      const left = (total - done) / rate;
+      if (left >= 3) text += ' · about ' + (left < 90 ? Math.round(left) + ' s' : Math.round(left / 60) + ' min') + ' left';
+    }
+    if (dl.last && now - dl.last > 8000) text = 'Waiting for the server… ' + mb(done) + ' of ' + mb(total) + ' MB so far';
+    statusEl.textContent = text;
+    if (rate > 0 && rate < 150 * 1024) statusEl.textContent += '\nA slow connection: it is still coming, no need to reload.';
+  }
+  function progressTick() { if (!dl.timer) dl.timer = setInterval(showProgress, 500); showProgress(); }
+  function progressDone() { clearInterval(dl.timer); dl.timer = 0; }
+
+  // The game's files: the packs this version needs, from the browser's store or the server.
+  let manifest = null, manifestP = null;
+  const getManifest = () => manifestP || (manifestP = DofPacks.manifest());
+  let needP = null;   // the packs to download (counted early, so the bar's total is right from the start)
+  const getNeed = () => needP || (needP = getManifest().then(async m => {
+    const need = await DofPacks.missing({ packs: m.packs.filter(p => !p.late) });
+    dl.packsTotal = need.reduce((a, p) => a + p.size, 0);
+    return need;
+  }));
+  function writeFiles(buf) {
+    for (const f of DofPacks.unpack(buf)) {
+      const dir = f.path.substring(0, f.path.lastIndexOf('/'));
+      if (dir) FS.mkdirTree(dir);
+      FS.writeFile(f.path, f.data);
+    }
+  }
+  async function loadPacks() {
+    manifest = await getManifest();
+    Module.feVersion = manifest.version;
+    const now = manifest.packs.filter(p => !p.late);
+    const need = await getNeed();
+    let done = 0;
+    if (need.length) progressTick();
+    for (const p of now) {
+      const fresh = need.includes(p);
+      const buf = await DofPacks.get(p, got => { if (fresh) { dl.packs = done + got; progressTick(); } });
+      if (fresh) done += p.size;
+      writeFiles(buf);
+    }
+    dl.packs = dl.packsTotal;
+    if (dl.wasm >= dl.wasmTotal) { progressDone(); bar.style.width = '100%'; statusEl.textContent = 'Loading…'; }
+  }
+  // The game program, fetched here (not by Emscripten's loader) so its download shows on the bar.
+  function instantiateWasm(imports, receive) {
+    (async () => {
+      const r = await fetch('dragons-of-flame.wasm', { credentials: 'same-origin' });
+      if (!r.ok) throw new Error('dragons-of-flame.wasm: ' + r.status);
+      try { dl.wasmTotal = (await getManifest()).wasm_size || 0; await getNeed(); } catch (e) { }
+      if (!dl.wasmTotal && !r.headers.get('Content-Encoding')) dl.wasmTotal = +r.headers.get('Content-Length') || 0;
+      let bytes;
+      if (r.body && r.body.getReader && dl.wasmTotal) {
+        const reader = r.body.getReader(), all = new Uint8Array(dl.wasmTotal);
+        let got = 0;
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (got + value.length > all.length) throw new Error('dragons-of-flame.wasm is bigger than expected - reload the page');
+          all.set(value, got);
+          got += value.length;
+          dl.wasm = got;
+          progressTick();
+        }
+        bytes = got === all.length ? all : all.subarray(0, got);
+      } else {
+        bytes = new Uint8Array(await r.arrayBuffer());
+      }
+      dl.wasm = dl.wasmTotal;
+      if (dl.packs >= dl.packsTotal && manifest && dl.packsTotal === dl.packs) { progressDone(); bar.style.width = '100%'; statusEl.textContent = 'Starting…'; }
+      const out = await WebAssembly.instantiate(bytes, imports);
+      receive(out.instance, out.module);
+    })().catch(e => {
+      document.getElementById('err').textContent = 'Could not load the game: ' + e.message + '\nReload the page to try again.';
+    });
+    return {};
+  }
+  // After the start: the soundfont (the music begins when it's in), then tidy away old packs.
+  async function loadLatePacks() {
+    for (const p of manifest.packs.filter(p => p.late)) {
+      try { writeFiles(await DofPacks.get(p)); } catch (e) { console.warn('music unavailable:', e); return; }
+    }
+    Module.feSoundfontReady = true;
+    DofPacks.set_installed(manifest);
+    DofPacks.prune(manifest);
+  }
+  // A newer version on the server? The game says so (it keeps running the one it has).
+  async function checkForUpdate() {
+    if (!manifest || Module.feUpdateReady) return;
+    try {
+      const m = await DofPacks.manifest();
+      if (m.version !== manifest.version) Module.feUpdateReady = true;
+    } catch (e) { /* offline for a moment */ }
+  }
+  const showUpdate = () => { if (Module.feUpdateReady) document.getElementById('update').hidden = false; };
+  setInterval(() => { checkForUpdate().then(showUpdate); }, 5 * 60 * 1000);
+  addEventListener('focus', () => checkForUpdate().then(showUpdate));
+
+  // The game's music: loops rendered from the MIDI files (music_<name>.ogg next to this page). The game says which one should play (Module.feMusic) and
+  // whether sound is muted (Module.feMusicMute); a change cross-fades. The browser lets sound start after the first key or click.
+  const MUSIC_VER = '1';
+  const music = { ctx: null, master: null, want: '', playing: '', src: null, gain: null, buffers: {}, loading: {}, muted: false };
+  function musicCtx() {
+    if (!music.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      music.ctx = new AC();
+      music.master = music.ctx.createGain();
+      music.master.gain.value = music.muted ? 0 : 0.7;
+      music.master.connect(music.ctx.destination);
+    }
+    return music.ctx;
+  }
+  function musicLoad(name) {
+    if (music.buffers[name]) return Promise.resolve(music.buffers[name]);
+    if (!music.loading[name]) {
+      const ctx = musicCtx();
+      music.loading[name] = fetch('music_' + name + '.ogg?v=' + MUSIC_VER)
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+        .then(b => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej)))
+        .then(buf => (music.buffers[name] = buf))
+        .catch(e => { delete music.loading[name]; throw e; });
+    }
+    return music.loading[name];
+  }
+  function musicSwitch() {
+    const ctx = musicCtx();
+    if (!ctx) return;
+    const name = music.want;
+    if (name === music.playing) return;
+    if (music.src) {  // fade the old one out
+      const old = music.src, og = music.gain, t = ctx.currentTime;
+      og.gain.cancelScheduledValues(t); og.gain.setValueAtTime(og.gain.value, t); og.gain.linearRampToValueAtTime(0, t + 0.9);
+      setTimeout(() => { try { old.stop(); } catch (e) { } }, 1000);
+      music.src = null;
+    }
+    music.playing = name;
+    if (!name) return;
+    musicLoad(name).then(buf => {
+      if (music.playing !== name) return;
+      const src = ctx.createBufferSource(), g = ctx.createGain(), t = ctx.currentTime;
+      src.buffer = buf; src.loop = true;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + 1.2);
+      src.connect(g); g.connect(music.master); src.start();
+      music.src = src; music.gain = g;
+    }).catch(e => { console.warn('music', name, e); music.playing = ''; });
+  }
+  ['keydown', 'pointerdown', 'touchstart'].forEach(ev => addEventListener(ev, () => {
+    const c = musicCtx();
+    if (c && c.state === 'suspended') c.resume().then(musicSwitch).catch(() => { });
+  }, { passive: true }));
+
+  var Module = {
+    canvas,
+    feMusic(name) { music.want = name || ''; musicSwitch(); },
+    feMusicMute(m) { music.muted = !!m; if (music.master) music.master.gain.value = m ? 0 : 0.7; },
+    instantiateWasm,
+    noInitialRun: true,
+    arguments: [],
+    print: t => console.log(t),
+    printErr: t => console.warn(t),
+    setStatus: t => { if (t && !/^(Preparing|Downloading)/.test(t)) statusEl.textContent = t; },  // (packs.js shows the progress)
+    feSync() { clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 250); },
+    feExit() {  // the main menu's Exit: save, then leave for exit.html (no game, no sound)
+      try { if (Module.SDL2 && Module.SDL2.audioContext) Module.SDL2.audioContext.suspend(); } catch (e) { }
+      try { if (music.ctx) music.ctx.suspend(); } catch (e) { }
+      const go = () => { location.href = 'exit.html'; };
+      if (typeof FS === 'undefined') { go(); return; }
+      FS.syncfs(false, () => go());
+      setTimeout(go, 1500);
+    },
+    preRun: [() => {
+      FS.mkdir('/user');
+      FS.mount(typeof IDBFS !== 'undefined' ? IDBFS : FS.filesystems.IDBFS, {}, '/user');
+      addRunDependency('user-storage');
+      FS.syncfs(true, err => {
+        if (err) console.warn('reading browser storage failed', err);
+        removeRunDependency('user-storage');
+      });
+      addRunDependency('packs');
+      loadPacks().then(() => removeRunDependency('packs'), e => {
+        document.getElementById('err').textContent = 'Could not load the game: ' + e.message + '\nReload the page to try again.';
+      });
+    }],
+    onRuntimeInitialized: async () => {
+      // Test hooks: ?args=--skip-intro and ?autotest=script.txt (a file next to the page).
+      const args = (params.get('args') || '').split(' ').filter(Boolean);
+      const test = params.get('autotest');
+      if (test) {
+        const text = await (await fetch(test, { cache: 'no-store' })).text();
+        FS.writeFile('/autotest.txt', text);
+        args.push('--autotest', '/autotest.txt');
+      }
+      Module.arguments = args;
+      const start = () => {
+        gate.remove();
+        canvas.focus();
+        Module.callMain(Module.arguments);
+        Module.feStarted = true;
+        loadLatePacks();
+      };
+      if (params.has('autostart')) { start(); return; }
+      statusEl.textContent = 'Ready';
+      gate.classList.add('ready');
+      document.getElementById('play').onclick = start;
+      addEventListener('keydown', function once(e) {
+        if (!document.getElementById('gate')) return;
+        removeEventListener('keydown', once, true);
+        e.preventDefault();
+        start();
+      }, true);
+    },
+    onAbort: what => { document.getElementById('err').textContent = 'The game stopped: ' + what; },
+  };
+
+  // Keys the game uses must not open bookmarks, zoom the page, start "quick find" and so on.
+  // Plain letters are left alone on keydown (cancelling it would also cancel the typed
+  // character the game reads for names); their keypress is cancelled instead.
+  // Reload (F5, Ctrl+R) and the developer tools stay with the browser.
+  addEventListener('keydown', e => {
+    if (document.getElementById('gate')) return;
+    const k = e.key;
+    if (k === 'F5' || (e.ctrlKey && (k === 'r' || k === 'R')) || (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J'))) return;
+    if (e.ctrlKey || e.altKey || e.metaKey || k.length > 1) e.preventDefault();
+  }, true);
+  addEventListener('keypress', e => { if (!document.getElementById('gate')) e.preventDefault(); }, true);
+  addEventListener('visibilitychange', () => { if (document.hidden && typeof FS !== 'undefined') syncNow(); });
+  addEventListener('pagehide', () => { if (typeof FS !== 'undefined') syncNow(); });
+  window.onerror = (msg) => { document.getElementById('err').textContent = String(msg); };
+</script>
+<script src="packs.js"></script>
+{{{ SCRIPT }}}
+</body>
+</html>
