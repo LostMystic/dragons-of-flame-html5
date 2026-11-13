@@ -1,3 +1,4 @@
+The old man in the hat is now the face of the nomads Akar to Rencel (heroes 11-22), as in the original; only Eben keeps the plain man. (Read from the original portrait table.)
 Townsfolk on the road: two in three of the Men you meet are refugees (the old man in the hat, a fisherman and the like) who do not attack. Stand beside one and press A and he joins the party (a villager with a sword, replacing a nomad if the party is full); hurt him and he fights back. Leave with Y when only refugees are left.
 The game page now links to the engine source on GitHub (bring your own copy of the original game).
 Haven and Gateway now stand on the two original village tiles of the map (north-east and south-east), instead of invented spots; the carry pack is effectively unlimited.

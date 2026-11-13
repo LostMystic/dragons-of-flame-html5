@@ -84,7 +84,7 @@ bool Game::init(const std::string& root) {
                 Hero nh; nh.name = n["name"]; nh.sprite = "nomad"; nh.hp = nh.hp_max = n["hp"]; nh.abilities = n["abilities"].get<std::vector<int>>();
                 nh.armor = nh.abilities.size() > 6 ? nh.abilities[6] : 6; nh.nomad = true; nh.actor = nomad_actor;
                 equip(nh);
-                nh.clip = 18;  // the plain man's portrait: Eben joined with this one in the original
+                nh.clip = (n["index"].get<int>() == 10) ? 18 : 19;  // original portrait table (clips.dat header): Eben is the plain man, hero 11-22 are the old man in the hat
                 all_heroes_.push_back(nh);
             }
         } catch (...) {}
