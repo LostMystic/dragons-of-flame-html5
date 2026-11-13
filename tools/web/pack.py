@@ -16,7 +16,7 @@ import os
 import sys
 import time
 
-ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+ROOT = os.environ.get('DOF_ROOT') or os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))   # (install.py points DOF_ROOT at its staging folder)
 LIMIT = 1 << 20
 
 

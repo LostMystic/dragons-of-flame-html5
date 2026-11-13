@@ -1,0 +1,196 @@
+{
+ "comment": "Hero records from game.exe (36-byte records from data 0x6048; names at 0x63a6). hp and hp_max are the words at +8 and +10 (confirmed to look like hit points: Raistlin 11, Flint 52); abilities are 7 bytes at +0x14 (stored twice in the record); field_04 and field_06 are unknown. Order is the panel order of the original; the first 8 are in the starting party. (Sturm and Caramon's portraits were swapped (clip 3 is Caramon, clip 4 is Sturm). Portrait clips 10 and 11 were swapped: clip 10 is Laurana, the helmeted disguise, clip 11 is Gilthanas.)",
+ "party_size": 8,
+ "heroes": [
+  {
+   "name": "Sturm Brightblade",
+   "sprite": "sturm",
+   "clip": 4,
+   "hp": 40,
+   "hp_max": 40,
+   "record_offset": "0x60fc",
+   "abilities": [
+    17,
+    14,
+    11,
+    16,
+    12,
+    12,
+    5
+   ],
+   "field_04": 8,
+   "field_06": 0
+  },
+  {
+   "name": "Caramon",
+   "sprite": "caramon",
+   "clip": 3,
+   "hp": 44,
+   "hp_max": 44,
+   "record_offset": "0x60d8",
+   "abilities": [
+    20,
+    12,
+    10,
+    17,
+    11,
+    15,
+    6
+   ],
+   "field_04": 4,
+   "field_06": 9
+  },
+  {
+   "name": "Goldmoon",
+   "sprite": "goldmoon",
+   "clip": 2,
+   "hp": 24,
+   "hp_max": 24,
+   "record_offset": "0x6048",
+   "abilities": [
+    12,
+    12,
+    16,
+    12,
+    14,
+    17,
+    6
+   ],
+   "field_04": 13,
+   "field_06": 1
+  },
+  {
+   "name": "Raistlin",
+   "sprite": "raistlin",
+   "clip": 5,
+   "hp": 11,
+   "hp_max": 11,
+   "record_offset": "0x6120",
+   "abilities": [
+    10,
+    17,
+    14,
+    10,
+    16,
+    10,
+    5
+   ],
+   "field_04": 2,
+   "field_06": 2
+  },
+  {
+   "name": "Tanis",
+   "sprite": "tanis",
+   "clip": 6,
+   "hp": 45,
+   "hp_max": 45,
+   "record_offset": "0x606c",
+   "abilities": [
+    16,
+    12,
+    13,
+    12,
+    16,
+    15,
+    4
+   ],
+   "field_04": 12,
+   "field_06": 3
+  },
+  {
+   "name": "Tasslehoff Burrfoot",
+   "sprite": "tassle",
+   "clip": 7,
+   "hp": 20,
+   "hp_max": 20,
+   "record_offset": "0x6090",
+   "abilities": [
+    13,
+    9,
+    12,
+    14,
+    16,
+    11,
+    6
+   ],
+   "field_04": 7,
+   "field_06": 6
+  },
+  {
+   "name": "Riverwind",
+   "sprite": "river",
+   "clip": 8,
+   "hp": 36,
+   "hp_max": 36,
+   "record_offset": "0x60b4",
+   "abilities": [
+    19,
+    13,
+    14,
+    13,
+    16,
+    13,
+    5
+   ],
+   "field_04": 12,
+   "field_06": 3
+  },
+  {
+   "name": "Flint Fireforge",
+   "sprite": "flint",
+   "clip": 9,
+   "hp": 52,
+   "hp_max": 52,
+   "record_offset": "0x6144",
+   "abilities": [
+    16,
+    7,
+    12,
+    18,
+    10,
+    13,
+    6
+   ],
+   "field_04": 11,
+   "field_06": 17
+  },
+  {
+   "name": "Gilthanas",
+   "sprite": "gilth",
+   "clip": 11,
+   "hp": 17,
+   "hp_max": 17,
+   "record_offset": "0x6168",
+   "abilities": [
+    12,
+    14,
+    10,
+    12,
+    16,
+    13,
+    4
+   ],
+   "field_04": 10,
+   "field_06": 0
+  },
+  {
+   "name": "Princess Laurana",
+   "sprite": "laurana",
+   "clip": 10,
+   "hp": 18,
+   "hp_max": 18,
+   "record_offset": "0x618c",
+   "abilities": [
+    13,
+    15,
+    12,
+    14,
+    17,
+    16,
+    0
+   ],
+   "field_04": 10,
+   "field_06": 0
+  }
+ ]
+}

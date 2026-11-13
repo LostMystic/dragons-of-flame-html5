@@ -1,0 +1,14 @@
+{
+ "comment": "Written for this version (not in the original game): epilogue pages shown after the ending message, loosely based on the novel Dragons of Autumn Twilight. Edit freely; keep each page under 150 characters.",
+ "complete": [
+  "Through the dark roots of Sla-Mori the Companions carried the war into Pax Tharkas. Laurana lives, and the fortress stands empty behind you.",
+  "The women and children of Qualinesti are free. They stream south into the mountains, away from the dragon armies' grasp.",
+  "But the Highlords are not so easily robbed. Dragons wheel in the northern sky, and winter is coming early to Krynn.",
+  "The blue crystal staff has stirred old hopes, and a doddering old mage named Fizban hints at stranger allies.",
+  "Beyond the mountains lie the great city of Tarsis and a war that spans all the world. Your journey is only beginning..."
+ ],
+ "incomplete": [
+  "You have escaped the evil fortress of Pax Tharkas, but not everyone was so fortunate. Those left in its towers will feel the Highlord's wrath.",
+  "The dragon armies still hold the high passes, and the war for Krynn goes on. Perhaps the Companions will find a way back before winter..."
+ ]
+}

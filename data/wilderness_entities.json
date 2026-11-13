@@ -1,0 +1,108 @@
+{
+ "comment": "Wilderness creatures at the start, from game.exe data 0x3118 (entities 80-94, 16 bytes each: kind at +3, x at +6, y at +0x0A). Kind 1 is the party itself. Kind 2 = random monster from the pool, kinds 4-15 = monster type slot = kind (msvA = slot 2). Kinds 2-15 are not monsters but people (nomads): on contact the game shows message (type + 15) where type = table 0x1DDC[kind] (43 Pax Tharkas hint, 46 trolls, 45 guard flanks, 47 Gilthanas rumour ...). Random monsters (kind 16) are spawned around the party, more of them where the dragon armies are strong (fn 689C).",
+ "entities": [
+  {
+   "kind": 1,
+   "x": 1024,
+   "y": 1024
+  },
+  {
+   "kind": 2,
+   "x": 1024,
+   "y": 2528,
+   "npc_type": 28,
+   "message": 43
+  },
+  {
+   "kind": 3,
+   "x": 1856,
+   "y": 512,
+   "npc_type": 31,
+   "message": 46
+  },
+  {
+   "kind": 5,
+   "x": 1120,
+   "y": 2096,
+   "npc_type": 32,
+   "message": 47
+  },
+  {
+   "kind": 6,
+   "x": 992,
+   "y": 1968,
+   "npc_type": 33,
+   "message": 48
+  },
+  {
+   "kind": 7,
+   "x": 1196,
+   "y": 984,
+   "npc_type": 34,
+   "message": 49
+  },
+  {
+   "kind": 8,
+   "x": 472,
+   "y": 2704,
+   "npc_type": 35,
+   "message": 50
+  },
+  {
+   "kind": 9,
+   "x": 1264,
+   "y": 1280,
+   "npc_type": 36,
+   "message": 51
+  },
+  {
+   "kind": 10,
+   "x": 1584,
+   "y": 1808,
+   "npc_type": 37,
+   "message": 52
+  },
+  {
+   "kind": 11,
+   "x": 760,
+   "y": 1544,
+   "npc_type": 38,
+   "message": 53
+  },
+  {
+   "kind": 12,
+   "x": 872,
+   "y": 1512,
+   "npc_type": 39,
+   "message": 54
+  },
+  {
+   "kind": 13,
+   "x": 1104,
+   "y": 2480,
+   "npc_type": 40,
+   "message": 55
+  },
+  {
+   "kind": 14,
+   "x": 1512,
+   "y": 560,
+   "npc_type": 41,
+   "message": 56
+  },
+  {
+   "kind": 15,
+   "x": 1920,
+   "y": 640,
+   "npc_type": 42,
+   "message": 57
+  },
+  {
+   "kind": 4,
+   "x": 1024,
+   "y": 1200,
+   "npc_type": 30,
+   "message": 45
+  }
+ ]
+}
