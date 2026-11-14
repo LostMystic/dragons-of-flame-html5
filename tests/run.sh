@@ -149,7 +149,7 @@ out=$(DOF_CONTROLS=original $BIN --headless --frames 60 --keys "enter:3,wait:12,
 out=$(DOF_CONTROLS=updated $BIN --headless --frames 60 --keys "enter:3,wait:12,qkey:1,wait:12" | tail -1)
 [[ "$out" == *"mode=world"* ]] && echo "ok    updated controls: Q does not open the map" || { echo "FAIL  Q updated: $out"; fail=1; }
 out=$(DOF_CONTROLS=updated $BIN --headless --frames 600 --keys "enter:3,wait:12,enter:2,wait:12,up:2,wait:12,enter:2,wait:300" | tail -1)
-[[ "$out" =~ steps=([0-9]+) && ${BASH_REMATCH[1]} -lt 40 ]] && echo "ok    Exit on the in-game main menu quits (native)" || { echo "FAIL  menu exit: $out"; fail=1; }
+[[ "$out" == *"mode=title"* && "$out" == *"page=1"* ]] && echo "ok    Exit on the in-game main menu returns to the title menu" || { echo "FAIL  menu exit: $out"; fail=1; }
 out=$(DOF_CONTROLS=updated $BIN --headless --frames 40 --keys "enter:3,wait:12,start:1,wait:12" | tail -1)
 [[ "$out" == *"mode=menu"* ]] && echo "ok    the gamepad Start opens the menu on the map" || { echo "FAIL  start map: $out"; fail=1; }
 out=$(DOF_CONTROLS=updated $BIN --headless --frames 80 --keys "enter:3,wait:12,toggle:2,wait:20,start:1,wait:12" | tail -1)

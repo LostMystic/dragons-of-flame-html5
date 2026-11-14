@@ -2433,7 +2433,7 @@ static void wrap_text(Screen& s, int x, int y, const std::string& t, int cols, i
 
 // The main menu (Space or Enter in the wilderness, Esc in combat), laid out like the original's: a scroll with eight lines showing at a time.
 static const char* kMenu[] = {"Exit menu", "Hero select", "Clerical spells", "Magic user spells", "Use", "Rest", "Take", "Open", "Give",
-                              "Inspect", "Drop", "Put", "Shut", "Quest map", "Save game", "Restore game", "Xp", "Settings", "Exit"};
+                              "Inspect", "Drop", "Put", "Shut", "Quest map", "Save game", "Restore game", "Xp", "Settings", "Exit to main menu"};
 static const int kMenuN = 19;
 struct SpellInfo { const char* name; char mark; int cost; };
 // The cleric's list as the original shows it (strings at data 0x1414-0x14f5): each memorized spell is its own entry (three Cure light wounds,
@@ -3354,7 +3354,7 @@ void Game::step_menu(const Input& in) {
             case 15: close(); load_game(); return;
             case 16: menu_page_ = kPageXp; return;
             case 17: menu_page_ = kPageSettings; settings_focus_ = 0; return;
-            case 18: close(); request_exit(); return;   // Exit (the browser's exit page / quit)
+            case 18: close(); go_title(); return;   // Exit to the main menu (the title menu's Exit leaves the game)
             case 19: open_help(); return;               // Controls (F1): the list of commands
             case 20: menu_page_ = kPageEquip; menu_hero_ = leader_; equip_slot_ = 0; return;   // Equip: the leader's character screen
             case 21: menu_page_ = kPageInventory; menu_scroll_ = 0; return;
