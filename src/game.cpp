@@ -2455,11 +2455,23 @@ static const SpellInfo kMagic[] = {{"Charm", ' ', 1}, {"Sleep", ' ', 1}, {"Magic
 void Game::cast(int school, int spell) {
     const Hero& caster = party_[leader_];
     (void)caster;
+    // Aiming: spells go the way the caster faces and touch only foes on that side and in view (so none is wasted on an empty side and none splits both ways);
+    // only Magic Missile seeks the nearest foe, on whichever side it stands.
+    const int hx0 = interior() ? ix_ : cx_, dir = face_left_ ? -1 : 1;
+    auto live = [&](const Enemy& e) { return e.hp > 0 && e.refugee != 1 && abs(e.x - hx0) < 175; };
+    auto ahead = [&](const Enemy& e) { return live(e) && (e.x - hx0) * dir > -8; };
     auto nearest = [&]() -> Enemy* {
         Enemy* best = nullptr; int bd = 1 << 30;
-        for (auto& e : enemies_) { int d = abs(e.x - (interior() ? ix_ : cx_)); if (e.hp > 0 && d < bd) { bd = d; best = &e; } }
+        for (auto& e : enemies_) { int d = abs(e.x - hx0); if (live(e) && d < bd) { bd = d; best = &e; } }
         return best;
     };
+    auto nearest_ahead = [&]() -> Enemy* {
+        Enemy* best = nullptr; int bd = 1 << 30;
+        for (auto& e : enemies_) { int d = abs(e.x - hx0); if (ahead(e) && d < bd) { bd = d; best = &e; } }
+        return best;
+    };
+    const Enemy* ea_chk = nearest_ahead();
+    const bool any_ahead = ea_chk != nullptr;
     auto hit = [&](Enemy& e, int dmg) {
         e.hp -= dmg;
         add_spark(e);
@@ -2482,12 +2494,12 @@ void Game::cast(int school, int spell) {
             case 0: apply_heal(rnd(1, 8), false); break;
             case 1: ward_ = 800; ward_kind_ = 1; ward_pts_ = 2; break;  // Protection from Evil: -2 to evil monsters' attacks
             case 3: {  // Hold Person: up to three humanoids stand frozen
-                if (!fighting) { box_ = "There is nothing to\\nhold here."; return; }
+                if (!any_ahead) { box_ = "There is nothing to\\nhold here."; return; }
                 int held = 0;
-                for (auto& en : enemies_) { const std::string& n = mtypes_[en.type].name; if (held < 3 && en.hp > 0 && (n == "Baaz" || n == "Bozak" || n == "Kapak" || n == "Goblin" || n == "Hobgoblin" || n == "Man" || n == "Aghar")) { en.frozen = 150; held++; } }
+                for (auto& en : enemies_) { const std::string& n = mtypes_[en.type].name; if (held < 3 && ahead(en) && (n == "Baaz" || n == "Bozak" || n == "Kapak" || n == "Goblin" || n == "Hobgoblin" || n == "Man" || n == "Aghar")) { en.frozen = 150; held++; } }
                 if (!held) { box_ = "Nothing is held."; return; }
                 break; }
-            case 4: { Enemy* e = nearest(); if (!fighting || !e) { box_ = "There is nothing to\\nstrike here."; return; } hit(*e, rnd(2, 12)); break; }
+            case 4: { Enemy* e = nearest_ahead(); if (!e) { box_ = "There is nothing to\\nstrike here."; return; } hit(*e, rnd(2, 12)); break; }
             case 5: ward_ = 600; ward_kind_ = 2; ward_pts_ = std::max(ward_pts_, 1); bless_ = 600; break;  // Prayer: +1 for the party, -1 for the foes
             case 6: bless_ = 800; break;                                                 // Bless: +1 to hit
             case 2: reveal_ = 1200; box_ = "Traps glitter on the\\nfloor."; break;
@@ -2503,31 +2515,34 @@ void Game::cast(int school, int spell) {
         if (staff_broken_) { box_ = "The Staff of Magius is\nbroken and is gone."; return; }
         int cost = kMagic[spell].cost == 100 ? staff_ : kMagic[spell].cost;
         if (staff_ < cost || staff_ <= 0) { box_ = "The Staff of Magius has\\nno power at present"; return; }
-        Enemy* e = nearest();
+        Enemy* e = nearest_ahead();   // (Magic Missile picks its own, below)
         switch (spell) {
             case 0: {  // Charm: humanoids only
-                if (!fighting || !e) { box_ = "There is nothing to\\naffect here."; return; }
-                int n = 0; for (auto& en : enemies_) { const std::string& nm = mtypes_[en.type].name; if (en.hp > 0 && n < 2 && (nm == "Baaz" || nm == "Bozak" || nm == "Kapak" || nm == "Goblin" || nm == "Hobgoblin" || nm == "Man" || nm == "Aghar")) { en.frozen = 200; n++; } }
+                if (!e) { box_ = "There is nothing to\\naffect here."; return; }
+                int n = 0; for (auto& en : enemies_) { const std::string& nm = mtypes_[en.type].name; if (ahead(en) && n < 2 && (nm == "Baaz" || nm == "Bozak" || nm == "Kapak" || nm == "Goblin" || nm == "Hobgoblin" || nm == "Man" || nm == "Aghar")) { en.frozen = 200; n++; } }
                 if (!n) { box_ = "Nothing is charmed."; return; }
                 break; }
             case 1: {  // Sleep: creatures of up to 4 hit dice, not the undead
-                if (!fighting || !e) { box_ = "There is nothing to\\naffect here."; return; }
-                int n = 0; for (auto& en : enemies_) { const MonsterType& m2 = mtypes_[en.type]; if (en.hp > 0 && n < rnd(2, 8) && m2.hp_dice <= 4 && m2.name != "Zombie" && m2.name != "Wight" && m2.name != "Wraith" && m2.name != "Dragon") { en.frozen = 220; n++; } }
+                if (!e) { box_ = "There is nothing to\\naffect here."; return; }
+                int n = 0; for (auto& en : enemies_) { const MonsterType& m2 = mtypes_[en.type]; if (ahead(en) && n < rnd(2, 8) && m2.hp_dice <= 4 && m2.name != "Zombie" && m2.name != "Wight" && m2.name != "Wraith" && m2.name != "Dragon") { en.frozen = 220; n++; } }
                 if (!n) { box_ = "Nothing falls asleep."; return; }
                 break; }
-            case 3: { if (!fighting || !e) { box_ = "There is nothing to\\naffect here."; return; } e->frozen = mtypes_[e->type].hp_dice >= 6 ? 25 : 100; break; }  // Web: strong monsters break out quickly
-            case 2: if (!fighting || !e) { box_ = "There is nothing to\\nstrike here."; return; } hit(*e, rnd(1, 4) + 1 + rnd(1, 4) + 1); break;  // two magic missiles, d4+1 each
-            case 6: if (!fighting) { box_ = "There is nothing to\\nburn here."; return; } for (auto& en : enemies_) if (abs(en.x - (interior() ? ix_ : cx_)) < 90) { en.burned = true; hit(en, rnd(1, 6) + rnd(1, 6)); } break;
-            case 7: if (!fighting) { box_ = "There is nothing to\\nburn here."; return; } for (auto& en : enemies_) if (abs(en.x - (interior() ? ix_ : cx_)) < 260) { en.burned = true; hit(en, rnd(1, 6) + rnd(1, 6) + rnd(1, 6) + rnd(1, 6) + rnd(1, 6)); } break;  // Fireball: 5d6
+            case 3: { if (!e) { box_ = "There is nothing to\\naffect here."; return; } e->frozen = mtypes_[e->type].hp_dice >= 6 ? 25 : 100; break; }  // Web: strong monsters break out quickly
+            case 2: { Enemy* m = nearest(); if (!m) { box_ = "There is nothing to\\nstrike here."; return; } hit(*m, rnd(1, 4) + 1 + rnd(1, 4) + 1); break; }  // two magic missiles, d4+1 each
+            case 6: if (!any_ahead) { box_ = "There is nothing to\\nburn here."; return; } for (auto& en : enemies_) if (ahead(en) && abs(en.x - hx0) < 90) { en.burned = true; hit(en, rnd(1, 6) + rnd(1, 6)); } break;
+            case 7: if (!any_ahead) { box_ = "There is nothing to\\nburn here."; return; } for (auto& en : enemies_) if (ahead(en) && abs(en.x - hx0) < 260) { en.burned = true; hit(en, rnd(1, 6) + rnd(1, 6) + rnd(1, 6) + rnd(1, 6) + rnd(1, 6)); } break;  // Fireball: 5d6
             case 8:   // the Final Strike: one blast for everything in the view, as many points of damage as the staff has charges left; it breaks the staff and kills Raistlin (Raise Dead brings him back, but not the staff)
+                if (!fighting) { box_ = "There is nothing to\\nstrike here."; return; }
                 for (auto& en : enemies_) { en.burned = true; hit(en, cost); }
                 for (auto& h : party_) if (h.name.rfind("Raistlin", 0) == 0) h.hp = 0;
                 staff_broken_ = true;   // (the message comes when the blast has died away)
                 break;
             case 4: {   // three magic missiles, one for each of the nearest three foes (all at the nearest if there are fewer), d4+1 each
-                if (!fighting || !e) { box_ = "There is nothing to\\nstrike here."; return; }
-                std::vector<Enemy*> order;
-                for (auto& en : enemies_) if (en.hp > 0) order.push_back(&en);
+                Enemy* nn = nearest();
+                if (!nn) { box_ = "There is nothing to\\nstrike here."; return; }
+                std::vector<Enemy*> order;   // the missiles all fly towards the nearest foe's side
+                const int side = nn->x >= hx0 ? 1 : -1;
+                for (auto& en : enemies_) if (live(en) && ((en.x - hx0) * side > -8)) order.push_back(&en);
                 std::sort(order.begin(), order.end(), [&](Enemy* a, Enemy* b) { int hx = interior() ? ix_ : cx_; return abs(a->x - hx) < abs(b->x - hx); });
                 for (int k = 0; k < 3; k++) { Enemy* t = order[k < (int)order.size() ? k : 0]; if (t->hp > 0 || k >= (int)order.size()) hit(*t, rnd(1, 4) + 1); }
                 break; }

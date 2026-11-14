@@ -1,5 +1,6 @@
 // When a hero falls, the others wait for the fight to end and then react by their alignment (data/farewells.json): the good are sorry, the neutral are sober,
 // the evil are irreverent; clerics and druids say their own words, good clerics pray a while and promise to carry the body home.
+#include <algorithm>
 #include <cmath>
 
 #include "../third_party/json/json.hpp"
@@ -32,10 +33,9 @@ void Game::farewell_step() {
         farewell_loaded_ = true;
         try {
             auto j = nlohmann::json::parse(assets_.read("data/farewells.json"));
-            for (auto& [k, v] : j.items()) {
-                if (k == "profiles") { for (auto& [n, a] : v.items()) profile_[n] = {a[0].get<std::string>(), a[1].get<std::string>()}; }
-                else if (v.is_array()) for (auto& s : v) farewell_[k].push_back(s.get<std::string>());
-            }
+            auto add = [&](const std::string& key, const nlohmann::json& arr) { for (auto& x : arr) farewell_[key].push_back(x.get<std::string>()); };
+            for (const char* top : {"say", "pair", "goldmoon"}) if (j.contains(top)) for (auto& [k, v] : j[top].items()) add(std::string(top) + ":" + k, v);
+            for (const char* top : {"prayer", "pray_long", "carry", "return"}) if (j.contains(top)) add(top, j[top]);
         } catch (...) {}
     }
     if (speech_steps_ > 0) speech_steps_--;
@@ -56,47 +56,40 @@ void Game::farewell_step() {
 }
 
 void Game::queue_farewell(const std::string& dead) {
-    auto prof = [&](const Hero& h) { auto it = profile_.find(first_word(h.name)); return it == profile_.end() ? std::make_pair(std::string("NG"), std::string()) : it->second; };
-    auto kind = [](const std::string& a) { return a[0] == 'L' && a[1] == 'E' ? 2 : a.back() == 'E' ? 2 : a == "N" || a[1] == 'N' || a.back() == 'N' ? 1 : 0; };   // 0 good, 1 neutral, 2 evil
-    int dk = 0;
-    for (auto& h : party_) if (first_word(h.name) == dead) dk = kind(prof(h).first);
-    auto pick = [&](const char* key) -> std::string { auto& v = farewell_[key]; if (v.empty()) return ""; std::string s = v[rnd(0, (int)v.size() - 1)]; subst(s, "{dead}", dead); subst(s, "{town}", nearest_town()); return s; };
+    auto pick = [&](const std::string& key) -> std::string { auto it = farewell_.find(key); if (it == farewell_.end() || it->second.empty()) return ""; std::string t = it->second[rnd(0, (int)it->second.size() - 1)]; subst(t, "{dead}", dead); subst(t, "{town}", nearest_town()); return t; };
     auto say = [&](const std::string& who, const std::string& text, bool action = false, int steps = 0) {
         if (text.empty()) return;
-        Speech s; s.who = who; s.text = text; s.action = action; s.steps = steps ? steps : 22 + (int)text.size() / 3; speech_q_.push_back(s);
+        Speech sp; sp.who = who; sp.text = text; sp.action = action; sp.steps = steps ? steps : 22 + (int)text.size() / 3; speech_q_.push_back(sp);
     };
-    auto act = [&](const char* key, const std::string& who, int steps) { std::string t = pick(key); subst(t, "{who}", who); say(who, t, true, steps); };
-    std::vector<const Hero*> plain, clerics; const Hero* good_cleric = nullptr; const Hero* good_one = nullptr;
-    for (auto& h : party_) {
-        if (h.hp <= 0 || first_word(h.name) == dead) continue;
-        auto p = prof(h);
-        if (!p.second.empty()) { clerics.push_back(&h); if (p.second == "cleric" && kind(p.first) == 0 && !good_cleric) good_cleric = &h; }
-        else plain.push_back(&h);
-        if (kind(p.first) == 0 && !good_one) good_one = &h;
+    static const std::set<std::string> cast = {"Sturm", "Caramon", "Raistlin", "Tanis", "Goldmoon", "Riverwind", "Flint", "Tasslehoff", "Gilthanas", "Laurana"};
+    std::vector<std::string> living;
+    for (auto& h : party_) if (h.hp > 0 && first_word(h.name) != dead) living.push_back(first_word(h.name));
+    auto alive = [&](const char* n) { return std::find(living.begin(), living.end(), n) != living.end(); };
+    // who speaks: first anyone with something personal to say about this death, then others in their own voices (two in all, Goldmoon apart)
+    std::vector<std::string> speakers;
+    for (auto& w : living) if (w != "Goldmoon" && farewell_.count("pair:" + w + ">" + dead) && speakers.size() < 2) speakers.push_back(w);
+    std::vector<std::string> rest;
+    for (auto& w : living) if (w != "Goldmoon" && std::find(speakers.begin(), speakers.end(), w) == speakers.end()) rest.push_back(w);
+    while (speakers.size() < 2 && !rest.empty()) { int i = rnd(0, (int)rest.size() - 1); speakers.push_back(rest[i]); rest.erase(rest.begin() + i); }
+    for (auto& w : speakers) {
+        std::string t = pick("pair:" + w + ">" + dead);
+        if (t.empty()) t = pick("say:" + (cast.count(w) ? w : std::string("Nomad")));
+        say(w, t);
     }
-    // up to two ordinary members say something, by their own nature
-    for (int n = 0; n < 2 && !plain.empty(); n++) {
-        int i = rnd(0, (int)plain.size() - 1); const Hero* h = plain[i]; plain.erase(plain.begin() + i);
-        int k = kind(prof(*h).first);
-        std::string t = k == 0 ? pick(dk == 2 ? "good_vs_evil" : "good") : k == 1 ? pick(dk == 2 ? "good_vs_evil" : "neutral") : pick(dk == 0 ? "evil_vs_good" : dk == 1 ? "evil_vs_neutral" : "evil_vs_evil");
-        say(first_word(h->name), t);
+    bool gm = alive("Goldmoon");
+    if (gm) {   // the party's cleric: her own words, a prayer, and the promise to carry the body home
+        std::string t = pick("pair:Goldmoon>" + dead);
+        bool personal = !t.empty();
+        if (!personal) t = pick(dead == "Raistlin" ? "goldmoon:evil" : cast.count(dead) ? "goldmoon:good" : "goldmoon:neutral");
+        say("Goldmoon", t);
+        std::string pr = pick("pray_long"); subst(pr, "{who}", "Goldmoon"); say("Goldmoon", pr, true, 32);   // about five seconds
+        say("Goldmoon", pick("carry"));
+        std::string back; for (auto& w : living) if (w != "Goldmoon" && w != "Raistlin") { back = w; break; }
+        say(back.empty() ? "Goldmoon" : back, pick("return"));
+    } else if (!living.empty()) {
+        std::string back; for (auto& w : living) if (w != "Raistlin") { back = w; break; }
+        say(back.empty() ? living[0] : back, pick("return"));
     }
-    // the clerics and druids
-    for (const Hero* h : clerics) {
-        auto p = prof(*h); int k = kind(p.first); std::string w = first_word(h->name);
-        if (p.second == "druid") { say(w, pick("druid")); act("prayer", w, 18); }
-        else if (k == 0) { say(w, pick(dk == 0 ? "cleric_good_for_good" : dk == 1 ? "cleric_good_for_neutral" : "cleric_good_for_evil")); }
-        else if (k == 1) { say(w, pick("cleric_neutral")); act("prayer", w, 18); }
-        else if (p.first == "LE") say(w, pick("cleric_evil_lawful"));   // no prayer: a few words and away
-        else say(w, pick("cleric_evil_other"));
-    }
-    if (good_cleric) {   // a good cleric prays for about five seconds, then they promise to carry the body home
-        std::string w = first_word(good_cleric->name);
-        act("pray_long", w, 32);
-        say(w, pick("carry"));
-        if (good_one && good_one != good_cleric) say(first_word(good_one->name), pick("return"));
-        else say(w, pick("return"));
-    } else if (good_one) say(first_word(good_one->name), pick("return"));
 }
 
 void Game::draw_speech() {
