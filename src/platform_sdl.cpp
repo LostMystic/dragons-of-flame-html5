@@ -24,6 +24,10 @@ public:
     }
     Input poll() override {
         Input in;
+        // never lose the controller: drop one that has gone away, and look for any connected one every frame (the browser may list a pad
+        // without an "added" event, or drop and re-add it, e.g. after the page loses focus in the settings screen)
+        if (pad_ && !SDL_GameControllerGetAttached(pad_)) { SDL_GameControllerClose(pad_); pad_ = nullptr; }
+        if (!pad_) for (int i = 0; i < SDL_NumJoysticks(); i++) if (SDL_IsGameController(i)) { pad_ = SDL_GameControllerOpen(i); if (pad_) break; }
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) in.quit = true;

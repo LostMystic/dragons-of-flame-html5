@@ -2136,7 +2136,7 @@ bool Game::frame(Platform& p) {
     render_frames_++;
     update_music();
     if (mode_ == Mode::Title) { title_frames_++; title_page_frames_++; }
-    p.set_pad_enabled(!orig_controls_);
+    p.set_pad_enabled(true);   // the controller always works, whichever controls are chosen (A on the settings screen can switch them)
     Input in = p.poll();
     if (orig_controls_ && in.qkey) { in.jump = 0; pending_map_ = true; }   // original controls: Q is the quest map (a jump with the updated ones)
     if (in.debug) { if (mode_ == Mode::Debug) mode_ = debug_return_; else if (mode_ == Mode::World || mode_ == Mode::Combat) { debug_return_ = mode_; mode_ = Mode::Debug; debug_sel_ = 0; screen_.pal = kGamePalette; } }
@@ -2148,6 +2148,7 @@ bool Game::frame(Platform& p) {
         p.unlock_audio();
     }
     if (!orig_controls_) translate_input(in);
+    else if (in.act) in.confirm = true;   // classic controls: the pad's A is just Enter, so the controller still works in menus
     double now = p.now_ms();
     if (last_ms_ < 0) last_ms_ = now;
     double dt_ms = std::min(now - last_ms_, 250.0);
