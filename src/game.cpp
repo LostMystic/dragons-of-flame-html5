@@ -2176,6 +2176,14 @@ bool Game::frame(Platform& p) {
         bool cur[6] = {in.up, in.down, in.left, in.right, in.cancel, in.confirm};
         for (int k = 0; k < 6; k++) { if (cur[k] && !fprev_[k]) pend_dir_[k] = true; fprev_[k] = cur[k]; }
     }
+    {   // menu sounds: a click for selecting (Enter, the controller's A, a mouse click, Start opening the menu), a backward whoosh for backing out (Esc, B)
+        bool menuish = mode_ == Mode::Menu || mode_ == Mode::Help || mode_ == Mode::Debug || mode_ == Mode::Title || mode_ == Mode::GameOver;
+        bool sel = in.confirm || in.click || in.act || in.start, back = in.cancel || in.back;
+        if (sel && !snd_prev_sel_ && (menuish || in.start || (mode_ == Mode::World && in.cancel))) fx(kFxMenuSelect, 0.8);
+        else if (back && !snd_prev_back_ && menuish && !(mode_ == Mode::Title && title_page_ != 1)) fx(kFxMenuBack, 0.8);
+        else if (back && !snd_prev_back_ && (mode_ == Mode::World || mode_ == Mode::Combat) && in.cancel) fx(kFxMenuSelect, 0.8);
+        snd_prev_sel_ = sel; snd_prev_back_ = back;
+    }
     pending_confirm_ = pending_confirm_ || in.confirm;
     if (in.select) pending_select_ = in.select;
     if (in.cycle) pending_cycle_ = in.cycle;

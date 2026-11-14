@@ -153,6 +153,8 @@ std::vector<int16_t> make_fx(int id, int R) {
         case kFxProtection: { Syn s(R, 1.2); for (double f : {220.0, 330.0, 440.0}) s.sine(0, 1.1, f, f, 0.25, 1.5, 3); s.partials(0.05, 1.0, {1760, 2640}, 0.1, 4); return s.done(0.5); }
         case kFxFindTraps:  { Syn s(R, 0.8); s.sine(0, 0.5, 1500, 1480, 0.5, 7); s.sine(0.35, 0.4, 1500, 1480, 0.3, 8); s.burst(0, 0.01, 4000, 0.3, 200, true); return s.done(0.5); }
         case kFxHold:       { Syn s(R, 0.7); s.sine(0, 0.5, 320, 85, 0.6, 4); s.burst(0, 0.6, 7000, 0.12, 5, true); s.partials(0, 0.4, {1900, 2400}, 0.1, 9); return s.done(0.5); }
+        case kFxMenuSelect: { Syn s(R, 0.25); s.burst(0, 0.012, 5000, 0.9, 260, true); s.sine(0, 0.12, 190, 120, 0.7, 40); s.partials(0.004, 0.2, {1320, 1980, 2640}, 0.22, 24); return s.done(0.5); }   // a wooden knock with a small bell-like tick, like a latch or a die set down on a table
+        case kFxMenuBack:   { Syn s(R, 0.32); s.swish(0, 0.28, 2400, 350, 0.55, 0.5, 0.12); s.sine(0.16, 0.1, 150, 90, 0.35, 30); return s.done(0.42); }   // a soft whoosh falling away, then a muffled thud
         case kFxHammer:     { Syn s(R, 1.2); s.swish(0, 0.25, 300, 1400, 0.6, 0.4, 0.8); s.partials(0.22, 1.0, {330, 495, 742}, 0.25, 3.5); s.sine(0.22, 0.4, 110, 45, 0.9, 9); s.burst(0.22, 0.06, 3000, 0.8, 50); return s.done(0.85); }
         case kFxPrayer:     { Syn s(R, 1.6); int k = 0; for (double f : {392.0, 494.0, 587.0, 784.0}) { s.sine(0.12 * k, 1.4, f, f, 0.22, 1.6, 4.5); k++; } return s.done(0.45); }
         case kFxBless:      { Syn s(R, 0.9); int k = 0; for (double f : {880.0, 1108.0, 1319.0, 1760.0, 2217.0}) { s.sine(0.05 * k, 0.5, f, f, 0.25, 7); k++; } return s.done(0.45); }

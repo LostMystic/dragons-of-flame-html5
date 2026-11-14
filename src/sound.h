@@ -16,6 +16,8 @@ enum Fx { kFxWhiffSword, kFxHitSword, kFxGlanceSword, kFxWhiffStaff, kFxHitStaff
           kFxMagicMissile, kFxBurningHands, kFxFireball, kFxFireballBoom, kFxFinalStrike, kFxCharm, kFxSleep, kFxWeb, kFxDetectMagic, kFxDetectInvisible,
           // Goldmoon's spells (every cure is the same)
           kFxBuzz, kFxLightning, kFxSlab, kFxFanfare, kFxCrumble, kFxAcid, kFxBoneBurst, kFxCure, kFxProtection, kFxFindTraps, kFxHold, kFxHammer, kFxPrayer, kFxBless, kFxDispel,
+          // menus: a selecting click and a backward whoosh
+          kFxMenuSelect, kFxMenuBack,
           kFxCount };
 std::vector<int16_t> make_fx(int id, int rate);
 

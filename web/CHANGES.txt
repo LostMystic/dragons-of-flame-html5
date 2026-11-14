@@ -1,3 +1,4 @@
+Menus have sounds: a wooden click with a little bell tick when you select (Enter, controller A, mouse click, opening the menu) and a soft backward whoosh when you back out (Esc, controller B), in the title, main, settings, help and debug menus.
 Mouse and controller share the menus: using the keys, stick or d-pad makes the menus follow them and ignore the mouse; moving the mouse more than a few pixels (or clicking) gives control back to it.
 The controller now always works: choosing the original controls in Settings (the first row, which the controller's A button toggles by accident) no longer switches the gamepad off, and a pad that drops out or is listed late is picked up again.
 The game is now called Dragons of Flame: Rekindled. The title screen shows REKINDLED in small letters under the logo; the page title, loading screen and README use the new name.
