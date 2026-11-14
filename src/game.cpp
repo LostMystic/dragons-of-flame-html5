@@ -2112,7 +2112,8 @@ void Game::translate_input(Input& in) {
     if ((mode_ == Mode::Menu || mode_ == Mode::Title || mode_ == Mode::Help || mode_ == Mode::Debug || !box_.empty()) && in.wheel) { pend_dir_[in.wheel < 0 ? 0 : 1] = true; }  // the wheel scrolls menu lists
     bool act = in.act || click_play;
     if (act) {
-        if (!playing) { if (in.act) in.confirm = true; }
+        if (!playing) { if (in.act && !act_prev_) in.confirm = true; act_eat_ = true; }   // a menu takes the press once; the held button is then ignored until it is let go
+        else if (act_eat_) {}
         else {
             // Priority: a foe in reach is always attacked. Otherwise, on the press, what lies within reach is picked up, else a door or chest here is used;
             // if there is nothing to take or use, A just swings the sword.
@@ -2121,7 +2122,7 @@ void Game::translate_input(Input& in) {
             if (!act_prev_ && foe) act_used_ = false;
             if (!act_used_) { in.attack = true; pending_attack_ = true; }
         }
-    } else act_used_ = false;
+    } else { act_used_ = false; act_eat_ = false; }
     act_prev_ = act;
 }
 
@@ -2159,7 +2160,7 @@ bool Game::frame(Platform& p) {
         p.unlock_audio();
     }
     if (!orig_controls_) translate_input(in);
-    else if (in.act) in.confirm = true;   // classic controls: the pad's A is just Enter, so the controller still works in menus
+    else { if (in.act && !act_prev_) in.confirm = true; act_prev_ = in.act; }   // classic controls: the pad's A is just Enter (once per press), so the controller still works in menus
     double now = p.now_ms();
     if (last_ms_ < 0) last_ms_ = now;
     double dt_ms = std::min(now - last_ms_, 250.0);
@@ -2217,7 +2218,8 @@ bool Game::frame(Platform& p) {
         for (int k = 0; k < 6; k++) { edges_[k] = pend_dir_[k]; pend_dir_[k] = false; }  // edges seen since the last step
         if (menu_edges_) {}
         pending_rest_ = false;
-        if (mode_ != Mode::Menu) use.confirm = in.confirm || pending_confirm_;   // (in menus confirm is the single press set above: a held key used to count on every logic step)
+        if (mode_ == Mode::Title || mode_ == Mode::Help || mode_ == Mode::Debug || mode_ == Mode::GameOver || mode_ == Mode::Ending || !box_.empty()) use.confirm = pend_dir_[5] || edges_[5];   // screens and message boxes take one press, not a held key
+        else if (mode_ != Mode::Menu) use.confirm = in.confirm || pending_confirm_;   // (in menus confirm is the single press set above: a held key used to count on every logic step)
         pending_confirm_ = false;
         pending_level_ = 0;
         pending_save_ = pending_load_ = false;
@@ -3469,6 +3471,7 @@ static void draw_flame(Screen& s, int x, int y, uint8_t col) {  // the small fla
 
 // Settings: a plain modern page that works with the mouse (click) or the keyboard (up/down, Enter). Row layout is shared by drawing and hit testing.
 struct SRow { int y, h; int id; };  // ids: 0 original controls, 1 16-colour, 2 256-colour (disabled), 3 back
+static int row0_y() { return 22; }
 static const SRow kSRows[] = {{22, 12, 0}, {46, 12, 1}, {60, 12, 5}, {74, 12, 6}, {88, 12, 7}, {106, 14, 3}};   // ids: 0 controls, 1 16-colour, 5 music kind, 6 music on / off, 7 sound effects on / off, 3 back
 
 void Game::step_settings(const Input& in) {
@@ -3480,13 +3483,22 @@ void Game::step_settings(const Input& in) {
         if (hit >= 0) settings_focus_ = hit;
     }
     auto activate = [&](int id) {
-        if (id == 0) { orig_controls_ = !orig_controls_; save_settings(); }
+        if (id == 0) { ctl_drop_ = true; ctl_drop_sel_ = orig_controls_ ? 0 : 1; }
         else if (id == 1) { gfx_mode_ = 0; save_settings(); }
         else if (id == 5) { set_music_enhanced(!music_enhanced_); save_settings(); }
         else if (id == 6) { music_on_ = !music_on_; if (mode_ == Mode::Title) { stop_sound(); play_title(); } save_settings(); }
         else if (id == 7) { sfx_on_ = !sfx_on_; save_settings(); }
         else if (id == 3) { menu_page_ = -1; }
     };
+    if (ctl_drop_) {   // the open drop-down takes all input: two entries under the box
+        const int ly = row0_y() + 14;
+        int over = (in.mx >= 0 && in.mx >= 140 && in.mx < 292 && in.my >= ly && in.my < ly + 24) ? (in.my - ly) / 12 : -1;
+        if (over >= 0) ctl_drop_sel_ = over;
+        if (up || down) ctl_drop_sel_ = 1 - ctl_drop_sel_;
+        if (edge || (in.click && over >= 0)) { orig_controls_ = ctl_drop_sel_ == 0; save_settings(); ctl_drop_ = false; }
+        else if (cancel || (in.click && over < 0)) ctl_drop_ = false;
+        return;
+    }
     if (in.click && hit >= 0) activate(hit);
     static const int order[6] = {0, 1, 5, 6, 7, 3};
     int pos = 0;
@@ -3515,11 +3527,13 @@ void Game::draw_settings() {
         box(24, r.y, checked, hot);
         screen_.text(42, r.y + 1, text, hot ? 15 : 7);
     };
-    { const SRow& r = row(0); bool hot = settings_focus_ == 0;   // controls (two lines)
-      if (hot) screen_.fill_rect(14, r.y - 2, 292, r.h + 10, 4);
-      box(24, r.y, orig_controls_, hot);
-      screen_.text(42, r.y + 1, orig_controls_ ? "Original controls" : "Updated controls", hot ? 15 : 7);
-      screen_.text(42, r.y + 12, orig_controls_ ? "keypad: 8, 2 turn; 7, 9 jump" : "instant moves, smooth jumps", 8); }
+    { const SRow& r = row(0); bool hot = settings_focus_ == 0 && !ctl_drop_;   // controls type: a drop-down box
+      if (settings_focus_ == 0) screen_.fill_rect(14, r.y - 2, 292, r.h + 10, 4);
+      screen_.text(24, r.y + 1, "Controls type", hot ? 15 : 7);
+      screen_.fill_rect(140, r.y - 1, 152, 13, hot || ctl_drop_ ? 15 : 7); screen_.fill_rect(141, r.y, 150, 11, 0);
+      screen_.text(146, r.y + 1, orig_controls_ ? "Original controls" : "Updated controls", 15);
+      screen_.fill_rect(276, r.y + 3, 8, 1, 15); screen_.fill_rect(277, r.y + 4, 6, 1, 15); screen_.fill_rect(278, r.y + 5, 4, 1, 15); screen_.fill_rect(279, r.y + 6, 2, 1, 15);   // the arrow
+      screen_.text(42, r.y + 13, orig_controls_ ? "keypad: 8, 2 turn; 7, 9 jump" : "instant moves, smooth jumps", 8); }
     option(1, gfx_mode_ == 0, "Original 16-colour graphics (EGA)");
     option(5, music_enhanced_, music_enhanced_ ? "Music style: enhanced (orchestral)" : "Music style: original (PC speaker)");
     option(6, music_on_, music_on_ ? "Music: on" : "Music: off");
@@ -3528,6 +3542,17 @@ void Game::draw_settings() {
       screen_.fill_rect(24, r.y, 150, r.h, hot ? 15 : 7);
       screen_.fill_rect(25, r.y + 1, 148, r.h - 2, hot ? 4 : 0);
       screen_.text(40, r.y + 3, "Back to main menu", hot ? 15 : 7); }
+    if (ctl_drop_) {   // the open list lies over the rows below
+        const int ly = row0_y() + 14;
+        screen_.fill_rect(139, ly - 1, 154, 26, 15); screen_.fill_rect(140, ly, 152, 24, 0);
+        static const char* names[2] = {"Original controls", "Updated controls"};
+        for (int k = 0; k < 2; k++) {
+            bool on = ctl_drop_sel_ == k;
+            if (on) screen_.fill_rect(140, ly + k * 12, 152, 12, 4);
+            screen_.text(146, ly + k * 12 + 2, names[k], on ? 15 : 7);
+            if ((k == 0) == orig_controls_) screen_.text(278, ly + k * 12 + 2, "*", 14);
+        }
+    }
     draw_panel();
 }
 

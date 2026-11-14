@@ -58,6 +58,8 @@ std::vector<std::string> Game::help_lines() const {
         L("F11: full screen.");
         L("F1: this list.");
         L("Shift + F1 to F7: jump to a level (a cheat).");
+        L("#Controller (also works with these controls)");
+        L("Left stick / D-pad: walk. A: Enter (confirm in menus). B: back out of menus. Start: the main menu. The updated controls add the contextual A, jump, turn and map buttons: see Settings.");
     } else {
         L("#GAMEPAD COMMANDS");
         L("#Moving");

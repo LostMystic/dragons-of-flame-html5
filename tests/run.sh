@@ -52,8 +52,8 @@ out=$($BIN --headless --frames 200 --keys "enter:3,wait:20,toggle:2,wait:20,jump
 [[ "$out" == *"strip=(8304"* ]] && echo "ok    a jump covers 48 px" || { echo "FAIL  jump: $out"; fail=1; }
 rm -rf user
 K2="enter:3,wait:20,enter:2,wait:12"; for n in $(seq 1 17); do K2="$K2,down:2,wait:12"; done
-$BIN --headless --frames 900 --keys "$K2,enter:2,wait:30,clk100_24:2,wait:30" >/dev/null
-grep -q '"original_controls": false' user/settings.json 2>/dev/null && echo "ok    a mouse click in Settings turns the original controls off and saves it" || { echo "FAIL  settings click"; fail=1; }
+$BIN --headless --frames 900 --keys "$K2,enter:2,wait:30,clk100_24:2,wait:30,clk180_52:2,wait:30" >/dev/null
+grep -q '"original_controls": false' user/settings.json 2>/dev/null && echo "ok    the Settings controls drop-down (click the box, click Updated controls) switches the controls and saves it" || { echo "FAIL  settings click"; fail=1; }
 rm -rf user
 K="enter:3,wait:20,enter:2,wait:12"; for n in $(seq 1 13); do K="$K,down:2,wait:12"; done
 out=$($BIN --headless --frames 700 --keys "$K,enter:2,wait:30" | tail -1)

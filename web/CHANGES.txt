@@ -1,3 +1,5 @@
+Menus, message boxes, cutscenes, the title and the ending take one full press: a held Enter, Space or controller A no longer fires again on the next screen or text box, and a menu press no longer turns into a sword swing when the game starts. Let go and press again to go on.
+Settings: the controls type is now a drop-down box (Controls type: Original controls / Updated controls; click it or press Enter, choose, Enter). F1 lists the controls for the mode you are in, and the original-controls list now also covers the controller.
 Fixed doubled music: quick music changes (title, map, fight) could start the same piece twice. The controller search now runs once a second instead of every frame.
 Menus have sounds: a wooden click with a little bell tick when you select (Enter, controller A, mouse click, opening the menu) and a soft backward whoosh when you back out (Esc, controller B), in the title, main, settings, help and debug menus.
 Mouse and controller share the menus: using the keys, stick or d-pad makes the menus follow them and ignore the mouse; moving the mouse more than a few pixels (or clicking) gives control back to it.

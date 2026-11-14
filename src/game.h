@@ -152,6 +152,7 @@ private:
     int refugees_recruited_ = 0;                      // true if it took something or opened something
     bool snd_prev_sel_ = false, snd_prev_back_ = false;
     bool mouse_live_ = true; int mouse_ax_ = 0, mouse_ay_ = 0;   // menus follow the mouse or the keys / controller, whichever was used last
+    bool act_eat_ = false;                       // A was used as "confirm" in a menu: not an attack until it is released
     bool act_used_ = false;                      // controller A with no foe near: take what lies here, else open a door or chest
     std::map<int, ItemStat> istats_;       // data/item_stats.json: who can use an item and what it does
     bool auto_equip(int item_id, std::string& msg, int shots = -1);
@@ -460,6 +461,7 @@ private:
     int jump_from_ = 0, jump_to_ = 0, jump_g0_ = 0, jump_h_ = 0, walk_dist_ = 0, pending_cycle_ = 0;
     bool orig_controls_ = false;            // the original's keypad scheme (8/2 turn the side view); off = arrows: up jumps, down turns
     int gfx_mode_ = 0;                     // 0 = original 16-colour; 256-colour is reserved for later
+    bool ctl_drop_ = false; int ctl_drop_sel_ = 0;   // the controls-type drop-down in Settings
     int settings_focus_ = 0, mouse_x_ = -1, mouse_y_ = -1;
     bool pend_click_ = false, click_now_ = false;
     int click_x_ = -1, click_y_ = -1;
