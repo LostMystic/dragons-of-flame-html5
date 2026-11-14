@@ -2138,6 +2138,17 @@ bool Game::frame(Platform& p) {
     if (mode_ == Mode::Title) { title_frames_++; title_page_frames_++; }
     p.set_pad_enabled(true);   // the controller always works, whichever controls are chosen (A on the settings screen can switch them)
     Input in = p.poll();
+    {   // who is steering the menus: the mouse or the keys / controller? Using the keys, stick or d-pad hands over to them and the mouse is ignored
+        // until it is moved more than a few pixels or clicked; moving it hands control back.
+        bool nav = in.up || in.down || in.left || in.right || in.confirm || in.cancel || in.back || in.act;
+        if (in.mx >= 0) {
+            if (in.click) { mouse_live_ = true; mouse_ax_ = in.mx; mouse_ay_ = in.my; }
+            else if (nav) { mouse_live_ = false; mouse_ax_ = in.mx; mouse_ay_ = in.my; }
+            else if (mouse_live_) { mouse_ax_ = in.mx; mouse_ay_ = in.my; }
+            else if (std::abs(in.mx - mouse_ax_) + std::abs(in.my - mouse_ay_) > 6) { mouse_live_ = true; mouse_ax_ = in.mx; mouse_ay_ = in.my; }
+            if (!mouse_live_) { in.mx = -1; in.my = -1; }
+        }
+    }
     if (orig_controls_ && in.qkey) { in.jump = 0; pending_map_ = true; }   // original controls: Q is the quest map (a jump with the updated ones)
     if (in.debug) { if (mode_ == Mode::Debug) mode_ = debug_return_; else if (mode_ == Mode::World || mode_ == Mode::Combat) { debug_return_ = mode_; mode_ = Mode::Debug; debug_sel_ = 0; screen_.pal = kGamePalette; } }
     if (in.help) { if (mode_ == Mode::Help) help_close_ = true; else if (mode_ != Mode::Ending && mode_ != Mode::GameOver) open_help(); }

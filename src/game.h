@@ -150,6 +150,7 @@ private:
     bool open_or_shut(bool open, std::string& msg);   // a door in this cell or (opening only) a chest within reach
     bool context_action();
     int refugees_recruited_ = 0;                      // true if it took something or opened something
+    bool mouse_live_ = true; int mouse_ax_ = 0, mouse_ay_ = 0;   // menus follow the mouse or the keys / controller, whichever was used last
     bool act_used_ = false;                      // controller A with no foe near: take what lies here, else open a door or chest
     std::map<int, ItemStat> istats_;       // data/item_stats.json: who can use an item and what it does
     bool auto_equip(int item_id, std::string& msg, int shots = -1);
