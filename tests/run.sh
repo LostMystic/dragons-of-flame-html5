@@ -71,6 +71,8 @@ out=$(DOF_QUICK_TALK=1 DOF_WARP="w,1024,2528" $BIN --headless --frames 80 --keys
 [[ "$out" == *"party=9"* ]] && echo "ok    Gilthanas joins at the pass (quick talk)" || { echo "FAIL  gilthanas: $out"; fail=1; }
 out=$(DOF_QUICK_TALK=1 DOF_WARP="w,1856,512" $BIN --headless --frames 80 --keys "enter:3,wait:30" | tail -1)
 [[ "$out" == *"party=9"* ]] && echo "ok    a wandering nomad (Akar, old man in the hat) joins at his spot" || { echo "FAIL  nomad: $out"; fail=1; }
+out=$(DOF_KILL="30,2" $BIN --headless --frames 410 --keys "enter:5,wait:360" | tail -1)
+[[ "$out" == *"speech="* ]] && echo "ok    when a hero falls and the fight is over, the party speaks over the body" || { echo "FAIL  farewell: $out"; fail=1; }
 # save and restore: a second run starts fresh, loads the save and finds the leader and position again
 rm -rf user
 $BIN --headless --frames 200 --keys "enter:3,wait:20,right:40,sel2:2,save:2,wait:20" >/dev/null

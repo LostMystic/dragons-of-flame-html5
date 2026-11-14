@@ -1,0 +1,346 @@
+{
+ "comment": "What the party says when a hero dies, after the fight is over (src/farewell.cpp). {dead} = the fallen hero's first name, {town} = the nearest town. 'profiles' gives each hero an AD&D alignment (LG NG CG LN N CN LE NE CE) and a role (cleric, druid or none), keyed by first name; the nomads' are my own invention. Heroes not listed are neutral good (recruited refugees). Edit freely.",
+ "profiles": {
+  "Sturm": [
+   "LG",
+   ""
+  ],
+  "Caramon": [
+   "NG",
+   ""
+  ],
+  "Raistlin": [
+   "N",
+   ""
+  ],
+  "Tanis": [
+   "NG",
+   ""
+  ],
+  "Goldmoon": [
+   "NG",
+   "cleric"
+  ],
+  "Riverwind": [
+   "LG",
+   ""
+  ],
+  "Flint": [
+   "NG",
+   ""
+  ],
+  "Tasslehoff": [
+   "CG",
+   ""
+  ],
+  "Gilthanas": [
+   "CG",
+   ""
+  ],
+  "Laurana": [
+   "LG",
+   ""
+  ],
+  "Eben": [
+   "LG",
+   ""
+  ],
+  "Akar": [
+   "NG",
+   ""
+  ],
+  "Toragan": [
+   "CN",
+   ""
+  ],
+  "Valdor": [
+   "LE",
+   ""
+  ],
+  "Cedric": [
+   "NG",
+   "cleric"
+  ],
+  "Hanal": [
+   "N",
+   "druid"
+  ],
+  "Ash": [
+   "CE",
+   ""
+  ],
+  "Barac": [
+   "LE",
+   "cleric"
+  ],
+  "Gerath": [
+   "N",
+   "cleric"
+  ],
+  "Camar": [
+   "CG",
+   ""
+  ],
+  "Garian": [
+   "NE",
+   ""
+  ],
+  "Issus": [
+   "CN",
+   ""
+  ],
+  "Rencel": [
+   "CE",
+   "cleric"
+  ]
+ },
+ "good": [
+  "Oh, poor {dead}. Not like this.",
+  "I can't believe it. {dead} is gone.",
+  "{dead}... no. Please, no.",
+  "We were supposed to get through this together, {dead}.",
+  "It should not have ended this way for {dead}.",
+  "I am so sorry, {dead}. So very sorry.",
+  "{dead} fought bravely to the very end.",
+  "I never even got to thank {dead}.",
+  "By all the gods, {dead} deserved better than this.",
+  "I can't make myself believe it. Not {dead}.",
+  "We'll remember you, {dead}. Every one of us.",
+  "{dead} was braver than any of us knew.",
+  "This hurts more than any wound I've taken.",
+  "Gone, just like that. Poor {dead}.",
+  "I keep waiting for {dead} to get up.",
+  "We could not save you, {dead}. Forgive us.",
+  "The world is poorer without {dead}.",
+  "I should have been faster. Forgive me, {dead}.",
+  "{dead} gave everything for this company.",
+  "Our hearts are heavy, {dead}. We shall not forget you.",
+  "Such a loss. I can hardly speak.",
+  "I'm so sorry, {dead}. I truly am.",
+  "It's hard to see {dead} like this.",
+  "We were friends, {dead}. I will miss you.",
+  "{dead} didn't deserve this.",
+  "How many more must fall? Poor {dead}.",
+  "I can't believe we lost {dead}.",
+  "Rest now, {dead}. The fight is over for you.",
+  "The road will feel longer without {dead}.",
+  "If I could trade places, {dead}, I would.",
+  "Somebody should have been there. I am so sorry, {dead}.",
+  "{dead} was the best of us.",
+  "No more battles for you, {dead}. Be at peace.",
+  "I never thought it would be {dead}.",
+  "I wish we'd had one more night around the fire, {dead}.",
+  "There was kindness in {dead} that this war could not take.",
+  "I will carry {dead}'s memory with me always.",
+  "It was an honour to fight beside {dead}.",
+  "What a terrible, terrible waste. Poor {dead}.",
+  "We'll finish this for you, {dead}. I promise.",
+  "Gods, {dead}... I'm so sorry.",
+  "Tell me this isn't real. {dead}, get up.",
+  "I'm not ready to say goodbye, {dead}.",
+  "The dragons have taken so much, and now {dead}.",
+  "Brave {dead}. Brave, brave {dead}.",
+  "We'll make it mean something, {dead}.",
+  "I can't stop shaking. {dead} is really gone.",
+  "Poor, poor {dead}. May the dragons pay for this.",
+  "{dead} would have wanted us to go on. But oh, it hurts.",
+  "You've earned your rest, {dead}."
+ ],
+ "good_vs_evil": [
+  "Whatever {dead} was, no one should die like that.",
+  "{dead} chose a dark road, but I'll not rejoice at the end of it.",
+  "I did not trust {dead}, but I'm sorry it ended this way.",
+  "Even {dead} deserved a chance to change.",
+  "May {dead} find more mercy than was shown in life.",
+  "A sad end for {dead}. Let it be a lesson to us all.",
+  "I'd have liked to see {dead} turn from that path.",
+  "Not a death I'd wish on anyone, not even {dead}."
+ ],
+ "neutral": [
+  "Well. That's {dead} gone.",
+  "{dead} fell. It was bound to happen to someone.",
+  "A pity about {dead}. I'm sorry.",
+  "I'm sorry for the loss. {dead} was a good fighter.",
+  "Poor {dead}. This war takes everyone in the end.",
+  "We'll miss {dead}. That much is certain.",
+  "I didn't know {dead} well, but this is a loss.",
+  "{dead} knew the risks. We all do.",
+  "Sad business, {dead}'s end.",
+  "Such is the way of war. I'm sorry, {dead}.",
+  "It's a hard thing, losing {dead}.",
+  "I hoped {dead} would see this through.",
+  "{dead} did their part. More than their part.",
+  "Rest, {dead}. We carry on.",
+  "Quiet now. {dead} is gone.",
+  "One fewer sword, and one more grief.",
+  "I regret this, {dead}. Truly.",
+  "The balance has been paid today, and it's cruel.",
+  "{dead} will be missed.",
+  "Well fought, {dead}. It wasn't enough, but well fought.",
+  "Nothing to be done now. Farewell, {dead}.",
+  "We'll mourn later. For now, {dead} is gone.",
+  "A loss. A real loss.",
+  "Another name for the long list. Farewell, {dead}.",
+  "I'm sorry, {dead}. I really am."
+ ],
+ "evil_vs_good": [
+  "Heh. So much for all that noble nonsense, {dead}.",
+  "{dead} was a fool anyway.",
+  "Goodness is a fine way to get killed, {dead}.",
+  "Well, {dead} wanted to be a hero. Congratulations.",
+  "That's what honour gets you.",
+  "I did warn {dead} about charging in.",
+  "One less do-gooder to listen to.",
+  "Don't look at me. I'm not the one who got killed.",
+  "Pity. {dead} had such lovely ideals.",
+  "Dead heroes are the only kind the bards like.",
+  "Shame. I'd just got used to {dead}'s speeches.",
+  "Their loss. And, I suppose, ours. Barely.",
+  "Such a waste of a decent sword arm.",
+  "{dead} died doing the right thing. How tiresome.",
+  "Well, that was avoidable."
+ ],
+ "evil_vs_neutral": [
+  "{dead} never did know when to duck.",
+  "Oh well. {dead} had it coming sooner or later.",
+  "What a waste. Of a perfectly good pack, too.",
+  "{dead} was a fool, but a useful one.",
+  "Dead. How inconvenient.",
+  "Nobody's fault but their own, {dead}.",
+  "I'll take {dead}'s share of the loot, then.",
+  "Well, that's one less mouth to feed.",
+  "Hmph. {dead} could have been careful.",
+  "Ah well. Wasted potential, {dead}."
+ ],
+ "evil_vs_evil": [
+  "{dead} had promise. Not enough, apparently.",
+  "{dead} was my favourite bastard.",
+  "Well, {dead} went out fighting. I'll drink to that.",
+  "Shame. {dead} was almost as bad as me.",
+  "{dead} was a right piece of work. I'll miss that.",
+  "They broke {dead}, in the end. Not bad for them.",
+  "One of the good ones, {dead}. Meaning one of the bad ones.",
+  "{dead} had a mean streak I admired.",
+  "Pour one out for {dead}. Then take their boots.",
+  "{dead} always did have rotten luck."
+ ],
+ "cleric_good_for_good": [
+  "Rest in peace, my friend.",
+  "May the angels descend and carry you to your reward, {dead}.",
+  "Go in peace, {dead}. The gods are waiting.",
+  "May the gods receive you with open arms, {dead}.",
+  "Sleep well, {dead}. Your watch is over.",
+  "May you walk in light now, {dead}, forever.",
+  "Paladine keep you, dear {dead}.",
+  "Rest in peace, {dead}. You've earned it a hundred times over.",
+  "May a better world than this one welcome you, {dead}.",
+  "Fly free, {dead}, beyond the reach of any dragon.",
+  "The gods have gained a good soul today. Rest, {dead}.",
+  "May the stars watch over you, {dead}. Rest in peace."
+ ],
+ "cleric_good_for_neutral": [
+  "I mourn your loss, {dead}. I am so very sorry.",
+  "I hope you find your final peace, {dead}.",
+  "May you find your way, {dead}, wherever the road leads.",
+  "I grieve for you, {dead}. May the gods be gentle.",
+  "I wish you peace, {dead}, and an end to all your wandering.",
+  "Go gently, {dead}. I hope the road ahead is kind.",
+  "I'm so sorry, {dead}. I wish I'd been able to do more.",
+  "May you find rest, {dead}, whatever lies beyond.",
+  "My heart is heavy for you, {dead}. Find your peace.",
+  "I hope you find what you were looking for, {dead}."
+ ],
+ "cleric_good_for_evil": [
+  "May the gods show you more mercy than you showed, {dead}.",
+  "I pray it is not too late for you, {dead}.",
+  "Whatever you did, {dead}, I hope you find forgiveness.",
+  "May the light find you even now, {dead}.",
+  "I do not condemn you, {dead}. May you find peace.",
+  "Even you, {dead}. Rest, and be forgiven."
+ ],
+ "cleric_neutral": [
+  "Farewell, {dead}. Rest well.",
+  "Ashes to ashes, dust to dust.",
+  "The balance takes us all in the end. Farewell, {dead}.",
+  "Rest, {dead}. The wheel turns.",
+  "From dust you came, {dead}, and to dust you return.",
+  "Farewell, {dead}. Be at rest.",
+  "What is born must fall. Farewell, {dead}.",
+  "Peace to you, {dead}. The cycle goes on.",
+  "Ashes to ashes. Rest, {dead}.",
+  "The scales are level now. Farewell, {dead}."
+ ],
+ "druid": [
+  "From the ground we rise, and to the ground we go.",
+  "The earth takes you back, {dead}. Be one with it.",
+  "As the leaves fall, so do we. Farewell, {dead}.",
+  "Return to the soil, {dead}. Let the green grow from you.",
+  "From the ground we rise, {dead}. To the ground we go.",
+  "The wheel of the seasons turns. Rest, {dead}.",
+  "Nature gives and nature takes. Go back to her, {dead}.",
+  "May the roots hold you, {dead}, and the rain be gentle."
+ ],
+ "cleric_evil_lawful": [
+  "Rest in power.",
+  "Rest in power, {dead}.",
+  "Rest in power. You did your duty.",
+  "Rest in power, {dead}. Order endures.",
+  "Rest in power, {dead}.",
+  "Your service is done, {dead}. Rest in power."
+ ],
+ "cleric_evil_other": [
+  "{dead} was a fool anyway.",
+  "What a waste. And what a fool.",
+  "Well. {dead} is dead. How surprising.",
+  "{dead} should have watched their back.",
+  "Oh well. Their loss.",
+  "Not even worth the prayer.",
+  "{dead} was weak. Now {dead} is worm food.",
+  "Typical. {dead} never could keep out of trouble.",
+  "A fool's death for a fool.",
+  "Pathetic. Absolutely pathetic.",
+  "{dead} had it coming, and I won't pretend otherwise.",
+  "Don't expect tears from me.",
+  "Can't say I'm surprised, {dead}.",
+  "Dead, and no great loss.",
+  "One mistake too many, {dead}.",
+  "Next time, {dead}, try not dying.",
+  "The gods weren't listening to {dead} today.",
+  "I'll not waste a word on {dead}.",
+  "Oh well. What a waste of a fine corpse.",
+  "{dead} wasn't clever enough to live.",
+  "Poor {dead}. Poor, stupid {dead}.",
+  "Think of it as a lesson. {dead} did not.",
+  "That's what comes of poor judgement.",
+  "I've seen better men fall. I've seen worse, too.",
+  "{dead} spent their luck. We all do, eventually.",
+  "Ha. {dead} always did talk bigger than they fought.",
+  "Whatever. We move on.",
+  "{dead} was a burden. Don't pretend otherwise.",
+  "Some are made for glory, some for the ground. {dead} chose the ground.",
+  "Not my business. Not my loss."
+ ],
+ "prayer": [
+  "[{who} mumbles a prayer]",
+  "[{who} bows their head in prayer]",
+  "[{who} murmurs a quiet prayer]",
+  "[{who} speaks a prayer over {dead}]"
+ ],
+ "pray_long": [
+  "[{who} kneels and prays for a few moments]",
+  "[{who} prays quietly beside {dead}]",
+  "[{who} lays a hand on {dead} and prays]"
+ ],
+ "carry": [
+  "We'll carry {dead}'s body back to {town}.",
+  "We'll take {dead} back to {town} when this is over.",
+  "{dead} should rest in {town}. We'll bring {dead} there.",
+  "Let's bring {dead} home to {town}."
+ ],
+ "return": [
+  "We'll come back for {dead}'s body when we're done here.",
+  "We cannot carry {dead} now. We'll return when it's over.",
+  "We'll bury {dead} properly once this is finished.",
+  "Leave {dead} in peace for now. We'll come back for the body."
+ ]
+}

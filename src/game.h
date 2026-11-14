@@ -3,6 +3,7 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <deque>
 #include <map>
 #include <set>
 #include <string>
@@ -152,6 +153,15 @@ private:
     int refugees_recruited_ = 0;                      // true if it took something or opened something
     bool snd_prev_sel_ = false, snd_prev_back_ = false;
     bool mouse_live_ = true; int mouse_ax_ = 0, mouse_ay_ = 0;   // menus follow the mouse or the keys / controller, whichever was used last
+    // What the party says over a fallen hero (src/farewell.cpp, data/farewells.json): after the fight, one line at a time at the top of the view.
+    struct Speech { std::string who, text; int steps = 0; bool action = false; };
+    std::deque<Speech> speech_q_; Speech speech_cur_; int speech_steps_ = 0;
+    std::set<std::string> mourned_, farewell_ready_; std::map<std::string, std::vector<std::string>> farewell_; std::map<std::string, std::pair<std::string, std::string>> profile_; bool farewell_loaded_ = false;
+    void farewell_step();                // notices deaths, waits for the fight to end, then queues the eulogy
+    void queue_farewell(const std::string& dead);
+    void draw_speech();
+    bool any_foes_left() const;
+    std::string nearest_town() const;
     bool act_eat_ = false;                       // A was used as "confirm" in a menu: not an attack until it is released
     bool act_used_ = false;                      // controller A with no foe near: take what lies here, else open a door or chest
     std::map<int, ItemStat> istats_;       // data/item_stats.json: who can use an item and what it does

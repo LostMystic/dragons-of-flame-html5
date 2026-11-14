@@ -343,6 +343,7 @@ void Game::reset_party() {
     for (auto& h : party_) h.hp = h.hp_max;
     for (size_t i = 0; i < party_.size(); i++)
         if (party_[i].name == "Tanis") leader_ = (int)i;
+    speech_q_.clear(); speech_steps_ = 0; mourned_.clear(); farewell_ready_.clear();
     enemies_.clear(); corpses_.clear();
     xp_ = kills_ = 0;
 }
@@ -1194,7 +1195,7 @@ void Game::draw_interior() {
     draw_floaters(cx, true, 0);
     if (lair_active_) draw_lair_minimap(); else draw_minimap();
     draw_spell_timers();
-    if (message_steps_ > 0) screen_.text(4, 4, message_.c_str(), 15);
+    if (speech_steps_ > 0) draw_speech(); else if (message_steps_ > 0) screen_.text(4, 4, message_.c_str(), 15);
     draw_panel();
 }
 
@@ -1631,6 +1632,8 @@ void Game::step(const Input& in) {
     if (bless_ > 0) bless_--;
     apply_god();
     if (message_steps_ > 0) message_steps_--;
+    if (const char* ks = getenv("DOF_KILL")) { int st = 0, who = 0; if (sscanf(ks, "%d,%d", &st, &who) == 2 && steps_ == st && who < (int)party_.size()) party_[who].hp = 0; }   // test hook: that hero falls on that step
+    farewell_step();
     if (mode_ == Mode::Help) { step_help(in); return; }
     if (mode_ == Mode::Debug) { step_debug(in); return; }
     if (mode_ == Mode::Title) {
@@ -2414,7 +2417,7 @@ void Game::draw_world() {
         static const int seq[4] = {0, 1, 0, 2};
         figure(figs0_, dir8(move_dx_, move_dy_), anim_ ? seq[(anim_ / 2) % 4] : 0, wx - cx, wy - cy + 2, false);
     }
-    if (message_steps_ > 0) screen_.text(4, 4, message_.c_str(), 15);
+    if (speech_steps_ > 0) draw_speech(); else if (message_steps_ > 0) screen_.text(4, 4, message_.c_str(), 15);
     draw_panel();
 }
 
@@ -4223,6 +4226,7 @@ std::string Game::debug() const {
     if (getenv("DOF_HANDS")) { for (auto& h : party_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " [%.4s:%s:%d]", h.name.c_str(), h.hand_name.c_str(), h.armor); } }   // test hook: what everyone wields
     { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " music=%s", music_track_.empty() ? "-" : music_track_.c_str()); }
     if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
+    if (speech_steps_ > 0 || !speech_q_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " speech=%zu:%s", speech_q_.size() + (speech_steps_ > 0), speech_cur_.text.c_str()); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }
     if (mode_ == Mode::Title) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " page=%d sel=%d", title_page_, title_sel_); }
     return b;
