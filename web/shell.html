@@ -213,9 +213,11 @@
       music.src = null;
     }
     music.playing = name;
+    const tok = music.tok = (music.tok || 0) + 1;
     if (!name) return;
     musicLoad(name).then(buf => {
-      if (music.playing !== name) return;
+      if (music.playing !== name || tok !== music.tok) return;   // (a newer switch, even back to the same piece, supersedes this load: no doubled music)
+      if (music.src) { try { music.src.stop(); } catch (e) { } music.src = null; }
       const src = ctx.createBufferSource(), g = ctx.createGain(), t = ctx.currentTime;
       src.buffer = buf; src.loop = true;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + 1.2);
