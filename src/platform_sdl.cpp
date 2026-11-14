@@ -12,7 +12,7 @@ public:
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) return false;
         SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);  // optional: no controller support is not an error
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-        win_ = SDL_CreateWindow("Dragons of Flame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720, SDL_WINDOW_RESIZABLE);
+        win_ = SDL_CreateWindow("Dragons of Flame: Rekindled", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720, SDL_WINDOW_RESIZABLE);
         if (!win_) return false;
         ren_ = SDL_CreateRenderer(win_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         if (!ren_) ren_ = SDL_CreateRenderer(win_, -1, SDL_RENDERER_SOFTWARE);

@@ -1,4 +1,4 @@
-# Dragons of Flame, HTML5 rewrite
+# Dragons of Flame: Rekindled
 
 A from-scratch engine (C++, compiled to WebAssembly) that plays SSI's *Dragons of Flame* (DOS, 1989) in your browser.
 This is a fan project and is not affiliated with or endorsed by the owners of the game or of Dragonlance.

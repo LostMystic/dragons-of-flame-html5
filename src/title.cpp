@@ -204,6 +204,12 @@ void Game::draw_title() {
             fancy_text(160 - 10 * 18 / 2, 6, "DRAGONS OF", 2, 2, {white, yellow, yellow, yellow, lred, lred, red, red}, black, dgrey);
             fancy_text(160 - 5 * 42 / 2, 26, "FLAME", 5, 2, {white, yellow, yellow, yellow, lred, lred, red, brown}, black, dgrey);
             centre(62, "A DRAGONLANCE ADVENTURE", white);
+            {   // the new name, small, in a dimmed strip just under the logo box
+                const std::string rk = "R E K I N D L E D";
+                int w = (int)rk.size() * 8;
+                screen_.fill_rect(160 - w / 2 - 6, 72, w + 12, 12, 0);
+                fancy_text(160 - w / 2, 74, rk, 1, 0, {white, yellow, yellow, yellow, lred, lred, red, red}, black, dgrey);
+            }
             screen_.fill_rect(kItemX0 - 6, kItemY - 6, kItemX1 - kItemX0 + 12, kItemN * kItemH + 10, 0);
             screen_.fill_rect(kItemX0 - 6, kItemY - 6, kItemX1 - kItemX0 + 12, 1, yellow);
             screen_.fill_rect(kItemX0 - 6, kItemY + kItemN * kItemH + 3, kItemX1 - kItemX0 + 12, 1, yellow);
