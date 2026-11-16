@@ -23,6 +23,7 @@ bool Strip::load_tables(const Assets& a) {
 }
 
 void Strip::build(const World& w, int wx, int wy, bool east_west) {
+    ox_ = wx; oy_ = wy; ew_flag_ = east_west;
     std::fill(blocks_.begin(), blocks_.end(), 0);
     const auto& table = east_west ? ew_ : ns_;
     auto put = [&](int n, int tile) {
@@ -39,6 +40,12 @@ void Strip::build(const World& w, int wx, int wy, bool east_west) {
         int n = 0;
         for (int y = 0xbf0; y > 0; y -= 16) put(n++, w.tile_at(wx, y));
     }
+}
+
+int Strip::far_tile(const World& w, int col, int depth) const {
+    if (col < 0 || col >= kLen) return -1;
+    if (ew_flag_) return w.tile_at(col * 16, oy_ - depth * 16);
+    return w.tile_at(ox_ - depth * 16, 0xbf0 - col * 16);
 }
 
 int Strip::tile_at(const World& w, int x, int y) const {

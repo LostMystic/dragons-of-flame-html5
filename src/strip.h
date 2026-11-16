@@ -16,6 +16,8 @@ public:
     // wx, wy: party position in world pixels (the wilderness view). east_west: the strip runs along x, else along y.
     void build(const World& w, int wx, int wy, bool east_west);
 
+    // The map tile at distance `depth` tiles behind the strip (north of an east-west strip, west of a north-south one) under strip column `col`; -1 off the map.
+    int far_tile(const World& w, int col, int depth) const;
     int width_px() const { return kLen * 128; }
     int height_px() const { return kRows * 128; }
     int block_at(int bx, int by) const { return bx < 0 || by < 0 || bx >= kLen || by >= kRows ? 0 : blocks_[by * kLen + bx]; }
@@ -28,6 +30,7 @@ public:
     int world_from_x(int cx, int wx, int wy, bool east_west, int* nwx, int* nwy) const;
 
 private:
+    int ox_ = 0, oy_ = 0; bool ew_flag_ = true;   // where the strip was cut from
     std::vector<uint8_t> blocks_ = std::vector<uint8_t>(kLen * kRows, 0);
     std::vector<std::array<uint8_t, 3>> ns_, ew_;
 };

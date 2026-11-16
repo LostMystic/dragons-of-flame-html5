@@ -471,6 +471,9 @@ private:
     int jump_from_ = 0, jump_to_ = 0, jump_g0_ = 0, jump_h_ = 0, walk_dist_ = 0, pending_cycle_ = 0;
     bool orig_controls_ = false;            // the original's keypad scheme (8/2 turn the side view); off = arrows: up jumps, down turns
     int gfx_mode_ = 0;                     // 0 = original 16-colour; 256-colour is reserved for later
+    bool backdrop_ = true;   // Settings: the far land behind the side view (updated controls only)
+    std::vector<uint8_t> backdrop_dom_;
+    void draw_backdrop(int cam_x, int cam_y);
     bool ctl_drop_ = false; int ctl_drop_sel_ = 0;   // the controls-type drop-down in Settings
     int settings_focus_ = 0, mouse_x_ = -1, mouse_y_ = -1;
     bool pend_click_ = false, click_now_ = false;
