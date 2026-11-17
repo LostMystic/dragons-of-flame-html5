@@ -494,6 +494,7 @@ private:
     std::vector<uint8_t> last_view_, turn_old_;   // the side view as last drawn, and as it was when a turn began
     double turn_ms_ = 0; int turn_dir_ = 0;       // the turn animation (milliseconds left; which way it swings)
     static constexpr double kTurnMs = 1000;
+    void wild_hunt_step();   // the creatures seen in the distance of the side view walk towards the party and, when they arrive, the fight begins
     void wander_step();      // random encounters in the dungeons: now and then a small group turns up in the passage ahead
     int wander_t_ = 0;
     void draw_backdrop(int cam_x, int cam_y);

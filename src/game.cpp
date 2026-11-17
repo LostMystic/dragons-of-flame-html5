@@ -1712,7 +1712,7 @@ void Game::toggle_view() {
         if (getenv("DOF_GROUNDDUMP")) { for (int x = cx_ - 400; x <= cx_ + 400; x += 16) fprintf(stderr, "%d:%d ", x - cx_, ground_y(x)); fprintf(stderr, "\n"); }
         mode_ = Mode::Combat;
     } else {
-        strip_.world_from_x(cx_, px_, py_, east_west_, &px_, &py_);
+        strip_.world_from_x(orig_controls_ ? cx_ : cx_ - 0x40, px_, py_, east_west_, &px_, &py_);
         fix_start();
         enemies_.clear(); corpses_.clear();
         mode_ = Mode::World;
@@ -1742,6 +1742,7 @@ void Game::step(const Input& in) {
     if (const char* ks = getenv("DOF_KILL")) { int st = 0, who = 0; if (sscanf(ks, "%d,%d", &st, &who) == 2 && steps_ == st && who < (int)party_.size()) party_[who].hp = 0; }   // test hook: that hero falls on that step
     farewell_step();
     if (camp_.active) { step_camp(in); return; }
+    if (const char* cl = getenv("DOF_CLEAR")) if (steps_ == atoi(cl) && mode_ == Mode::Combat) { enemies_.clear(); corpses_.clear(); }   // test hook: the foes in the side view are gone on that step
     if (const char* cs = getenv("DOF_CAMP")) if (steps_ == atoi(cs) && mode_ == Mode::World && box_.empty()) start_camp();   // test hook: the camp scene on that step
     if (mode_ == Mode::Help) { step_help(in); return; }
     if (mode_ == Mode::Debug) { step_debug(in); return; }
@@ -1780,7 +1781,8 @@ void Game::step(const Input& in) {
     if (held()) attacking_ = false;
     if (ranged_pose_ > 0) ranged_pose_--;
     if (--qm_countdown_ <= 0) { qm_countdown_ = 360; army_tick(); }
-    if (interior() && mode_ == Mode::World && box_.empty()) wander_step();  // the armies move once every 360 logic steps (6 x 60)
+    if (interior() && mode_ == Mode::World && box_.empty()) wander_step();
+    if (mode_ == Mode::Combat && !interior() && !lair_active_ && backdrop_ && !orig_controls_ && enemies_.empty() && turn_ms_ <= 0 && box_.empty()) wild_hunt_step();  // the armies move once every 360 logic steps (6 x 60)
     bool confirm_edge = in.confirm && !confirm_prev_;  // in.confirm is latched for taps between steps
     confirm_prev_ = in.confirm;
     if (in.select > 0) set_leader(in.select - 1);

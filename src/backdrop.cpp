@@ -87,6 +87,7 @@ void Game::draw_backdrop(int cam_x, int cam_y) {
     // the creatures of the wilderness in the distance: the front-facing figures, shrunk with the distance and misted like the land
     for (auto& w : wild_) {
         int depth = east_west_ ? (strip_.origin_y() - w.y) / 16 : (strip_.origin_x() - w.x) / 16;
+        if (depth == 0) depth = 1;                                         // just about to reach the party
         if (depth < 1 || depth > kN) continue;
         int X = strip_of_world(w.x + 8, w.y);
         int sx = X - cam_x;
@@ -118,15 +119,50 @@ void Game::draw_backdrop(int cam_x, int cam_y) {
     }
 }
 
+// The creatures in the distance of the side view are not statues: those within sight walk towards the party (as they do on the map) and, when one gets
+// within reach, the fight begins at once with a group coming in from the sides. Only while nothing is being fought.
+void Game::wild_hunt_step() {
+    if (no_encounters_ || strip_.width_px() <= 0) return;
+    int wx, wy;
+    strip_.world_from_x(cx_ - 0x40, px_, py_, east_west_, &wx, &wy);
+    for (size_t i = 0; i < wild_.size(); i++) {
+        Wild& w = wild_[i];
+        if (w.npc) continue;
+        int dx = wx - w.x, dy = wy - w.y;
+        if (abs(dx) > 150 || abs(dy) > 120) continue;                        // not yet in sight (the land drawn behind the strip is about 100 px deep)
+        if (abs(dx) < 16 && abs(dy) < 16) {                                    // it has arrived
+            spawn_encounter_at(rnd(1, 3));
+            wild_.erase(wild_.begin() + i);
+            message_ = "Enemies!"; message_steps_ = 12;
+            return;
+        }
+        w.dx = dx > 0 ? 1 : (dx < 0 ? -1 : 0); w.dy = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
+        for (int s = 0; s < wild_speed_; s++) {
+            if (w.dx && world_.can_move(w.x, w.y, w.dx, 0)) w.x += w.dx;
+            if (w.dy && world_.can_move(w.x, w.y, 0, w.dy)) w.y += w.dy;
+        }
+        w.anim++;
+    }
+}
+
 // The turn between the two strips: the ground around the party is made into a temporary 3D surface (a flat plane stretching to a hazy horizon, textured with the real
 // map tiles) and that surface is rotated 90 degrees about the party's feet, so the party seems to turn on the spot. The old side view dissolves into the surface at the
 // start and the new one dissolves in at the end; the earth below the feet (which belongs to the side view only) fades away for the whole turn. e: 0 to 1.
 void Game::compose_turn(double e, int cx, int cy) {
     static const int bayer[16] = {0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5};
     const int W = kW, H = 128;
-    const double f = 100.0, z0 = 12.5, hc = 9.1;                       // focal length; the party's distance from the camera; the camera's height (world px)
     const double feet = std::clamp(cy_ - cy + 16, 40, H - 1);           // where the party's feet are on the screen
-    const double hx = cx_ - cx, yh = feet - 73.0;                       // the party's screen column; the horizon row
+    // the horizon of the surface is the horizon the side view draws: the first row that is not open sky, in the old view at the start and the new one at the end
+    auto horizon = [&](const std::vector<uint8_t>& img) {
+        std::vector<int> rows;
+        for (int x = 2; x < W; x += 4) { int y = 0; while (y < H && img[y * W + x] == kSky) y++; rows.push_back(y); }
+        std::nth_element(rows.begin(), rows.begin() + rows.size() / 2, rows.end());
+        return rows[rows.size() / 2];
+    };
+    const double yh = std::clamp(horizon(turn_old_) * (1.0 - e) + horizon(scene_snap_) * e, 2.0, feet - 14.0);
+    const double f = std::clamp((feet - yh) / 0.4, 60.0, 140.0);        // the camera looks down on the party about 27 degrees: the horizon sits where the side view's does
+    const double z0 = f / 8.0, hc = (feet - yh) * z0 / f;               // the party's distance from the camera (8 screen px per world px, as in the strip); the camera's height
+    const double hx = cx_ - cx;                                         // the party's screen column
     const double xh = (hx - W / 2.0) * z0 / f;
     // the camera looks north in an east-west strip and west in a north-south one; the turn goes between the two
     const double phi = (turn_dir_ < 0 ? e : 1.0 - e) * M_PI / 2, sn = std::sin(phi), cs = std::cos(phi);
@@ -145,14 +181,14 @@ void Game::compose_turn(double e, int cx, int cy) {
                 wx = std::clamp(wx, 0, 2559); wy = std::clamp(wy, 0, 3071);
                 int t = world_.tile_at(wx, wy);
                 if (t >= 1 && t <= (int)wtiles_.size()) {
-                    int snap = z < 22 ? 1 : z < 45 ? 2 : z < 90 ? 4 : 16;   // further away the tile's picture is coarser, then just its main colour
+                    int snap = z < 1.8 * z0 ? 1 : z < 3.6 * z0 ? 2 : z < 7.2 * z0 ? 4 : 16;   // further away the tile's picture is coarser, then just its main colour
                     int kind = backdrop_kind(t);
                     c = snap == 16 ? backdrop_dom_[t] : wtiles_[t - 1].px[((wy & 15) / snap * snap) * wtiles_[t - 1].w + ((wx & 15) / snap * snap)];
                     if (kind == kWater && c == 9) c = 10;
                 }
-                int mist = (int)std::clamp((z - 30.0) / 160.0 * 16.0, 0.0, 16.0);   // the distance turns blue
+                int mist = (int)std::clamp((z / z0 - 2.4) / 12.8 * 16.0, 0.0, 16.0);   // the distance turns blue
                 if (mist > bv) c = kSky;
-                if (below && (y - feet) / 12.0 * 16 > bv) c = 0;                    // nothing in front of the feet
+                if (below && (y - feet) / 30.0 * 16 > bv) c = 0;                    // the ground fades away in front of the feet
             }
             if (ao > 0 && (int)(ao * 16) > bv) c = turn_old_[y * W + x];
             if (an > 0 && (int)(an * 16) > bv) c = scene_snap_[y * W + x];

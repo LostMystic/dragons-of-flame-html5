@@ -100,6 +100,10 @@ DOF_CAMP=30 check "rest: the view fades out (camp phase 1)" "camp=1" "enter:3,wa
 DOF_CAMP=30 check "rest: the companions talk (camp phase 2)" "camp=2" "enter:3,wait:20" 480
 DOF_CAMP=30 check "rest: it ends by itself and the party can move again" "mode=world pos=(1024,1024)" "enter:3,wait:2000" 6000
 DOF_CONTROLS=updated check "turning to the other axis and back puts the party exactly where it was" "strip=(8256,320) world=(1024,1024) axis=ew" "enter:3,wait:20,toggle:2,wait:20,down:1,wait:150,down:1,wait:150" 1200
+out=$(DOF_CONTROLS=updated DOF_TEST_WILD=1 DOF_TEST_BEHIND=4 DOF_CLEAR=12 $BIN --headless --frames 200 --keys "enter:3,wait:20,toggle:2,wait:900" | tail -1)
+[[ "$out" == *"enemies=0"* ]] && echo "ok    a creature in the distance waits while it is far" || { echo "FAIL  distant creature early: $out"; fail=1; }
+out=$(DOF_CONTROLS=updated DOF_TEST_WILD=1 DOF_TEST_BEHIND=4 DOF_CLEAR=12 $BIN --headless --frames 600 --keys "enter:3,wait:20,toggle:2,wait:900" | tail -1)
+[[ "$out" != *"enemies=0"* && "$out" == *"enemies="* ]] && echo "ok    ...walks up to the party and the fight begins" || { echo "FAIL  distant creature arrives: $out"; fail=1; }
 DOF_WANDER=1 check "dungeon random encounters: a wandering group turns up in Pax Tharkas" "wand=" "enter:3,wait:20,lvl4:2,wait:300" 400
 DOF_CONTROLS=updated check "updated controls: turning the strip swings the view for about a second" "turning=" "enter:3,wait:20,toggle:2,wait:20,turn:1" 85
 DOF_CONTROLS=updated check "updated controls: after the swing the other strip is walkable" "axis=ns" "enter:3,wait:20,toggle:2,wait:20,turn:1,wait:80,right:2" 220
