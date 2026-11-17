@@ -118,37 +118,34 @@ void Game::draw_backdrop(int cam_x, int cam_y) {
     }
 }
 
-// The turn between the two strips: the old view and the new one are the two faces of a cube swinging round (e: 0 to 1). The face nearest the seam grows,
-// the outer edges shrink away, so what was in the distance seems to swing forward. Only the picture of the view (128 rows) is changed.
+// The turn between the two strips: the party stays put in the middle and the world swings round it. The old view and the new one are the two walls of a corner
+// 90 degrees apart, each a flat picture 120 px in front of the viewer; the camera turns from the old wall to the new one (e: 0 to 1). A column of the screen looks along
+// the angle b; the wall it hits is shown at that angle's place in the picture, and shrinks towards the party's feet the further round the wall is turned away.
 void Game::compose_turn(double e) {
     const int W = kW, H = 128;
-    std::vector<uint8_t> nw(screen_.px.begin(), screen_.px.begin() + W * H);
-    const double s = std::sin(M_PI * e);
-    const double outer = 1.0 - 0.30 * s, seam = 1.0 + 0.16 * s;
-    const int a = (int)std::lround(W * (1.0 - e));              // where the old face ends and the new one starts
-    const bool flip = turn_dir_ > 0;                            // the swing goes the other way when turning back
+    const double f = 120.0, psi = e * M_PI / 2, corner = M_PI / 4;
+    const double pivot = std::clamp(cy_ - 256 + 16, 32, H - 1);   // the party's feet: the horizon of the swing stays level here
+    const bool flip = turn_dir_ > 0;                              // the world swings the other way when turning back
+    std::vector<uint8_t> out((size_t)W * H);
     for (int x = 0; x < W; x++) {
-        int dx = flip ? W - 1 - x : x;                          // work in "old on the left" coordinates
-        bool old_face = dx < a;
-        double sc, u;                                           // vertical scale; where in the face's own width the column lies
-        if (old_face) { u = (dx + 0.5) / std::max(1, a); sc = outer + (seam - outer) * u; }
-        else { u = (dx - a + 0.5) / std::max(1, W - a); sc = seam + (outer - seam) * u; }
-        int src_x = (int)(u * W);
-        src_x = std::clamp(src_x, 0, W - 1);
-        if (flip) src_x = W - 1 - src_x;
-        const std::vector<uint8_t>& src = old_face ? turn_old_ : nw;
-        // the edge of each face next to the seam is darkened a little: the faces turn away from the light
-        bool shade = old_face ? dx > a - 3 : dx < a + 3;
+        int dx = flip ? W - 1 - x : x;                           // work as if turning to the right
+        double a = std::atan((dx + 0.5 - W / 2.0) / f), b = psi + a;
+        bool old_wall = b < corner;
+        double bw = old_wall ? b : b - M_PI / 2;                 // the angle on the wall's own picture
+        double xi = W / 2.0 + f * std::tan(bw);
+        int src_x = std::clamp((int)xi, 0, W - 1);
+        if (flip) src_x = W - 1 - src_x;                         // (the pictures are looked at in a mirror)
+        double sc = std::cos(bw) / std::cos(a);                  // the wall is further away, so smaller, the more it turns from the viewer
+        const std::vector<uint8_t>& src = old_wall ? turn_old_ : scene_snap_;
+        bool seam = std::fabs(b - corner) < 0.012;               // a thin dark line in the corner
         for (int y = 0; y < H; y++) {
-            double sy = 64 + (y - 64 + 0.5) / sc;
-            uint8_t c = 0;
-            if (sy >= 0 && sy < H) {
-                c = src[(int)sy * W + src_x];
-                if (shade && ((x + y) & 3) == 0) c = 0;
-            }
-            screen_.px[y * W + x] = c;
+            int sy = std::clamp((int)std::floor(pivot + (y + 0.5 - pivot) / sc), 0, H - 1);   // (beyond the picture the sky and the earth just carry on)
+            uint8_t c = src[sy * W + src_x];
+            if (seam && ((x + y) & 1) == 0) c = 0;
+            out[y * W + x] = c;
         }
     }
+    std::copy(out.begin(), out.end(), screen_.px.begin());
 }
 
 }  // namespace dof

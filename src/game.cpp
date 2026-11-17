@@ -1925,8 +1925,9 @@ bool Game::move_party(const Input& in, int px, bool up_edge, bool down_edge, int
         bool turn = (orig_controls_ ? (up_edge || down_edge) : (down_edge || (fast && in.turn))) && !lair_active_;   // (a cave runs one way only: there is no other direction to turn to)  // original: 8 and 2 turn; otherwise only down turns and up jumps
         if (turn) {
             int owx = px_, owy = py_;
-            if (backdrop_ && !orig_controls_ && !last_view_.empty()) { turn_old_ = last_view_; turn_ms_ = kTurnMs; turn_dir_ = east_west_ ? -1 : 1; }   // the swing: see compose_turn
-            strip_.world_from_x(cx_, px_, py_, east_west_, &px_, &py_);
+            if (backdrop_ && !orig_controls_ && !scene_snap_.empty()) { turn_old_ = scene_snap_; turn_ms_ = kTurnMs; turn_dir_ = east_west_ ? -1 : 1; }   // the world swings round the party: see compose_turn
+            fol_seen_ = -100;   // the companions are lined up again behind the leader
+            strip_.world_from_x(orig_controls_ ? cx_ : cx_ - 0x40, px_, py_, east_west_, &px_, &py_);   // (start_x puts the party 0x40 into the strip: take it off again, so that two turns in a row come back to the same spot)
             east_west_ = !east_west_;
             strip_.build(world_, px_, py_, east_west_);
             int nx = strip_.start_x(px_, py_, east_west_);
@@ -4306,6 +4307,8 @@ void Game::draw_combat() {
             if (t >= 1 && t <= (int)wtiles_.size()) screen_.blit(wtiles_[t - 1], tx * 16 - cx, ty * 16 - cy);  // tile numbers are 1-based
         }
     if (!lair_active_ && backdrop_ && !orig_controls_) draw_backdrop(cx, cy);
+    scene_snap_.assign(screen_.px.begin(), screen_.px.begin() + kW * 128);   // the land without the figures: what the turn swings round
+    if (turn_ms_ > 0 && !turn_old_.empty()) compose_turn((1.0 - std::cos(M_PI * std::clamp(1.0 - turn_ms_ / kTurnMs, 0.0, 1.0))) / 2);
     // draw back to front so nearer figures overlap
     struct Item { int y; const Image* im; int x; bool flip; int dl = 16; };
     std::vector<Item> items;
@@ -4348,8 +4351,6 @@ void Game::draw_combat() {
     snprintf(b, sizeof b, "XP %d", xp_);
     screen_.text(4, 4, b, 15);
     if (message_steps_ > 0) screen_.text(4, 14, message_.c_str(), 7);
-    if (turn_ms_ > 0 && !turn_old_.empty()) compose_turn((1.0 - std::cos(M_PI * std::clamp(1.0 - turn_ms_ / kTurnMs, 0.0, 1.0))) / 2);
-    else last_view_.assign(screen_.px.begin(), screen_.px.begin() + kW * 128);
     draw_panel();
 }
 

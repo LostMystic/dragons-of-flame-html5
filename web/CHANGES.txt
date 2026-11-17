@@ -1,3 +1,6 @@
+Turning the side view now swings the whole world round the party (a corner turning past the camera) instead of flipping a cube; the party stays put in the middle.
+Turning to the other axis and back now puts the party exactly where it was (it used to drift a tile each time).
+The trailing companions now walk their own line: each only moves when the one in front gets too far ahead, and each has its own walking cycle, jumping or not.
 Companions trail behind you in the side view, smaller and bluer the further back; changing leader brings the new one forward in half a second (Settings: Companions trail behind).
 Resting now fades to black while the companions talk (about 700 lines, by who is alive and where you are; Settings: Companions talk when resting). Updated controls only.
 New arrival stings when a wandering group attacks in a dungeon: a war horn and drums for the Dragon Army, a hollow wail for the dead.

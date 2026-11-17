@@ -482,8 +482,9 @@ private:
     bool start_camp(); void step_camp(const Input& in); void draw_camp(); void finish_rest();
     // The other companions trail behind the leader in the side view, smaller and bluer the further back (src/followers.cpp); a change of leader brings the new one forward
     bool followers_ = true;   // Settings: companions trail behind (updated controls only)
-    std::vector<float> fol_d_, fol_side_;   // per hero: how far back (0 = the leader, eased towards its place in line) and on which side (-1 left .. 1 right, eased)
-    bool draw_followers(int cx, int cy);    // returns true while the leader is still drawn here (coming forward from the back) instead of in the normal place
+    std::vector<float> fol_d_, fol_x_, fol_anim_; std::vector<char> fol_left_;   // per hero: how far back in line (0 = the leader, eased), where they stand in the strip, their walk cycle, which way they face
+    long fol_seen_ = -100; std::vector<uint8_t> scene_snap_;   // the render frame the companions were last drawn on; the view without the figures (for the turn)
+    bool draw_followers(int cx, int cy, bool advance = true);    // returns true while the leader is still drawn here (coming forward from the back) instead of in the normal place
     bool backdrop_ = true;   // Settings: the far land behind the side view (updated controls only)
     std::vector<uint8_t> backdrop_dom_;
     std::vector<int8_t> backdrop_kind_;

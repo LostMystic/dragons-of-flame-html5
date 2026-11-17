@@ -26,41 +26,59 @@ static void blit_far(Screen& s, const Image& im, int x_center, int y_feet, doubl
     }
 }
 
-bool Game::draw_followers(int cx, int cy) {
+bool Game::draw_followers(int cx, int cy, bool advance) {
     const int n = (int)party_.size();
     if (n < 2 || party_[leader_].hp <= 0) return false;
-    if ((int)fol_d_.size() != n) { fol_d_.assign(n, -1.f); fol_side_.assign(n, 0.f); }
-    const float side_target = face_left_ ? 1.f : -1.f;   // behind the leader: the side they are not facing
-    int rank = 0;
+    const float S = 14.f;            // how far behind each one keeps to the one in front (strip px)
+    const float speed = 1.35f;       // px per frame: a little quicker than the leader's walk, so they catch up
+    bool fresh = (int)fol_d_.size() != n || render_frames_ - fol_seen_ > 3;   // first time, or the view was somewhere else: line up behind the leader
+    if ((int)fol_d_.size() != n) { fol_d_.assign(n, 0.f); fol_x_.assign(n, 0.f); fol_anim_.assign(n, 0.f); fol_left_.assign(n, 0); }
+    if (advance) fol_seen_ = render_frames_;
+    // the line: the leader first, then the others in party order
+    std::vector<int> line; line.push_back(leader_);
+    for (int i = 0; i < n; i++) if (i != leader_ && party_[i].hp > 0) line.push_back(i);
+    for (size_t r = 0; r < line.size(); r++) {
+        int h = line[r];
+        if (fresh) { fol_d_[h] = (float)r; fol_x_[h] = (float)cx_ + (face_left_ ? 1 : -1) * S * (float)r; fol_left_[h] = face_left_; fol_anim_[h] = 0; }
+        if (!advance) continue;
+        float target_d = (float)r;
+        fol_d_[h] += (target_d - fol_d_[h]) * 0.13f;   // ~half a second to settle at 60 frames a second
+        if (std::fabs(target_d - fol_d_[h]) < 0.01f) fol_d_[h] = target_d;
+        bool moving = false;
+        if (r == 0) {   // the leader: the companion that was far back comes forward to the party's place
+            float d = (float)cx_ - fol_x_[h];
+            if (std::fabs(d) > 0.5f) { fol_x_[h] += d * 0.13f; }
+            else fol_x_[h] = (float)cx_;
+        } else {
+            float ahead = fol_x_[line[r - 1]], d = ahead - fol_x_[h], ad = std::fabs(d);
+            float step = 0; int dir = d >= 0 ? 1 : -1;
+            if (ad > S) step = std::min(speed, ad - S);                            // too far behind: catch up (nobody else moves until they have to)
+            else if (ad < S * 0.5f) {                                              // standing on top of the one in front: step back, away from them
+                step = std::min(speed, S * 0.5f - ad);
+                dir = d == 0.f ? (face_left_ ? 1 : -1) : (d > 0 ? -1 : 1);
+            }
+            if (step > 0.01f) { fol_x_[h] += dir * step; fol_left_[h] = dir < 0; moving = true; }
+        }
+        if (moving) fol_anim_[h] += 1.f; else fol_anim_[h] = 0.f;
+    }
+    bool in_transit = false;
     struct F { int hero; float d; };
     std::vector<F> list;
-    for (int i = 0; i < n; i++) {
-        if (party_[i].hp <= 0) continue;
-        float target = i == leader_ ? 0.f : (float)(++rank);
-        if (fol_d_[i] < 0) { fol_d_[i] = target; fol_side_[i] = side_target; }   // first seen: already in place
-        else {
-            fol_d_[i] += (target - fol_d_[i]) * 0.13f;   // ~half a second to settle at 60 frames a second
-            if (std::fabs(target - fol_d_[i]) < 0.01f) fol_d_[i] = target;
-            fol_side_[i] += (side_target - fol_side_[i]) * (0.10f / (1.f + 0.25f * fol_d_[i]));   // the ones further back turn a little later
-        }
-        list.push_back({i, fol_d_[i]});
-    }
+    for (int h : line) list.push_back({h, fol_d_[h]});
     std::sort(list.begin(), list.end(), [](const F& a, const F& b) { return a.d > b.d; });   // far first
-    bool in_transit = false;
     for (auto& e : list) {
         if (e.hero == leader_) { if (e.d > 0.02f) in_transit = true; else continue; }
         const Hero& h = party_[e.hero];
         if (h.actor.frames.empty()) continue;
-        size_t f = rules_.walk_frames.empty() ? 0 : (size_t)rules_.walk_frames[anim_ % rules_.walk_frames.size()];
-        if (anim_ == 0 || f >= h.actor.frames.size()) f = 0;
+        size_t f = 0;
+        if (fol_anim_[e.hero] > 0.f && !rules_.walk_frames.empty()) { f = (size_t)rules_.walk_frames[((size_t)fol_anim_[e.hero] / 6) % rules_.walk_frames.size()]; if (f >= h.actor.frames.size()) f = 0; }   // their own walk cycle, whatever the leader is doing
         const Image& im = h.actor.frames[f];
         double d = e.d;
         double scale = std::max(0.5, 1.0 - 0.07 * d);
         int haze = (int)std::lround(std::min(10.0, d * 1.7));
-        int xc = cx_ - cx + (int)std::lround(fol_side_[e.hero] * 17.0 * d);
+        int xc = (int)std::lround(fol_x_[e.hero]) - cx;
         int feet = cy_ - cy + 16 - (int)std::lround(std::min(9.0, d * 1.3));
-        // the frames are drawn with their left edge 8 px left of the hero's centre, so the middle of a frame is at +im.w/2 - 8
-        blit_far(screen_, im, xc + im.w / 2 - 8, feet, scale, face_left_, haze);
+        blit_far(screen_, im, xc + im.w / 2 - 8, feet, scale, e.hero == leader_ ? face_left_ : (bool)fol_left_[e.hero], haze);
     }
     return in_transit;
 }
