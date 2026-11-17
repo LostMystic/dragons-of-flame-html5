@@ -237,7 +237,7 @@ private:
     void enter_world();
     void toggle_view();
     void spawn_encounter();
-    void spawn_encounter_at(int count, const std::vector<int>& slots = {});
+    void spawn_encounter_at(int count, const std::vector<int>& slots = {}, int force_type = -1, int first_x = -1);   // force_type: all of that monster; first_x: the first one stands there (a creature that walked up out of the distance)
     void spawn_wild();
     void join_party(const Hero& h);
     void armies_win();

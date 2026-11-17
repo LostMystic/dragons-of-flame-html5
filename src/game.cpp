@@ -439,13 +439,13 @@ int Game::overland_type(int x, int y) {
 }
 
 // Original (fn 6572): 1 to 3 creatures appear around the contact point, +-20 px.
-void Game::spawn_encounter_at(int count, const std::vector<int>& slots) {
+void Game::spawn_encounter_at(int count, const std::vector<int>& slots, int force_type, int first_x) {
     enemies_.clear(); corpses_.clear();
     if (!slots.empty()) count = (int)slots.size();
     const int main_side = getenv("DOF_FIXED_SPAWN") ? 1 : (rnd(0, 1) ? 1 : -1);
     for (int i = 0; i < count; i++) {
         Enemy e;
-        e.type = overland_type();
+        e.type = force_type >= 0 ? force_type : overland_type();
         if (!slots.empty())
             for (size_t k = 0; k < mtypes_.size(); k++) if (mtypes_[k].slot == slots[i]) e.type = (int)k;
         if (const char* tn = getenv("DOF_TEST_TYPE")) for (size_t k = 0; k < mtypes_.size(); k++) if (mtypes_[k].name == tn) e.type = (int)k;   // test hook
@@ -464,6 +464,7 @@ void Game::spawn_encounter_at(int count, const std::vector<int>& slots) {
             int dist = rnd(150, 270) + (i / 2) * rnd(15, 40);
             if (rnd(1, 100) <= 25) dist = rnd(105, 150);
             e.x = std::clamp(cx_ + side * dist + rnd(-20, 20), 0, strip_.width_px() - 32);
+            if (first_x >= 0) e.x = std::clamp(first_x + (i == 0 ? 0 : (i % 2 ? 1 : -1) * (28 + 24 * (i / 2))), 0, strip_.width_px() - 32);   // it has walked up: it is already there
             for (int tries = 0; water_at(e.x) && tries < 40; tries++) e.x = std::clamp(e.x + (e.x > cx_ ? -16 : 16), 0, strip_.width_px() - 32);   // never in a river
             e.y = ground_y(e.x) - 16;
             e.left = e.x > cx_;

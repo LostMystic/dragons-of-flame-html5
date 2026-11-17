@@ -92,26 +92,30 @@ void Game::draw_backdrop(int cam_x, int cam_y) {
         int X = strip_of_world(w.x + 8, w.y);
         int sx = X - cam_x;
         if (sx < -16 || sx > kW + 16) continue;
-        const auto& fs = w.npc ? figs_ : figs2_;
-        size_t f = (size_t)(east_west_ ? 4 : 2) * 3;                      // standing, turned towards the onlooker
-        if (f >= fs.size()) continue;
-        const Image& im = fs[f];
-        int k = depth - 1, size = std::clamp(12 - 2 * k, 4, 12);
+        // the creature's own front-facing figure: the last picture on its sheet (the full one of the five that fade in); people keep the map figures
+        const Image* imp = nullptr;
+        if (!w.npc && w.type >= 0 && w.type < (int)mtypes_.size() && !mtypes_[w.type].actor.frames.empty()) imp = &mtypes_[w.type].actor.frames.back();
+        else { const auto& fs = w.npc ? figs_ : figs2_; size_t f = (size_t)(east_west_ ? 4 : 2) * 3; if (f < fs.size()) imp = &fs[f]; }
+        if (!imp) continue;
+        const Image& im = *imp;
+        int k = depth - 1;
+        double sc = std::max(0.16, (w.npc ? 0.75 : 0.66) - 0.1 * k);          // smaller with distance
+        int sw = std::max(3, (int)std::lround(im.w * sc)), sh = std::max(3, (int)std::lround(im.h * sc));
         int feet = backdrop_horizon(std::clamp(X, 0, strip_.width_px() - 1), cam_y);
         for (int j = 0; j < k; j++) feet -= kBand[j];
         feet -= kBand[k] / 2;                                             // standing in the middle of its band
-        std::vector<uint8_t> sp((size + 2) * (size + 2), 0);          // the shrunk figure with a dark rim, so it stands out from the land
-        for (int dy = 0; dy < size; dy++)
-            for (int dx = 0; dx < size; dx++) sp[(dy + 1) * (size + 2) + dx + 1] = im.px[(dy * 16 / size) * im.w + dx * 16 / size];
-        for (int dy = 0; dy < size + 2; dy++)
-            for (int dx = 0; dx < size + 2; dx++) {
-                uint8_t c = sp[dy * (size + 2) + dx];
+        std::vector<uint8_t> sp((sw + 2) * (sh + 2), 0);              // the shrunk figure with a dark rim, so it stands out from the land
+        for (int dy = 0; dy < sh; dy++)
+            for (int dx = 0; dx < sw; dx++) sp[(dy + 1) * (sw + 2) + dx + 1] = im.px[std::min(im.h - 1, (int)(dy / sc)) * im.w + std::min(im.w - 1, (int)(dx / sc))];
+        for (int dy = 0; dy < sh + 2; dy++)
+            for (int dx = 0; dx < sw + 2; dx++) {
+                uint8_t c = sp[dy * (sw + 2) + dx];
                 if (c == 0) {
-                    bool near = (dx > 0 && sp[dy * (size + 2) + dx - 1]) || (dx < size + 1 && sp[dy * (size + 2) + dx + 1]) || (dy > 0 && sp[(dy - 1) * (size + 2) + dx]) || (dy < size + 1 && sp[(dy + 1) * (size + 2) + dx]);
+                    bool near = (dx > 0 && sp[dy * (sw + 2) + dx - 1]) || (dx < sw + 1 && sp[dy * (sw + 2) + dx + 1]) || (dy > 0 && sp[(dy - 1) * (sw + 2) + dx]) || (dy < sh + 1 && sp[(dy + 1) * (sw + 2) + dx]);
                     if (!near) continue;
                     c = 8;
                 }
-                int px = sx - size / 2 - 1 + dx, py = feet - size - 1 + dy;
+                int px = sx - sw / 2 - 1 + dx, py = feet - sh - 1 + dy;
                 if (px < 0 || px >= kW || py < 0 || py >= 128) continue;
                 if (kMist[k] > kBayer[py & 3][px & 3]) continue;           // mist: the dither lets the land behind show through
                 screen_.px[py * kW + px] = c;
@@ -130,8 +134,8 @@ void Game::wild_hunt_step() {
         if (w.npc) continue;
         int dx = wx - w.x, dy = wy - w.y;
         if (abs(dx) > 150 || abs(dy) > 120) continue;                        // not yet in sight (the land drawn behind the strip is about 100 px deep)
-        if (abs(dx) < 16 && abs(dy) < 16) {                                    // it has arrived
-            spawn_encounter_at(rnd(1, 3));
+        if (abs(dx) < 24 && abs(dy) < 24) {                                    // it has arrived (a little more generous than on the map: it is seen coming)
+            spawn_encounter_at(rnd(1, 3), {}, w.type, std::clamp(strip_of_world(w.x + 8, w.y) - 8, 0, strip_.width_px() - 32));
             wild_.erase(wild_.begin() + i);
             message_ = "Enemies!"; message_steps_ = 12;
             return;
@@ -180,13 +184,16 @@ void Game::compose_turn(double e, int cx, int cy) {
                 int wx = (int)std::floor(px_ + cs * ox - sn * oz), wy = (int)std::floor(py_ - sn * ox - cs * oz);
                 wx = std::clamp(wx, 0, 2559); wy = std::clamp(wy, 0, 3071);
                 int t = world_.tile_at(wx, wy);
+                const double depth = oz / 16.0;                                      // tiles behind the party's line (the side view's own bands, as it draws them)
+                const int k = std::clamp((int)std::floor(depth), 0, kN - 1);
                 if (t >= 1 && t <= (int)wtiles_.size()) {
-                    int snap = z < 1.8 * z0 ? 1 : z < 3.6 * z0 ? 2 : z < 7.2 * z0 ? 4 : 16;   // further away the tile's picture is coarser, then just its main colour
                     int kind = backdrop_kind(t);
-                    c = snap == 16 ? backdrop_dom_[t] : wtiles_[t - 1].px[((wy & 15) / snap * snap) * wtiles_[t - 1].w + ((wx & 15) / snap * snap)];
+                    // the same colours as the side view's far land: the tile's own picture near, its main colour from the third band on (forest and rock too)
+                    bool main_colour = depth >= 2.0 || (depth >= 0 && kind == kForest);
+                    c = main_colour ? backdrop_dom_[t] : wtiles_[t - 1].px[(wy & 15) * wtiles_[t - 1].w + (wx & 15)];
                     if (kind == kWater && c == 9) c = 10;
                 }
-                int mist = (int)std::clamp((z / z0 - 2.4) / 12.8 * 16.0, 0.0, 16.0);   // the distance turns blue
+                double mist = depth < 0 ? 0 : depth < kN ? kMist[k] + (kMist[std::min(kN - 1, k + 1)] - kMist[k]) * (depth - k) : std::min(16.0, 12.0 + (depth - kN) * 1.2);   // the same mist, going on to the horizon
                 if (mist > bv) c = kSky;
                 if (below && (y - feet) / 30.0 * 16 > bv) c = 0;                    // the ground fades away in front of the feet
             }
