@@ -34,6 +34,9 @@ bool Game::draw_followers(int cx, int cy, bool advance) {
     bool fresh = (int)fol_d_.size() != n || render_frames_ - fol_seen_ > 3;   // first time, or the view was somewhere else: line up behind the leader
     if ((int)fol_d_.size() != n) { fol_d_.assign(n, 0.f); fol_x_.assign(n, 0.f); fol_anim_.assign(n, 0.f); fol_left_.assign(n, 0); }
     if (advance) fol_seen_ = render_frames_;
+    // a foe in the strip: the companions do not fight, but they spread out around it in the background while the leader does; with it gone they follow again
+    const Enemy* foe = nullptr; float fd = 1e9f;
+    for (auto& e : enemies_) if (e.hp > 0 && e.refugee != 1 && std::fabs((float)e.x - (float)cx_) < std::min(fd, 110.f)) { fd = std::fabs((float)e.x - (float)cx_); foe = &e; }
     // the line: the leader first, then the others in party order
     std::vector<int> line; line.push_back(leader_);
     for (int i = 0; i < n; i++) if (i != leader_ && party_[i].hp > 0) line.push_back(i);
@@ -49,6 +52,12 @@ bool Game::draw_followers(int cx, int cy, bool advance) {
             float d = (float)cx_ - fol_x_[h];
             if (std::fabs(d) > 0.5f) { fol_x_[h] += d * 0.13f; }
             else fol_x_[h] = (float)cx_;
+        } else if (foe) {   // the companions take places on both sides of the foe, a little way off, and face it
+            int k = (int)r - 1, side = (k % 2 == 0) ? (cx_ < foe->x ? -1 : 1) : (cx_ < foe->x ? 1 : -1);   // the first on the leader's side, the next on the far side, and so on
+            float spot = (float)foe->x + side * (30.f + 15.f * (float)(k / 2));
+            float d = spot - fol_x_[h], ad = std::fabs(d);
+            if (ad > 1.f) { float step = std::min(speed * 0.8f, ad); fol_x_[h] += (d > 0 ? 1 : -1) * step; moving = true; }
+            fol_left_[h] = foe->x < fol_x_[h];
         } else {
             float ahead = fol_x_[line[r - 1]], d = ahead - fol_x_[h], ad = std::fabs(d);
             float step = 0; int dir = d >= 0 ? 1 : -1;
