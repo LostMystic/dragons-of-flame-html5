@@ -473,6 +473,13 @@ private:
     int gfx_mode_ = 0;                     // 0 = original 16-colour; 256-colour is reserved for later
     bool backdrop_ = true;   // Settings: the far land behind the side view (updated controls only)
     std::vector<uint8_t> backdrop_dom_;
+    std::vector<int8_t> backdrop_kind_;
+    int backdrop_kind(int tile);
+    int backdrop_horizon(int x, int cam_y) const;
+    void compose_turn(double e);
+    std::vector<uint8_t> last_view_, turn_old_;   // the side view as last drawn, and as it was when a turn began
+    double turn_ms_ = 0; int turn_dir_ = 0;       // the turn animation (milliseconds left; which way it swings)
+    static constexpr double kTurnMs = 1000;
     void draw_backdrop(int cam_x, int cam_y);
     bool ctl_drop_ = false; int ctl_drop_sel_ = 0;   // the controls-type drop-down in Settings
     int settings_focus_ = 0, mouse_x_ = -1, mouse_y_ = -1;

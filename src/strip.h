@@ -18,6 +18,8 @@ public:
 
     // The map tile at distance `depth` tiles behind the strip (north of an east-west strip, west of a north-south one) under strip column `col`; -1 off the map.
     int far_tile(const World& w, int col, int depth) const;
+    int origin_x() const { return ox_; }
+    int origin_y() const { return oy_; }
     int width_px() const { return kLen * 128; }
     int height_px() const { return kRows * 128; }
     int block_at(int bx, int by) const { return bx < 0 || by < 0 || bx >= kLen || by >= kRows ? 0 : blocks_[by * kLen + bx]; }

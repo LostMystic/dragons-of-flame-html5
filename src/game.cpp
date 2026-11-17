@@ -266,7 +266,7 @@ bool Game::init(const std::string& root) {
     y_exit_any_ = getenv("DOF_Y_ANY") != nullptr;   // test hook: Y leaves any fight (the older tests were written for that)
     if (getenv("DOF_PARTY_ALL")) for (auto& hh : all_heroes_) join_party(hh);   // test hook: everyone in the party
     if (getenv("DOF_GIVE")) inv_.push_back(atoi(getenv("DOF_GIVE")));  // test cheat: an item in the pack
-    if (getenv("DOF_TEST_WILD")) { wild_.clear(); Wild w; w.x = px_ + 28; w.y = py_; w.type = pool_[0]; if (const char* tn = getenv("DOF_TEST_TYPE")) for (size_t k = 0; k < mtypes_.size(); k++) if (mtypes_[k].name == tn) w.type = (int)k; wild_.push_back(w); }  // test hook
+    if (getenv("DOF_TEST_WILD")) { wild_.clear(); Wild w; w.x = px_ + (getenv("DOF_TEST_BEHIND") ? 4 : 28); w.y = py_ - (getenv("DOF_TEST_BEHIND") ? atoi(getenv("DOF_TEST_BEHIND")) * 16 : 0); w.type = pool_[0]; if (const char* tn = getenv("DOF_TEST_TYPE")) for (size_t k = 0; k < mtypes_.size(); k++) if (mtypes_[k].name == tn) w.type = (int)k; wild_.push_back(w); }  // test hook
     screen_.pal = title_pal_;
     quick_title_ = getenv("DOF_QUICK_TITLE") != nullptr;
     quick_talk_ = getenv("DOF_QUICK_TALK") != nullptr;
@@ -1817,12 +1817,13 @@ bool Game::move_party(const Input& in, int px, bool up_edge, bool down_edge, int
         bool turn = (orig_controls_ ? (up_edge || down_edge) : (down_edge || (fast && in.turn))) && !lair_active_;   // (a cave runs one way only: there is no other direction to turn to)  // original: 8 and 2 turn; otherwise only down turns and up jumps
         if (turn) {
             int owx = px_, owy = py_;
+            if (backdrop_ && !orig_controls_ && !last_view_.empty()) { turn_old_ = last_view_; turn_ms_ = kTurnMs; turn_dir_ = east_west_ ? -1 : 1; }   // the swing: see compose_turn
             strip_.world_from_x(cx_, px_, py_, east_west_, &px_, &py_);
             east_west_ = !east_west_;
             strip_.build(world_, px_, py_, east_west_);
             int nx = strip_.start_x(px_, py_, east_west_);
             if ((ghost_ ? (nx >= 0 && nx + 16 <= strip_.width_px()) : lair_active_ ? (nx >= lair_x0_ + 10 && nx + 16 <= lair_x1_ - 10) : strip_.can_move(world_, nx, cy_, 0, 0))) { cx_ = nx; for (auto& e : enemies_) e.x = std::clamp(nx + (e.x > cx_ ? 1 : -1) * std::min(abs(e.x - cx_), 400), 0, strip_.width_px() - 32); }
-            else { east_west_ = !east_west_; px_ = owx; py_ = owy; strip_.build(world_, px_, py_, east_west_); }
+            else { east_west_ = !east_west_; px_ = owx; py_ = owy; strip_.build(world_, px_, py_, east_west_); turn_ms_ = 0; }
         }
         bool moved_c = false;
         if (orig_controls_ && in.attack) dx = 0;   // + held: the direction aims the attack instead of walking
@@ -2170,6 +2171,8 @@ bool Game::frame(Platform& p) {
     if (last_ms_ < 0) last_ms_ = now;
     double dt_ms = std::min(now - last_ms_, 250.0);
     acc_ms_ += dt_ms;
+    const bool turning = turn_ms_ > 0;   // the turn animation: the game waits
+    if (turning) { turn_ms_ -= dt_ms; acc_ms_ = 0; }
     if (mode_ == Mode::Combat || (mode_ == Mode::World && interior())) { if (!missiles_.empty()) update_missiles(std::min(dt_ms, 100.0)); if (!floaters_.empty() || !sparks_.empty() || !bolts_.empty() || !bursts_.empty() || !impacts_.empty() || !slabs_.empty() || final_t_ >= 0 || lightning_.t >= 0) update_floaters(std::min(dt_ms, 100.0)); }
     last_ms_ = now;
     double step_ms = 1000.0 / rules_.tick_hz * rules_.ticks_per_step;
@@ -2196,7 +2199,7 @@ bool Game::frame(Platform& p) {
     if (in.map && !orig_controls_) pending_map_ = true;
     if (in.start) pending_start_ = true;
     if (in.ranged && !orig_controls_) pending_ranged_ = true;
-    if (!orig_controls_ && !turbo_) frame_move(in, dt_ms);  // updated controls: the party moves every frame, not every logic step
+    if (!orig_controls_ && !turbo_ && !turning) frame_move(in, dt_ms);  // updated controls: the party moves every frame, not every logic step
     pending_save_ = pending_save_ || in.save;
     pending_load_ = pending_load_ || in.load;
     if (in.level) pending_level_ = in.level;
@@ -4227,6 +4230,8 @@ void Game::draw_combat() {
     snprintf(b, sizeof b, "XP %d", xp_);
     screen_.text(4, 4, b, 15);
     if (message_steps_ > 0) screen_.text(4, 14, message_.c_str(), 7);
+    if (turn_ms_ > 0 && !turn_old_.empty()) compose_turn((1.0 - std::cos(M_PI * std::clamp(1.0 - turn_ms_ / kTurnMs, 0.0, 1.0))) / 2);
+    else last_view_.assign(screen_.px.begin(), screen_.px.begin() + kW * 128);
     draw_panel();
 }
 
@@ -4247,6 +4252,7 @@ std::string Game::debug() const {
     { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " music=%s", music_track_.empty() ? "-" : music_track_.c_str()); }
     if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
     if (speech_steps_ > 0 || !speech_q_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " speech=%zu:%s", speech_q_.size() + (speech_steps_ > 0), speech_cur_.text.c_str()); }
+    if (turn_ms_ > 0) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " turning=%d", (int)turn_ms_); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }
     if (mode_ == Mode::Title) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " page=%d sel=%d", title_page_, title_sel_); }
     return b;
