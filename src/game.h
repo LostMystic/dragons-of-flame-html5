@@ -57,6 +57,7 @@ struct Hero {
     int ring_bonus = 0;    // how much it improves the armor class
     bool shield = false;   // carries the Shield +1
     bool plate = false;    // wears the plate armor (armor class 3; only Caramon and Sturm)
+    double stam = 28.0;    // endurance in bar pixels (the yellow bar, updated controls): walking, swinging and being hit wear it down; Rest refills it
 };
 
 struct ItemStat { std::string slot; std::vector<std::string> heroes; int dice = 1, sides = 8, bonus = 0, shots = 0; };
@@ -284,7 +285,9 @@ private:
     void show_box(int message_index);
     int roll_hp(const MonsterType& t);
     void hit_sound(int id) { play(id); }
-    void set_leader(int i);
+    void set_leader(int i, bool force = false);
+    void tire(double px);   // the leader loses endurance; at nothing the next rested companion takes over
+    bool exhausted(int i) const { return !orig_controls_ && party_[i].hp > 0 && party_[i].stam <= 0; }
     void reset_party();
     void save_game();
     void load_game();

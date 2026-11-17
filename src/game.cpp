@@ -85,7 +85,7 @@ bool Game::init(const std::string& root) {
                 Hero nh; nh.name = n["name"]; nh.sprite = "nomad"; nh.hp = nh.hp_max = n["hp"]; nh.abilities = n["abilities"].get<std::vector<int>>();
                 nh.armor = nh.abilities.size() > 6 ? nh.abilities[6] : 6; nh.nomad = true; nh.actor = nomad_actor;
                 equip(nh);
-                nh.clip = (n["index"].get<int>() == 10) ? 18 : 19;  // original portrait table (clips.dat header): Eben is the plain man, hero 11-22 are the old man in the hat
+                nh.clip = 18;  // the plain man (clip 19, the old man in the hat, is kept for a special character; the nomad figure suits the plain man)
                 all_heroes_.push_back(nh);
             }
         } catch (...) {}
@@ -346,7 +346,7 @@ void Game::enter_world() {
 void Game::reset_party() {
     staff_ = disks_ = 100; staff_broken_ = false; entrance_known_ = false; detect_ = 0;   // a new game: a whole Staff of Magius and the Disks again
     // restore full health (hp_max from the original's records)
-    for (auto& h : party_) h.hp = h.hp_max;
+    for (auto& h : party_) { h.hp = h.hp_max; h.stam = 28.0; }
     for (size_t i = 0; i < party_.size(); i++)
         if (party_[i].name == "Tanis") leader_ = (int)i;
     speech_q_.clear(); speech_steps_ = 0; mourned_.clear(); farewell_ready_.clear();
@@ -367,7 +367,7 @@ void Game::save_game() {
     j["kills"] = kills_;
     j["position"] = {px_, py_};
     j["east_west"] = east_west_;
-    for (auto& h : party_) j["hp"][h.name] = h.hp;
+    for (auto& h : party_) { j["hp"][h.name] = h.hp; j["stam"][h.name] = h.stam; }
     bool ok = assets_.write("user/save.json", j.dump(1));
 #ifdef __EMSCRIPTEN__
     EM_ASM({ if (Module.feSync) Module.feSync(); });
@@ -383,7 +383,7 @@ void Game::load_game() {
     try {
         json j = json::parse(raw);
         for (auto& h : party_)
-            if (j["hp"].contains(h.name)) h.hp = std::clamp<int>(j["hp"][h.name], 0, h.hp_max);
+            { if (j["hp"].contains(h.name)) h.hp = std::clamp<int>(j["hp"][h.name], 0, h.hp_max); h.stam = (j.contains("stam") && j["stam"].contains(h.name)) ? std::clamp<double>(j["stam"][h.name], 0.0, 28.0) : 28.0; }
         for (size_t i = 0; i < party_.size(); i++)
             if (party_[i].name == j["leader"] && party_[i].hp > 0) leader_ = (int)i;
         xp_ = j["xp"]; kills_ = j["kills"]; entrance_known_ = j.value("entrance_known", false);
@@ -401,8 +401,23 @@ void Game::load_game() {
     message_steps_ = 12;
 }
 
-void Game::set_leader(int i) {
+void Game::tire(double px) {
+    if (orig_controls_ || turbo_ || party_.empty()) return;
+    Hero& h = party_[leader_];
+    if (h.hp <= 0 || h.stam <= 0) return;
+    h.stam = std::max(0.0, h.stam - px);
+    if (h.stam > 0) return;
+    const int n = (int)party_.size();
+    for (int k = 1; k < n; k++) {
+        int i = (leader_ + k) % n;
+        if (party_[i].hp > 0 && party_[i].stam > 0) { std::string who = h.name; leader_ = i; message_ = who + " is exhausted"; message_steps_ = 18; return; }
+    }
+    message_ = "Everyone is exhausted. Rest!"; message_steps_ = 18;
+}
+
+void Game::set_leader(int i, bool force) {
     if (i < 0 || i >= (int)party_.size() || party_[i].hp <= 0) return;
+    if (!force && exhausted(i)) { message_ = party_[i].name + " is too exhausted"; message_steps_ = 14; return; }
     leader_ = i;   // (src/followers.cpp: the companions' trail eases to the new order by itself)
     message_ = party_[i].name + " leads";
     message_steps_ = 12;
@@ -1744,6 +1759,8 @@ void Game::step(const Input& in) {
     farewell_step();
     if (camp_.active) { step_camp(in); return; }
     if (const char* cl = getenv("DOF_CLEAR")) if (steps_ == atoi(cl) && mode_ == Mode::Combat) { enemies_.clear(); corpses_.clear(); }   // test hook: the foes in the side view are gone on that step
+    if (const char* cs = getenv("DOF_STAM")) { int st = 0, v = 0; if (sscanf(cs, "%d,%d", &st, &v) == 2 && steps_ == st) party_[leader_].stam = v / 100.0; }   // test hook: the leader endurance (hundredths of a bar pixel) on that step
+    if (const char* cs = getenv("DOF_HURT")) if (steps_ == atoi(cs)) for (auto& h : party_) if (h.name != "Goldmoon") h.hp = std::max(1, h.hp_max - 20);   // test hook: everyone but Goldmoon is hurt
     if (const char* cs = getenv("DOF_CAMP")) if (steps_ == atoi(cs) && mode_ == Mode::World && box_.empty()) start_camp();   // test hook: the camp scene on that step
     if (mode_ == Mode::Help) { step_help(in); return; }
     if (mode_ == Mode::Debug) { step_debug(in); return; }
@@ -1868,7 +1885,7 @@ void Game::frame_move(const Input& in, double dt_ms) {
     }
     bool moved = move_party(in, n, up_edge, down_edge, in.jump, true);
     if (jump_t_ >= 0) return;  // a jump has just started
-    if (moved) { walk_dist_ += n; anim_ = (combat || interior() ? 1 : 2) + walk_dist_ / 8; moved_frames_ = true; }
+    if (moved) { walk_dist_ += n; anim_ = (combat || interior() ? 1 : 2) + walk_dist_ / 8; moved_frames_ = true; if (strip_side) tire(dt_ms / 5000.0); }
     else if (n > 0 || !want) { anim_ = 0; walk_dist_ = 0; }
 }
 
@@ -2079,9 +2096,10 @@ void Game::step_combat(const Input& in) {
     // classic: the keypad aims (7 / 9 high, 1 / 3 low, 4 / 6 straight). Updated: the stick up is a high attack, anything else is the low one; LT is the ranged attack.
     aim_ = orig_controls_ ? ((in.kp7 || in.kp9) ? 1 : (in.kp1 || in.kp3) ? -1 : 0) : (in.pad_up ? 1 : -1);
     if (swing_cd_ > 0) swing_cd_--;
-    if (ranged_now && swing_cd_ == 0 && ranged_attack()) { swing_cd_ = 4; ranged_pose_ = 5; }
+    if (ranged_now && swing_cd_ == 0 && ranged_attack()) { swing_cd_ = 4; ranged_pose_ = 5; tire(1); }
     if (attacking_ && swing_cd_ == 0) {
         swing_cd_ = 4;  // one swing every four steps while the keys are held
+        tire(1);        // endurance: a pixel for every swing, hit or miss
         const bool wyr_eq = lead.hand_name == "Wyrmslayer";   // wielded: a +3 sword like any other (item_stats.json), double damage against dragons
         bool wyr = false;
         if (!wyr_eq) for (int id : inv_) if (id == 19 && lead.name.rfind("Caramon", 0) == 0) wyr = true;  // classic controls: Caramon carries it in the pack (cluebook)
@@ -2148,7 +2166,7 @@ void Game::step_combat(const Input& in) {
                 int dm = rnd(lo, hi);
                 if (lead.hand_name == "Wyrmslayer" && (t.name == "Dragon" || t.name == "Bozak") && rnd(1, 20) + 3 >= 12) dm /= 2;   // Wyrmslayer: +3 on saves against the breath and spells of dragons and draconians
                 if (!god()) lead.hp -= dm;
-                fx(kFxPcHit); add_spark_hero();
+                fx(kFxPcHit); add_spark_hero(); tire(2);
             }
         }
         if (dist >= 384) continue;
@@ -2165,7 +2183,7 @@ void Game::step_combat(const Input& in) {
                 int need = (armor_table_.empty() ? 10 : armor_table_[idx]) + t.to_hit - 1 + (ward_ > 0 ? ward_pts_ : 0);
                 if (rnd(0, 19) >= need) {
                     if (!god()) lead.hp -= std::max(0, rnd(0, std::max(1, t.dmg_sides) - 1) + t.dmg_bonus);
-                    fx(kFxPcHit); add_spark_hero();   // a hero is hit
+                    fx(kFxPcHit); add_spark_hero(); tire(2);   // a hero is hit
                     if (t.name == "Kapak" && e.venom > 0 && !held()) {   // the venom: unless he saves vs poison the hero is paralysed (2-12 turns, here a few seconds); another hero can take over
                         int con = lead.abilities.size() > 4 ? lead.abilities[4] : 12;
                         if (rnd(1, 20) > con) hold_hero(rnd(2, 12) * 2, 2);
@@ -2207,9 +2225,11 @@ void Game::step_combat(const Input& in) {
         lead.hp = 0;
         int next = -1;
         for (size_t i = 0; i < party_.size(); i++)
-            if (party_[i].hp > 0) { next = (int)i; break; }
+            if (party_[i].hp > 0 && !exhausted((int)i)) { next = (int)i; break; }
+        for (size_t i = 0; i < party_.size() && next < 0; i++)
+            if (party_[i].hp > 0) next = (int)i;
         if (next < 0) { mode_ = Mode::GameOver; screen_.pal = kGamePalette; play(13); return; }
-        set_leader(next);
+        set_leader(next, true);
         message_ = party_[next].name + " takes the lead";
     }
 }
@@ -2412,9 +2432,11 @@ void Game::draw_panel() {
         // green: hit points, red when the hero is badly hurt (cluebook: "his damage bar turns red"); yellow: a second value nobody has identified
         uint8_t hp_col = h.hp * 3 < h.hp_max ? 5 : 13;
         hp_bar(screen_, x - 15, y + 2, 28, h.hp, h.hp_max, hp_col);
-        hp_bar(screen_, x - 11, y + 2, 28, h.hp > 0 ? (int)(bar2_[i < bar2_.size() ? i : 0] * 100) : 0, 100, 15);
+        if (orig_controls_) hp_bar(screen_, x - 11, y + 2, 28, h.hp > 0 ? (int)(bar2_[i < bar2_.size() ? i : 0] * 100) : 0, 100, 15);
+        else hp_bar(screen_, x - 11, y + 2, 28, h.hp > 0 ? (int)std::ceil(h.stam) : 0, 28, 15);   // endurance
         if ((int)i == leader_) screen_.fill_rect(x - 15, y + 30, 7, 1, 15);  // the leader
         if (h.hp <= 0 && 20 < (int)clips_.size()) screen_.blit(clips_[20], x, y);  // the dead show the dithered portrait
+        else if (exhausted((int)i)) dim_rect(x, y, 32, 32, 0);                    // too tired to fight until the party rests
     }
     if (mode_ == Mode::Menu && (menu_page_ == kPageEquip || menu_page_ == kPageEquipPick || menu_page_ == kPageInventory)) {
         // Equip and Inventory: every portrait but the chosen hero's is greyed, his has a border that pulses
@@ -2861,7 +2883,7 @@ bool Game::context_action() {
         if (!room) { box_ = "He would join you gladly, but\nyour party is full."; return true; }
         Hero nh; nh.name = kNames[refugees_recruited_ % 12]; if (refugees_recruited_ >= 12) nh.name += " " + std::to_string(refugees_recruited_ / 12 + 1);
         nh.sprite = "nomad"; nh.hp = nh.hp_max = 9 + (refugees_recruited_ * 5) % 8; nh.abilities = {12, 11, 10, 12, 12, 10, 9}; nh.armor = 9; nh.nomad = true;
-        nh.actor = assets_.actor("nomad"); equip(nh); nh.clip = 19;   // the old man in the hat: the original's second spare portrait
+        nh.actor = assets_.actor("nomad"); equip(nh); nh.clip = 18;   // the plain man
         box_ = nh.name + ": " + kWords[refugees_recruited_ % 4] + "\n(He joins the party.)";
         refugees_recruited_++;
         join_party(nh); all_heroes_.push_back(nh);
@@ -4375,6 +4397,7 @@ std::string Game::debug() const {
     if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
     if (speech_steps_ > 0 || !speech_q_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " speech=%zu:%s", speech_q_.size() + (speech_steps_ > 0), speech_cur_.text.c_str()); }
     if (camp_.active) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " camp=%d", camp_.phase + 1); }
+    if (getenv("DOF_STAM") || getenv("DOF_HURT")) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " lead=%.4s", party_[leader_].name.c_str()); for (auto& h : party_) { n = strlen(b); snprintf(b + n, sizeof b - n, " [%.3s %d %.0f]", h.name.c_str(), h.hp, h.stam); } }
     { int w = 0; for (auto& e : ienemies_) if (e.wanderer && e.hp > 0) w++; if (w) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " wand=%d", w); } }
     if (turn_ms_ > 0) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " turning=%d", (int)turn_ms_); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }

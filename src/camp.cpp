@@ -14,9 +14,22 @@ static const int kFadeFrames = 54, kAutoBase = 260;   // a fade lasts a bit unde
 static std::string first_word(const std::string& n) { return n.substr(0, n.find(' ')); }
 
 void Game::finish_rest() {   // "heals all damaged characters one HP" (manual); regains the memorized spells
+    int before = 0, after = 0, casts = 0;
+    for (auto& h : party_) if (h.hp > 0) before += h.hp;
+    if (!orig_controls_) {   // updated controls: Goldmoon spends every healing prayer she has on whoever is hurt worst; unspent others become bonus prayers
+        bool cleric = false; for (auto& h : party_) if (h.hp > 0 && h.name.rfind("Goldmoon", 0) == 0) cleric = true;
+        if (cleric) {
+            int spare = 0; for (int e = 3; e < 12; e++) if (!used_[e]) spare++;   // the memorized spells that are not cures
+            int prayers = spare / 3;                                              // a third of the unspent ones, rounded down, as bonus cures
+            for (int e = 0; e < 3; e++) if (!used_[e]) prayers++;
+            for (int k = 0; k < prayers; k++) { apply_heal(rnd(1, 8), false); casts++; }
+        }
+    }
     for (auto& h : party_) if (h.hp > 0 && h.hp < h.hp_max) h.hp++;
+    for (auto& h : party_) { h.stam = 28.0; if (h.hp > 0) after += h.hp; }
     for (bool& u : used_) u = false;
     show_box(23);
+    if (!orig_controls_ && casts > 0 && after - before > 1) box_ += "\nGoldmoon's prayers mend\n" + std::to_string(after - before) + " wounds.";
 }
 
 bool Game::start_camp() {
