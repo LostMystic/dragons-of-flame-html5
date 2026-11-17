@@ -19,6 +19,7 @@ static bool is_draconian(const std::string& n) { return n == "Baaz" || n == "Kap
 static int baaz_statue_steps(const Enemy& e) { return 18 + (((e.x >> 3) + e.y) & 3) * 6; }   // 1 to 4 rounds as a statue (18..36 steps) before it crumbles
 static bool is_undead(const std::string& n) { return n == "Zombie" || n == "Wight" || n == "Wraith" || n == "Shadow" || n == "Skeleton" || n == "Ghoul" || n == "Spectre" || n == "Ghost"; }
 static void wrap_text(Screen& s, int x, int y, const std::string& t, int cols, int maxlines, int colour, int skip, int step = 10);
+static std::string ending_page_text(const std::vector<std::string>& texts, const std::vector<std::string>& epi, int page, int quest_flags, bool* with_picture, int* cols, int* rows);
 static int wrap_count(const std::string& t, int cols) {  // how many lines wrap_text makes of t
     int rows = 0; size_t line = 0, i = 0;
     while (i < t.size()) {
@@ -251,6 +252,10 @@ bool Game::init(const std::string& root) {
     py_ = rules_.start_y;
     fix_start();
     spawn_wild();
+    if (const char* en = getenv("DOF_ENDING")) {   // test hook: start on that ending page
+        start_ending(); ending_page_ = atoi(en); end_cool_ = 0; quest_flags_ = getenv("DOF_ENDING_DONE") ? 0 : quest_flags_;
+        for (int pg = 0; getenv("DOF_ENDING_DUMP") && pg < 8; pg++) { bool wp; int c, r; auto t = ending_page_text(texts_, quest_flags_ == 0 ? epi_complete_ : epi_incomplete_, pg, quest_flags_, &wp, &c, &r); fprintf(stderr, "page %d lines %d rows %d\n", pg, wrap_count(t, c), r); }
+    }
     if (const char* w = getenv("DOF_WARP")) {  // test cheat: "w,x,y" = world position, "L,cx,cy" = level L (2-7) at cell cx,cy, "item,ID" = where item ID lies
         int a = 0, b = 0, c = 0; char kind[16] = {};
         if (sscanf(w, "%15[a-z],%d,%d", kind, &a, &b) >= 2 && std::string(kind) == "w") { px_ = a; py_ = b; fix_start(); }
@@ -325,6 +330,7 @@ void Game::draw_box() {
     auto arrow = [&](int x, int y, bool down) {
         for (int r = 0; r < 4; r++) { int w = down ? 7 - 2 * r : 1 + 2 * r; screen_.fill_rect(x + (7 - w) / 2, y + r, w, 1, 4); }
     };
+    if (screen_.text_max_y < (1 << 30)) return;   // (no arrows while the paper unrolls)
     if (box_scroll_ < maxs && blink) arrow(247, 88, true);   // more below: push the button or down
     if (box_scroll_ > 0) arrow(247, 33, false);              // more above
 }
@@ -1113,6 +1119,7 @@ void Game::draw_minimap() {
 }
 
 void Game::draw_interior() {
+    screen_.text_max_y = 1 << 30;
     screen_.reset_clip();
     screen_.clear(0);
     const int vh = 128;
@@ -1459,6 +1466,16 @@ void Game::check_story_items() {
 // The end: message (quest complete or not), each hero's score (experience + 2000), the high scores.
 void Game::start_ending() { mode_ = Mode::Ending; ending_page_ = 0; end_cool_ = 4; box_.clear(); enemies_.clear(); corpses_.clear(); }
 
+// The ending's story pages: the text of a page, how wide it is wrapped and how many lines show; longer pages scroll like message boxes.
+static std::string ending_page_text(const std::vector<std::string>& texts, const std::vector<std::string>& epi, int page, int quest_flags, bool* with_picture, int* cols, int* rows) {
+    int idx = quest_flags == 0 ? 26 : 27;
+    std::string t = page == 0 ? (idx < (int)texts.size() ? texts[idx] : "") : (page - 1 < (int)epi.size() ? epi[page - 1] : "");
+    for (auto& ch : t) if (ch == '\r' || ch == '\n') ch = ' ';
+    bool pic = page == 0 || page == 1 || (quest_flags == 0 && page == 2);
+    *with_picture = pic; *cols = pic ? 38 : 24; *rows = pic ? 7 : 8;
+    return t;
+}
+
 void Game::step_ending(const Input& in) {
     const auto& epi = quest_flags_ == 0 ? epi_complete_ : epi_incomplete_;
     int n = (int)epi.size();
@@ -1467,7 +1484,7 @@ void Game::step_ending(const Input& in) {
     bool name_page = qualifies_ && ending_page_ == n + 2;
     int high_page = qualifies_ ? n + 3 : n + 2;
     auto advance = [&]() {
-        ending_page_++;
+        ending_page_++; ending_scroll_ = 0; menu_open_step_ = steps_;   // (a new page's scroll unrolls again)
         if (ending_page_ == n + 2) {  // after the scores: does the party make the table?
             qualifies_ = highscores_.size() < 5 || total > highscores_.back().second;
             name_buf_.clear();
@@ -1496,8 +1513,35 @@ void Game::step_ending(const Input& in) {
     const bool confirm_edge = in.confirm && !confirm_prev_;
     confirm_prev_ = in.confirm;
     if (end_cool_ > 0) { end_cool_--; return; }   // a single press can show up as a key event and as a confirm a step later: it turns one page, not two
-    if (back) { if (ending_page_ > 0 && ending_page_ <= n + 1) { ending_page_--; end_cool_ = 1; } return; }
+    if (ending_page_ <= n) {   // a page longer than its scroll: down scrolls, up scrolls back, Enter pages down and then goes on
+        bool wp; int cols, rows;
+        std::string t = ending_page_text(texts_, epi, ending_page_, quest_flags_, &wp, &cols, &rows);
+        int maxs = std::max(0, wrap_count(t, cols) - rows);
+        ending_scroll_ = std::clamp(ending_scroll_, 0, maxs);
+        if (maxs > 0) {
+            if (edges_[1] && ending_scroll_ < maxs) { ending_scroll_++; return; }
+            if (edges_[0] && ending_scroll_ > 0) { ending_scroll_--; return; }
+            if (confirm_edge && ending_scroll_ < maxs) { ending_scroll_ = std::min(maxs, ending_scroll_ + rows - 1); end_cool_ = 1; return; }
+        }
+    }
+    if (back) { if (ending_page_ > 0 && ending_page_ <= n + 1) { ending_page_--; ending_scroll_ = 0; menu_open_step_ = steps_; end_cool_ = 1; } return; }
     if (in.any || confirm_edge || edges_[1] || edges_[3] || edges_[5]) { advance(); end_cool_ = 1; }
+}
+
+// The story text on a scroll, with the arrows when it is longer than the paper.
+void Game::draw_ending_scroll_text(int y, int step) {
+    const auto& epi = quest_flags_ == 0 ? epi_complete_ : epi_incomplete_;
+    bool wp; int cols, rows;
+    std::string t = ending_page_text(texts_, epi, ending_page_, quest_flags_, &wp, &cols, &rows);
+    int maxs = std::max(0, wrap_count(t, cols) - rows);
+    ending_scroll_ = std::clamp(ending_scroll_, 0, maxs);
+    wrap_text(screen_, 66, y, t, cols, rows, 10, ending_scroll_, step);
+    if (maxs > 0 && screen_.text_max_y >= (1 << 30)) {
+        bool blink = (steps_ / 3) % 2 == 0;
+        auto arrow = [&](int x, int ay, bool down) { for (int r = 0; r < 4; r++) { int w = down ? 7 - 2 * r : 1 + 2 * r; screen_.fill_rect(x + (7 - w) / 2, ay + r, w, 1, 4); } };
+        if (ending_scroll_ < maxs && blink) arrow(247, 88, true);
+        if (ending_scroll_ > 0) arrow(247, 33, false);
+    }
 }
 
 void Game::draw_ending() {
@@ -1516,19 +1560,26 @@ void Game::draw_ending() {
         screen_.blit(*pic, 0, 0);
         screen_.fill_rect(0, 126, kW, 74, 0);   // (the pictures are 120 and 126 rows high)
         screen_.fill_rect(0, 127, kW, 1, 7); screen_.fill_rect(0, 129, kW, 1, 8);
-        std::string t = ending_page_ == 0 ? (quest_flags_ == 0 ? texts_[26] : texts_[27]) : epi[ending_page_ - 1];
-        for (auto& ch : t) if (ch == '\r') ch = ' ';
-        wrap_text(screen_, 8, 134, t, 38, 7, 10, 0, 9);
+        bool wp; int cols, rows;
+        std::string t = ending_page_text(texts_, epi, ending_page_, quest_flags_, &wp, &cols, &rows);
+        int maxs = std::max(0, wrap_count(t, cols) - rows);
+        ending_scroll_ = std::clamp(ending_scroll_, 0, maxs);
+        wrap_text(screen_, 8, 134, t, cols, rows, 10, ending_scroll_, 9);
+        if (maxs > 0) {
+            bool blink = (steps_ / 3) % 2 == 0;
+            auto arrow = [&](int x, int y, bool down) { for (int r = 0; r < 4; r++) { int w = down ? 7 - 2 * r : 1 + 2 * r; screen_.fill_rect(x + (7 - w) / 2, y + r, w, 1, 4); } };
+            if (ending_scroll_ < maxs && blink) arrow(kW - 14, 186, true);
+            if (ending_scroll_ > 0) arrow(kW - 14, 134, false);
+        }
         screen_.text(kW - 8 * 21, kH - 10, "Left: back  Enter: on", 8, false);
         return;
     }
     if (ending_page_ == 0) {
         draw_scroll("", 7);
-        int idx = quest_flags_ == 0 ? 26 : 27;
-        if (idx < (int)texts_.size()) wrap_text(screen_, 66, 34, texts_[idx], 24, 8, 10, 0, 9);
+        draw_ending_scroll_text(34, 9);
     } else if (ending_page_ <= n) {  // epilogue (written for this version, after the novel)
         draw_scroll("", 7);
-        wrap_text(screen_, 66, 32, epi[ending_page_ - 1], 24, 8, 10, 0, 8);
+        draw_ending_scroll_text(32, 8);
     } else if (ending_page_ == n + 1) {
         draw_scroll("SCORES", 7);
         int total = 0, y = 28;
@@ -1543,7 +1594,7 @@ void Game::draw_ending() {
     } else {
         draw_scroll("HIGH SCORES", 7);
         int y = 40;
-        for (auto& e : highscores_) { snprintf(b, sizeof b, "%-16.16s %6d", e.first.c_str(), e.second); screen_.text(80, y, b, 10); y += 10; }
+        for (auto& e : highscores_) { snprintf(b, sizeof b, "%-16.16s%6d", e.first.c_str(), e.second); screen_.text(72, y, b, 10); y += 10; }
     }
     draw_panel();
 }
@@ -2238,6 +2289,7 @@ bool Game::frame(Platform& p) {
         apply_god();
         acc_ms_ -= step_ms;
     }
+    screen_.text_max_y = 1 << 30;
     switch (mode_) {
         case Mode::Title: draw_title(); break;
         case Mode::World: if (interior() && itable_loaded_) draw_interior(); else draw_world(); break;
@@ -2271,6 +2323,7 @@ static void hp_bar(Screen& s, int x, int y, int h, int hp, int hp_max, uint8_t c
 }
 
 void Game::draw_panel() {
+    screen_.text_max_y = 1 << 30;
     const int vh = 128;
     screen_.reset_clip();
     screen_.blit(panel_, 0, vh);
@@ -2338,6 +2391,7 @@ static int dir8(int dx, int dy) {
 }
 
 void Game::draw_world() {
+    screen_.text_max_y = 1 << 30;
     screen_.reset_clip();
     screen_.clear(0);
     const int vh = 128;
@@ -3464,6 +3518,7 @@ void Game::draw_scroll(const std::string& title, int lines) {
     auto tile = [&](int n, int x, int y, bool flip = false) { if (n >= 0 && n < (int)qtiles_.size()) screen_.blit(qtiles_[n], x, y, false, flip); };
     int full = 80;  // five tile rows
     int open = turbo_ ? full : std::min(full, 16 + (int)(steps_ - menu_open_step_) * 8);  // the paper unrolls
+    screen_.text_max_y = open >= full ? (1 << 30) : 29 + open - 3;   // while the paper is still unrolling, a line of text shows only once the paper has opened past it
     screen_.set_clip(0, 29, kW, open > 74 ? 74 : open);
     for (int r = 0, y = 29; y < 29 + open; r++, y += 16) {
         tile(r % 4, 48, y);
@@ -4174,6 +4229,7 @@ void Game::draw_lair_background(int cam) {
 }
 
 void Game::draw_combat() {
+    screen_.text_max_y = 1 << 30;
     screen_.reset_clip();
     screen_.clear(0);
     const int vh = 128;

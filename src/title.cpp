@@ -270,7 +270,7 @@ void Game::draw_title() {
             draw_scroll("HIGH SCORES", 7);
             int y = 38;
             char b[64];
-            for (size_t i = 0; i < highscores_.size() && i < 5; i++) { snprintf(b, sizeof b, "%d. %-16.16s %6d", (int)i + 1, highscores_[i].first.c_str(), highscores_[i].second); screen_.text(64, y, b, 10); y += 11; }
+            for (size_t i = 0; i < highscores_.size() && i < 5; i++) { snprintf(b, sizeof b, "%d.%-16.16s%6d", (int)i + 1, highscores_[i].first.c_str(), highscores_[i].second); screen_.text(64, y, b, 10); y += 11; }
             screen_.text(96, 120, "Press any key", 8);
             break;
         }

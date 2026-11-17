@@ -191,6 +191,8 @@ private:
     bool pending_start_ = false, gate_told_ = false;
     bool pending_map_ = false, menu_direct_ = false;   // Back: the quest map straight from play; backing out then closes the menu
     long box_since_ = 0; std::string box_shown_; int box_hold_ = 45;   // frame a message first showed; the least frames it stays up
+    void draw_ending_scroll_text(int y, int step);
+    int ending_scroll_ = 0;   // the ending's text pages that are longer than their scroll scroll like message boxes
     int box_scroll_ = 0; std::string box_seen_;   // a message longer than the scroll scrolls (up / down, the confirm key pages down, then closes)
     bool act_prev_ = false, pending_attack_ = false;
     int last_mx_ = -1, last_my_ = -1;

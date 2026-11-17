@@ -21,6 +21,7 @@ extern const Palette kGamePalette;            // the in-game palette (game.exe d
 struct Screen {
     std::vector<uint8_t> px = std::vector<uint8_t>(kW * kH, 0);
     Palette pal{};
+    int text_max_y = 1 << 30;  // text() draws no line whose bottom is below this (a scroll still unrolling shows its lines one by one as the paper opens)
     int clip_x = 0, clip_y = 0, clip_w = kW, clip_h = kH;  // drawing is limited to this rectangle
 
     void clear(uint8_t c = 0);

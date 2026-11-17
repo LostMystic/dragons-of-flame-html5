@@ -69,6 +69,7 @@ void Screen::fill_rect(int x, int y, int w, int h, uint8_t c) {
 }
 
 void Screen::text(int x, int y, const char* str, uint8_t color, bool shadow) {
+    if (y + 9 > text_max_y) return;
     for (int pass = shadow ? 0 : 1; pass < 2; pass++)
         for (int i = 0; str[i]; i++) {
             unsigned char ch = (unsigned char)str[i];
