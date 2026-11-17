@@ -490,7 +490,7 @@ private:
     std::vector<int8_t> backdrop_kind_;
     int backdrop_kind(int tile);
     int backdrop_horizon(int x, int cam_y) const;
-    void compose_turn(double e);
+    void compose_turn(double e, int cx, int cy);
     std::vector<uint8_t> last_view_, turn_old_;   // the side view as last drawn, and as it was when a turn began
     double turn_ms_ = 0; int turn_dir_ = 0;       // the turn animation (milliseconds left; which way it swings)
     static constexpr double kTurnMs = 1000;

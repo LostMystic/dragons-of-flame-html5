@@ -4308,13 +4308,13 @@ void Game::draw_combat() {
         }
     if (!lair_active_ && backdrop_ && !orig_controls_) draw_backdrop(cx, cy);
     scene_snap_.assign(screen_.px.begin(), screen_.px.begin() + kW * 128);   // the land without the figures: what the turn swings round
-    if (turn_ms_ > 0 && !turn_old_.empty()) compose_turn((1.0 - std::cos(M_PI * std::clamp(1.0 - turn_ms_ / kTurnMs, 0.0, 1.0))) / 2);
+    if (turn_ms_ > 0 && !turn_old_.empty()) compose_turn((1.0 - std::cos(M_PI * std::clamp(1.0 - turn_ms_ / kTurnMs, 0.0, 1.0))) / 2, cx, cy);
     // draw back to front so nearer figures overlap
     struct Item { int y; const Image* im; int x; bool flip; int dl = 16; };
     std::vector<Item> items;
     const Hero& h = party_[leader_];
     size_t f = hero_frame(h);
-    const bool leader_in_transit = !lair_active_ && !orig_controls_ && followers_ && draw_followers(cx, cy);   // the companions far behind; true while the leader is still coming forward
+    const bool leader_in_transit = !lair_active_ && !orig_controls_ && followers_ && turn_ms_ <= 0 && draw_followers(cx, cy);   // the companions far behind; true while the leader is still coming forward
     if (!leader_in_transit) { items.push_back({cy_, &h.actor.frames[f], cx_ - cx - 8, face_left_}); items.back().x = cx_ - cx - 8; }
     std::vector<Image> corpse_imgs; corpse_imgs.reserve(corpses_.size());   // (kept alive until the items are drawn)
     for (auto& c : corpses_) {

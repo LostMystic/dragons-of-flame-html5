@@ -1,3 +1,4 @@
+Turning the side view now turns the ground itself: the land around the party becomes a 3D surface running to a hazy horizon, it rotates about the party's feet and the side view dissolves back in (the earth below the feet fades out meanwhile).
 When a creature comes near in the side view, the trailing companions spread out around it in the background while the leader fights; once it is gone they follow again.
 Turning the side view now swings the whole world round the party (a corner turning past the camera) instead of flipping a cube; the party stays put in the middle.
 Turning to the other axis and back now puts the party exactly where it was (it used to drift a tile each time).

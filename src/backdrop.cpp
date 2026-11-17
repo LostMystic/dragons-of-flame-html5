@@ -118,34 +118,47 @@ void Game::draw_backdrop(int cam_x, int cam_y) {
     }
 }
 
-// The turn between the two strips: the party stays put in the middle and the world swings round it. The old view and the new one are the two walls of a corner
-// 90 degrees apart, each a flat picture 120 px in front of the viewer; the camera turns from the old wall to the new one (e: 0 to 1). A column of the screen looks along
-// the angle b; the wall it hits is shown at that angle's place in the picture, and shrinks towards the party's feet the further round the wall is turned away.
-void Game::compose_turn(double e) {
+// The turn between the two strips: the ground around the party is made into a temporary 3D surface (a flat plane stretching to a hazy horizon, textured with the real
+// map tiles) and that surface is rotated 90 degrees about the party's feet, so the party seems to turn on the spot. The old side view dissolves into the surface at the
+// start and the new one dissolves in at the end; the earth below the feet (which belongs to the side view only) fades away for the whole turn. e: 0 to 1.
+void Game::compose_turn(double e, int cx, int cy) {
+    static const int bayer[16] = {0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5};
     const int W = kW, H = 128;
-    const double f = 120.0, psi = e * M_PI / 2, corner = M_PI / 4;
-    const double pivot = std::clamp(cy_ - 256 + 16, 32, H - 1);   // the party's feet: the horizon of the swing stays level here
-    const bool flip = turn_dir_ > 0;                              // the world swings the other way when turning back
-    std::vector<uint8_t> out((size_t)W * H);
-    for (int x = 0; x < W; x++) {
-        int dx = flip ? W - 1 - x : x;                           // work as if turning to the right
-        double a = std::atan((dx + 0.5 - W / 2.0) / f), b = psi + a;
-        bool old_wall = b < corner;
-        double bw = old_wall ? b : b - M_PI / 2;                 // the angle on the wall's own picture
-        double xi = W / 2.0 + f * std::tan(bw);
-        int src_x = std::clamp((int)xi, 0, W - 1);
-        if (flip) src_x = W - 1 - src_x;                         // (the pictures are looked at in a mirror)
-        double sc = std::cos(bw) / std::cos(a);                  // the wall is further away, so smaller, the more it turns from the viewer
-        const std::vector<uint8_t>& src = old_wall ? turn_old_ : scene_snap_;
-        bool seam = std::fabs(b - corner) < 0.012;               // a thin dark line in the corner
-        for (int y = 0; y < H; y++) {
-            int sy = std::clamp((int)std::floor(pivot + (y + 0.5 - pivot) / sc), 0, H - 1);   // (beyond the picture the sky and the earth just carry on)
-            uint8_t c = src[sy * W + src_x];
-            if (seam && ((x + y) & 1) == 0) c = 0;
-            out[y * W + x] = c;
+    const double f = 100.0, z0 = 12.5, hc = 9.1;                       // focal length; the party's distance from the camera; the camera's height (world px)
+    const double feet = std::clamp(cy_ - cy + 16, 40, H - 1);           // where the party's feet are on the screen
+    const double hx = cx_ - cx, yh = feet - 73.0;                       // the party's screen column; the horizon row
+    const double xh = (hx - W / 2.0) * z0 / f;
+    // the camera looks north in an east-west strip and west in a north-south one; the turn goes between the two
+    const double phi = (turn_dir_ < 0 ? e : 1.0 - e) * M_PI / 2, sn = std::sin(phi), cs = std::cos(phi);
+    auto ramp = [](double v) { return std::clamp(v, 0.0, 1.0); };
+    for (int y = 0; y < H; y++) {
+        const bool below = y > feet;
+        const double ao = below ? ramp(1.0 - e / 0.10) : ramp(1.0 - e / 0.25);   // how much of the old view is still there
+        const double an = below ? ramp((e - 0.90) / 0.10) : ramp((e - 0.75) / 0.25);  // and of the new one already
+        const double z = y > yh + 0.5 ? hc * f / (y + 0.5 - yh) : 1e9;
+        for (int x = 0; x < W; x++) {
+            const int bv = bayer[(y & 3) * 4 + (x & 3)];
+            uint8_t c = kSky;
+            if (z < 1e8) {   // the surface: the map tile under this point of the ground
+                double ox = ((x + 0.5 - W / 2.0) * z / f) - xh, oz = z - z0;
+                int wx = (int)std::floor(px_ + cs * ox - sn * oz), wy = (int)std::floor(py_ - sn * ox - cs * oz);
+                wx = std::clamp(wx, 0, 2559); wy = std::clamp(wy, 0, 3071);
+                int t = world_.tile_at(wx, wy);
+                if (t >= 1 && t <= (int)wtiles_.size()) {
+                    int snap = z < 22 ? 1 : z < 45 ? 2 : z < 90 ? 4 : 16;   // further away the tile's picture is coarser, then just its main colour
+                    int kind = backdrop_kind(t);
+                    c = snap == 16 ? backdrop_dom_[t] : wtiles_[t - 1].px[((wy & 15) / snap * snap) * wtiles_[t - 1].w + ((wx & 15) / snap * snap)];
+                    if (kind == kWater && c == 9) c = 10;
+                }
+                int mist = (int)std::clamp((z - 30.0) / 160.0 * 16.0, 0.0, 16.0);   // the distance turns blue
+                if (mist > bv) c = kSky;
+                if (below && (y - feet) / 12.0 * 16 > bv) c = 0;                    // nothing in front of the feet
+            }
+            if (ao > 0 && (int)(ao * 16) > bv) c = turn_old_[y * W + x];
+            if (an > 0 && (int)(an * 16) > bv) c = scene_snap_[y * W + x];
+            screen_.px[y * W + x] = c;
         }
     }
-    std::copy(out.begin(), out.end(), screen_.px.begin());
 }
 
 }  // namespace dof
