@@ -51,6 +51,18 @@ struct Syn {
             b[s + i] += (float)(std::sin(ph) * amp * env);
         }
     }
+    // a swelling tone: rises over `attack` of its length, then falls away (a brass or voice-like swell); harmonics are added by the caller
+    void swell(double t0, double dur, double f0, double f1, double amp, double attack = 0.45, double vib = 0) {
+        size_t s = at(t0), n = (size_t)(dur * R);
+        double ph = 0;
+        for (size_t i = 0; i < n && s + i < b.size(); i++) {
+            double p = (double)i / n, f = f0 + (f1 - f0) * p;
+            if (vib > 0) f *= 1.0 + 0.006 * std::sin(6.2831853 * vib * i / R);
+            ph += 6.2831853 * f / R;
+            double env = p < attack ? std::sin(1.5707963 * p / attack) : std::cos(1.5707963 * (p - attack) / (1 - attack) * 0.5);
+            b[s + i] += (float)(std::sin(ph) * amp * env * env);
+        }
+    }
     void partials(double t0, double dur, std::initializer_list<double> fs, double amp, double decay) { for (double f : fs) sine(t0, dur, f, f * 0.998, amp, decay); }
     std::vector<int16_t> done(double peak) {
         float m = 1e-6f;
@@ -159,6 +171,25 @@ std::vector<int16_t> make_fx(int id, int R) {
         case kFxPrayer:     { Syn s(R, 1.6); int k = 0; for (double f : {392.0, 494.0, 587.0, 784.0}) { s.sine(0.12 * k, 1.4, f, f, 0.22, 1.6, 4.5); k++; } return s.done(0.45); }
         case kFxBless:      { Syn s(R, 0.9); int k = 0; for (double f : {880.0, 1108.0, 1319.0, 1760.0, 2217.0}) { s.sine(0.05 * k, 0.5, f, f, 0.25, 7); k++; } return s.done(0.45); }
         case kFxDispel:     { Syn s(R, 0.7); s.swish(0, 0.45, 3200, 200, 1, 0.3, 0.15); s.burst(0.4, 0.15, 4000, 0.6, 25); s.sine(0.4, 0.25, 180, 60, 0.6, 12); return s.done(0.55); }
+        // --- the sting when a wandering group comes at the party in a dungeon
+        case kFxStingArmy: {   // the Dragon Army: a low war horn on a tritone (brass harmonics), drums beating closer, a clank of mail
+            Syn s(R, 3.0);
+            static const double h[6] = {1.0, 0.8, 0.55, 0.4, 0.25, 0.14};
+            for (double f : {82.4, 116.5}) for (int k = 0; k < 6; k++) { s.swell(0.05, 2.4, f * (k + 1), f * (k + 1) * 0.985, 0.22 * h[k], 0.38, 5.2); s.swell(0.05, 2.4, f * (k + 1) * 1.006, f * (k + 1) * 0.99, 0.12 * h[k], 0.38, 4.6); }
+            for (int k = 0; k < 4; k++) { double t = 0.1 + 0.42 * k - 0.02 * k * k; double a = 0.6 + 0.12 * k; s.sine(t, 0.5, 105, 48, a, 7); s.burst(t, 0.06, 900, a * 0.7, 40); s.sine(t + 0.01, 0.2, 160, 90, a * 0.3, 14); }
+            s.partials(1.5, 0.8, {1650, 2480, 3710, 5100}, 0.10, 9); s.burst(1.5, 0.05, 6000, 0.25, 90, true);
+            s.burst(0.0, 1.8, 400, 0.12, 1.2);
+            return s.done(0.75);
+        }
+        case kFxStingUndead: {   // the dead: a hollow drone on a beating minor second, a wail that slides down, a cold breath and one deep knock
+            Syn s(R, 3.2);
+            for (double f : {110.0, 116.5, 164.8}) { s.swell(0.0, 2.9, f, f * 0.97, 0.26, 0.4, 3.5); s.swell(0.0, 2.9, f * 2.0, f * 1.94, 0.08, 0.4, 3.0); }
+            s.swell(0.35, 2.0, 880, 520, 0.14, 0.3, 5.5); s.swell(0.35, 2.0, 1318, 780, 0.06, 0.3, 5.0);
+            s.swish(0.2, 2.3, 2200, 500, 0.55, 0.8, 0.35, 0.8);
+            s.sine(0.0, 0.7, 62, 30, 0.9, 5); s.burst(0.0, 0.05, 500, 0.5, 50);
+            s.sine(0.75, 0.6, 58, 28, 0.6, 6);
+            return s.done(0.7);
+        }
         default: return {};
     }
 }

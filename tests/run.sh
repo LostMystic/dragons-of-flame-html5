@@ -96,6 +96,9 @@ rm -rf "$tmp"
 # updated controls: the party answers every frame, not every 165 ms logic step
 DOF_CONTROLS=updated check "updated controls: a 6-frame tap in the side view walks 6 px"   "strip=(8262,320)" "enter:3,wait:20,toggle:2,wait:20,right:6"      52
 DOF_CONTROLS=updated check "updated controls: the outdoor walk is smooth"                  "pos=(1041,1024)"  "enter:3,wait:5,right:20"                         30
+DOF_CAMP=30 check "rest: the view fades out (camp phase 1)" "camp=1" "enter:3,wait:20" 340
+DOF_CAMP=30 check "rest: the companions talk (camp phase 2)" "camp=2" "enter:3,wait:20" 480
+DOF_CAMP=30 check "rest: it ends by itself and the party can move again" "mode=world pos=(1024,1024)" "enter:3,wait:2000" 6000
 DOF_WANDER=1 check "dungeon random encounters: a wandering group turns up in Pax Tharkas" "wand=" "enter:3,wait:20,lvl4:2,wait:300" 400
 DOF_CONTROLS=updated check "updated controls: turning the strip swings the view for about a second" "turning=" "enter:3,wait:20,toggle:2,wait:20,turn:1" 85
 DOF_CONTROLS=updated check "updated controls: after the swing the other strip is walkable" "axis=ns" "enter:3,wait:20,toggle:2,wait:20,turn:1,wait:80,right:2" 220

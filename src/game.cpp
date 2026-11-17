@@ -403,7 +403,7 @@ void Game::load_game() {
 
 void Game::set_leader(int i) {
     if (i < 0 || i >= (int)party_.size() || party_[i].hp <= 0) return;
-    leader_ = i;
+    leader_ = i;   // (src/followers.cpp: the companions' trail eases to the new order by itself)
     message_ = party_[i].name + " leads";
     message_steps_ = 12;
 }
@@ -664,6 +664,8 @@ void Game::load_settings() {
         orig_controls_ = j.value("original_controls", false);
         god_mode_ = j.value("god_mode", false);
         backdrop_ = j.value("backdrop", true);
+        camp_on_ = j.value("camp_talk", true);
+        followers_ = j.value("followers", true);
         music_enhanced_ = j.value("music", std::string("enhanced")) != "original";
         music_on_ = j.value("music_on", true); sfx_on_ = j.value("sound_on", true);
         gfx_mode_ = 0;  // 256-colour is not available yet
@@ -675,6 +677,8 @@ void Game::save_settings() {
     j["original_controls"] = orig_controls_;
     j["god_mode"] = god_mode_;
     j["backdrop"] = backdrop_;
+    j["camp_talk"] = camp_on_;
+    j["followers"] = followers_;
     j["music"] = music_enhanced_ ? "enhanced" : "original";
     j["music_on"] = music_on_; j["sound_on"] = sfx_on_;
     j["graphics"] = gfx_mode_ == 0 ? "ega16" : "vga256";
@@ -1332,6 +1336,7 @@ void Game::wander_step() {
         e.lx = sp.x * 128 + 30 + k * 22; e.ly = sp.y * 128 + 64; e.hlx = e.lx; e.hly = e.ly; e.cooldown = rnd(0, attack_period_);
         ienemies_.push_back(e);
     }
+    { std::string nm = tab[pick].name; fx(nm == "Zombie" || nm == "Wraith" || nm == "Wight" ? kFxStingUndead : kFxStingArmy, 0.8); }   // a war horn and drums, or the dead stirring
 }
 
 void Game::step_interior_fight(const Input& in) {
@@ -1736,6 +1741,8 @@ void Game::step(const Input& in) {
     if (message_steps_ > 0) message_steps_--;
     if (const char* ks = getenv("DOF_KILL")) { int st = 0, who = 0; if (sscanf(ks, "%d,%d", &st, &who) == 2 && steps_ == st && who < (int)party_.size()) party_[who].hp = 0; }   // test hook: that hero falls on that step
     farewell_step();
+    if (camp_.active) { step_camp(in); return; }
+    if (const char* cs = getenv("DOF_CAMP")) if (steps_ == atoi(cs) && mode_ == Mode::World && box_.empty()) start_camp();   // test hook: the camp scene on that step
     if (mode_ == Mode::Help) { step_help(in); return; }
     if (mode_ == Mode::Debug) { step_debug(in); return; }
     if (mode_ == Mode::Title) {
@@ -2350,6 +2357,7 @@ bool Game::frame(Platform& p) {
         case Mode::Help: draw_help(); break;
         case Mode::Debug: draw_debug(); break;
     }
+    if (camp_.active) draw_camp();
     if (mode_ != Mode::Title && mode_ != Mode::Ending && mode_ != Mode::Help && mode_ != Mode::Debug) draw_box();
     p.present(screen_);
     return true;
@@ -3439,9 +3447,9 @@ void Game::step_menu(const Input& in) {
             case 3: menu_page_ = kPageMagic; return;
             case 4: menu_page_ = kPageUse; return;
             case 5:  // Rest: "heals all damaged characters one HP" (manual); regains the memorized spells
-                for (auto& h : party_) if (h.hp > 0 && h.hp < h.hp_max) h.hp++;
-                for (bool& u : used_) u = false;
-                close(); show_box(23); return;
+                close();
+                if (camp_on_ && !orig_controls_ && !turbo_ && start_camp()) return;   // the fade to black and the talk; the rest itself happens when it is over
+                finish_rest(); return;
             case 6: if (items_near(false).empty()) { close(); show_box(3); return; } menu_page_ = kPageTake; return;
             case 7: case 12: {  // Open / Shut: a door in the cell the party stands in, or a chest within reach
                 std::string m;
@@ -3600,7 +3608,7 @@ static void draw_flame(Screen& s, int x, int y, uint8_t col) {  // the small fla
 // Settings: a plain modern page that works with the mouse (click) or the keyboard (up/down, Enter). Row layout is shared by drawing and hit testing.
 struct SRow { int y, h; int id; };  // ids: 0 original controls, 1 16-colour, 2 256-colour (disabled), 3 back
 static int row0_y() { return 22; }
-static const SRow kSRows[] = {{22, 12, 0}, {46, 12, 1}, {58, 12, 5}, {70, 12, 6}, {82, 12, 7}, {94, 12, 8}, {110, 14, 3}};   // ids: 8 far land on / off, 0 controls, 1 16-colour, 5 music kind, 6 music on / off, 7 sound effects on / off, 3 back
+static const SRow kSRows[] = {{22, 12, 0}, {44, 10, 1}, {54, 10, 5}, {64, 10, 6}, {74, 10, 7}, {84, 10, 8}, {94, 10, 9}, {104, 10, 10}, {113, 12, 3}};   // ids: 10 companions trail on / off, 9 camp talk on / off, 8 far land on / off, 0 controls, 1 16-colour, 5 music kind, 6 music on / off, 7 sound effects on / off, 3 back
 
 void Game::step_settings(const Input& in) {
     bool edge = in.confirm, up = in.up, down = in.down, cancel = in.cancel;
@@ -3617,6 +3625,8 @@ void Game::step_settings(const Input& in) {
         else if (id == 6) { music_on_ = !music_on_; if (mode_ == Mode::Title) { stop_sound(); play_title(); } save_settings(); }
         else if (id == 7) { sfx_on_ = !sfx_on_; save_settings(); }
         else if (id == 8) { backdrop_ = !backdrop_; save_settings(); }
+        else if (id == 9) { camp_on_ = !camp_on_; save_settings(); }
+        else if (id == 10) { followers_ = !followers_; save_settings(); }
         else if (id == 3) { menu_page_ = -1; }
     };
     if (ctl_drop_) {   // the open drop-down takes all input: two entries under the box
@@ -3629,11 +3639,11 @@ void Game::step_settings(const Input& in) {
         return;
     }
     if (in.click && hit >= 0) activate(hit);
-    static const int order[7] = {0, 1, 5, 6, 7, 8, 3};
+    static const int order[9] = {0, 1, 5, 6, 7, 8, 9, 10, 3};
     int pos = 0;
-    for (int k = 0; k < 7; k++) if (order[k] == settings_focus_) pos = k;
-    if (up) settings_focus_ = order[(pos + 6) % 7];
-    if (down) settings_focus_ = order[(pos + 1) % 7];
+    for (int k = 0; k < 9; k++) if (order[k] == settings_focus_) pos = k;
+    if (up) settings_focus_ = order[(pos + 8) % 9];
+    if (down) settings_focus_ = order[(pos + 1) % 9];
     if (edge) activate(settings_focus_);
     if (cancel) menu_page_ = -1;
 }
@@ -3668,6 +3678,8 @@ void Game::draw_settings() {
     option(6, music_on_, music_on_ ? "Music: on" : "Music: off");
     option(7, sfx_on_, sfx_on_ ? "Sound effects: on" : "Sound effects: off");
     option(8, backdrop_, backdrop_ ? "Distant land in the side view: on" : "Distant land in the side view: off");
+    option(10, followers_, followers_ ? "Companions trail behind: on" : "Companions trail behind: off");
+    option(9, camp_on_, camp_on_ ? "Companions talk when resting: on" : "Companions talk when resting: off");
     { const SRow& r = row(3); bool hot = settings_focus_ == 3;
       screen_.fill_rect(24, r.y, 150, r.h, hot ? 15 : 7);
       screen_.fill_rect(25, r.y + 1, 148, r.h - 2, hot ? 4 : 0);
@@ -4299,8 +4311,8 @@ void Game::draw_combat() {
     std::vector<Item> items;
     const Hero& h = party_[leader_];
     size_t f = hero_frame(h);
-    items.push_back({cy_, &h.actor.frames[f], cx_ - cx - 8, face_left_});
-    items.back().x = cx_ - cx - 8;
+    const bool leader_in_transit = !lair_active_ && !orig_controls_ && followers_ && draw_followers(cx, cy);   // the companions far behind; true while the leader is still coming forward
+    if (!leader_in_transit) { items.push_back({cy_, &h.actor.frames[f], cx_ - cx - 8, face_left_}); items.back().x = cx_ - cx - 8; }
     std::vector<Image> corpse_imgs; corpse_imgs.reserve(corpses_.size());   // (kept alive until the items are drawn)
     for (auto& c : corpses_) {
         int dl; corpse_imgs.push_back(corpse_image(c, dl));
@@ -4358,6 +4370,7 @@ std::string Game::debug() const {
     { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " music=%s", music_track_.empty() ? "-" : music_track_.c_str()); }
     if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
     if (speech_steps_ > 0 || !speech_q_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " speech=%zu:%s", speech_q_.size() + (speech_steps_ > 0), speech_cur_.text.c_str()); }
+    if (camp_.active) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " camp=%d", camp_.phase + 1); }
     { int w = 0; for (auto& e : ienemies_) if (e.wanderer && e.hp > 0) w++; if (w) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " wand=%d", w); } }
     if (turn_ms_ > 0) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " turning=%d", (int)turn_ms_); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }

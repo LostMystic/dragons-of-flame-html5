@@ -18,6 +18,8 @@ enum Fx { kFxWhiffSword, kFxHitSword, kFxGlanceSword, kFxWhiffStaff, kFxHitStaff
           kFxBuzz, kFxLightning, kFxSlab, kFxFanfare, kFxCrumble, kFxAcid, kFxBoneBurst, kFxCure, kFxProtection, kFxFindTraps, kFxHold, kFxHammer, kFxPrayer, kFxBless, kFxDispel,
           // menus: a selecting click and a backward whoosh
           kFxMenuSelect, kFxMenuBack,
+          // a wandering group arrives in a dungeon: the Dragon Army's war horn and drums, or the dead
+          kFxStingArmy, kFxStingUndead,
           kFxCount };
 std::vector<int16_t> make_fx(int id, int rate);
 

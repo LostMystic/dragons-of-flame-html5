@@ -474,6 +474,16 @@ private:
     int jump_from_ = 0, jump_to_ = 0, jump_g0_ = 0, jump_h_ = 0, walk_dist_ = 0, pending_cycle_ = 0;
     bool orig_controls_ = false;            // the original's keypad scheme (8/2 turn the side view); off = arrows: up jumps, down turns
     int gfx_mode_ = 0;                     // 0 = original 16-colour; 256-colour is reserved for later
+    // Camp (the Rest command with the updated controls): the view fades to black, the companions talk (data/camp_banter.json, src/camp.cpp), the view fades back in
+    struct Camp { bool active = false; int phase = 0; long since = 0, line_since = 0; size_t shown = 0; std::vector<std::pair<std::string, std::string>> lines; } camp_;
+    struct CampTalk { std::vector<std::string> tags; std::vector<std::pair<std::string, std::string>> lines; };
+    std::vector<CampTalk> camp_talks_; bool camp_loaded_ = false; std::set<int> camp_used_;
+    bool camp_on_ = true;    // Settings: companions talk when resting
+    bool start_camp(); void step_camp(const Input& in); void draw_camp(); void finish_rest();
+    // The other companions trail behind the leader in the side view, smaller and bluer the further back (src/followers.cpp); a change of leader brings the new one forward
+    bool followers_ = true;   // Settings: companions trail behind (updated controls only)
+    std::vector<float> fol_d_, fol_side_;   // per hero: how far back (0 = the leader, eased towards its place in line) and on which side (-1 left .. 1 right, eased)
+    bool draw_followers(int cx, int cy);    // returns true while the leader is still drawn here (coming forward from the back) instead of in the normal place
     bool backdrop_ = true;   // Settings: the far land behind the side view (updated controls only)
     std::vector<uint8_t> backdrop_dom_;
     std::vector<int8_t> backdrop_kind_;
