@@ -517,8 +517,9 @@ void Game::spawn_wild() {  // the people of the wilderness, at the original's st
 // (army strength >> 5) + 2 monsters (game.exe fn 67A2 / 689C / 68EE).
 void Game::spawn_roaming_monsters(int bx, int by) {
     if (bx < 0 || by < 0 || bx >= 20 || by >= 24) return;
-    int n = (qm_armies_[by * 20 + bx] >> 5) + 2;
-    for (int k = 0; k < n; k++)
+    int fire = qm_armies_[by * 20 + bx] >> 5, n = fire + 2;
+    for (int k = 0; k < n; k++) {
+        if (k >= fire && !orig_controls_ && rnd(1, 100) <= 30) continue;   // away from the fires about 30% fewer creatures than the original's two a block (updated controls)
         for (int tries = 0; tries < 3; tries++) {
             int x = bx * 128 + rnd(0, 127) / 16 * 16, y = by * 128 + rnd(0, 127) / 16 * 16;
             if (abs(x - px_) < 120 && abs(y - py_) < 100) continue;
@@ -527,6 +528,7 @@ void Game::spawn_roaming_monsters(int bx, int by) {
             wild_.push_back(w);
             break;
         }
+    }
     int monsters = 0;
     for (auto& w : wild_) if (!w.npc) monsters++;
     while (monsters > 30) {  // drop the farthest

@@ -1,3 +1,4 @@
+The overland map has about 30% fewer wandering creatures away from the army fires (updated controls).
 Rest now mends the party: Goldmoon spends every healing prayer on whoever is hurt worst (and unspent other prayers become bonus cures), on top of the one point of natural healing; then the spells return (updated controls).
 The yellow bar is now Endurance (updated controls): walking slowly wears it down, every swing costs a pixel and every hit you take two. At zero the next rested companion takes the lead and the tired one is greyed out and cannot lead until the party rests, which refills everyone.
 Recruited nomads and refugees all use the plain-man portrait now.
