@@ -104,6 +104,7 @@ struct Enemy {
     int lx = 0, ly = 0;   // position in the level (interior creatures); x is the position along the strip while the fight runs
     int hlx = -1, hly = -1, ax = 0;   // where it started (level px) and that point along the strip: a dragon's head is tied to its body there by the neck
     int refugee = -1;     // a Man met on the road: -1 not decided yet, 1 a refugee (peaceful: press A beside him and he joins), 0 hostile (he is hit, or he was not a refugee)
+    bool wanderer = false;   // a wandering group that came into the dungeon later (a random encounter)
     bool nocorpse = false, burned = false, revived = false, turned = false;   // turned: frozen by Turn Undead ("Turned" shows over its head)
     //   // revived: a troll that got up again (no experience for it twice)
     //   // drowned (leaves nothing); killed by fire (a troll then stays dead)
@@ -482,6 +483,8 @@ private:
     std::vector<uint8_t> last_view_, turn_old_;   // the side view as last drawn, and as it was when a turn began
     double turn_ms_ = 0; int turn_dir_ = 0;       // the turn animation (milliseconds left; which way it swings)
     static constexpr double kTurnMs = 1000;
+    void wander_step();      // random encounters in the dungeons: now and then a small group turns up in the passage ahead
+    int wander_t_ = 0;
     void draw_backdrop(int cam_x, int cam_y);
     bool ctl_drop_ = false; int ctl_drop_sel_ = 0;   // the controls-type drop-down in Settings
     int settings_focus_ = 0, mouse_x_ = -1, mouse_y_ = -1;

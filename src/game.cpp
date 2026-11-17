@@ -1285,6 +1285,55 @@ void Game::spawn_level_creatures(int n) {
 }
 
 // A dungeon fight: the creatures standing in the party's row (east/west view) or column (north/south view) take part, seen along the strip.
+// Random encounters in the dungeons (the module: Sla-Mori and Pax Tharkas each have their own chart, a check every so often, and draconians are the commonest
+// foes in the fortress). Every couple of minutes' walking there is one chance in three that a small group appears down the passage the party stands in,
+// a few cells off; no more than a few wanderers are ever alive on a level, so the dungeon is busier but not crowded.
+void Game::wander_step() {
+    if (level_ < 2 || level_ > 7 || level_ == 5 || levels_.size() <= (size_t)level_ || lair_active_) return;
+    const bool sure = getenv("DOF_WANDER") != nullptr;   // test hook: a group at every check
+    if (++wander_t_ < (sure ? 3 : 150)) return;   // about 25 seconds between checks
+    wander_t_ = 0;
+    if (!sure && rnd(0, 2) != 0) return;
+    int alive = 0;
+    for (auto& e : ienemies_) if (e.wanderer && e.hp > 0) alive++;
+    if (alive >= 4) return;
+    const Level& L = levels_[level_];
+    const int pcx = ix_ >> 7, pcy = iy_ >> 7;
+    auto open = [&](int x, int y) { return x >= 0 && y >= 0 && x < L.w && y < L.h && L.cells[y * L.w + x] != 0; };
+    // the spot: a floor cell 3 to 7 cells off along the party's row or column with an open passage all the way to it
+    struct Spot { int x, y; };
+    std::vector<Spot> spots;
+    for (int d = 3; d <= 7; d++)
+        for (int sgn = -1; sgn <= 1; sgn += 2) {
+            for (int axis = 0; axis < 2; axis++) {
+                int x = pcx + (axis == 0 ? sgn * d : 0), y = pcy + (axis == 1 ? sgn * d : 0);
+                bool clear = open(x, y);
+                for (int k = 1; k < d && clear; k++) clear = open(pcx + (axis == 0 ? sgn * k : 0), pcy + (axis == 1 ? sgn * k : 0));
+                int v = clear ? L.cells[y * L.w + x] : 0;
+                if (clear && (v == 5 || v == 15 || v == 20 || v == 2)) spots.push_back({x, y});
+            }
+        }
+    if (spots.empty()) return;
+    Spot sp = spots[rnd(0, (int)spots.size() - 1)];
+    // what turns up: the module's charts, thinned to the creatures this game has
+    struct Pick { const char* name; int weight, lo, hi; };
+    static const Pick pax[] = {{"Baaz", 34, 2, 4}, {"Kapak", 24, 2, 3}, {"Bozak", 8, 1, 2}, {"Hobgoblin", 10, 2, 3}, {"Goblin", 10, 2, 4}, {"War Dog", 8, 2, 3}, {"Aghar", 6, 1, 2}};
+    static const Pick mori[] = {{"Zombie", 34, 2, 3}, {"Wraith", 16, 1, 1}, {"Giant Wasp", 22, 2, 3}, {"Aghar", 16, 1, 2}, {"Wight", 12, 1, 2}};
+    const Pick* tab = level_ == 2 ? mori : pax; const int tn = level_ == 2 ? 5 : 7;
+    int total = 0; for (int i = 0; i < tn; i++) total += tab[i].weight;
+    int roll = rnd(0, total - 1), pick = 0;
+    for (; pick < tn - 1 && roll >= tab[pick].weight; pick++) roll -= tab[pick].weight;
+    int type = -1;
+    for (size_t i = 0; i < mtypes_.size(); i++) if (mtypes_[i].name == tab[pick].name) type = (int)i;
+    if (type < 0) return;
+    int n = rnd(tab[pick].lo, tab[pick].hi);
+    for (int k = 0; k < n; k++) {
+        Enemy e; e.type = type; e.hp = roll_hp(mtypes_[type]); e.wanderer = true;
+        e.lx = sp.x * 128 + 30 + k * 22; e.ly = sp.y * 128 + 64; e.hlx = e.lx; e.hly = e.ly; e.cooldown = rnd(0, attack_period_);
+        ienemies_.push_back(e);
+    }
+}
+
 void Game::step_interior_fight(const Input& in) {
     const Level& L = levels_[level_];
     int pcx = ix_ >> 7, pcy = iy_ >> 7;
@@ -1723,7 +1772,8 @@ void Game::step(const Input& in) {
     if (hold_ > 0) hold_--;
     if (held()) attacking_ = false;
     if (ranged_pose_ > 0) ranged_pose_--;
-    if (--qm_countdown_ <= 0) { qm_countdown_ = 360; army_tick(); }  // the armies move once every 360 logic steps (6 x 60)
+    if (--qm_countdown_ <= 0) { qm_countdown_ = 360; army_tick(); }
+    if (interior() && mode_ == Mode::World && box_.empty()) wander_step();  // the armies move once every 360 logic steps (6 x 60)
     bool confirm_edge = in.confirm && !confirm_prev_;  // in.confirm is latched for taps between steps
     confirm_prev_ = in.confirm;
     if (in.select > 0) set_leader(in.select - 1);
@@ -4308,6 +4358,7 @@ std::string Game::debug() const {
     { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " music=%s", music_track_.empty() ? "-" : music_track_.c_str()); }
     if (refugees_recruited_) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " refugees=%d", refugees_recruited_); }
     if (speech_steps_ > 0 || !speech_q_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " speech=%zu:%s", speech_q_.size() + (speech_steps_ > 0), speech_cur_.text.c_str()); }
+    { int w = 0; for (auto& e : ienemies_) if (e.wanderer && e.hp > 0) w++; if (w) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " wand=%d", w); } }
     if (turn_ms_ > 0) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " turning=%d", (int)turn_ms_); }
     if (!box_.empty()) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " box=%d", box_scroll_); }
     if (mode_ == Mode::Title) { size_t n = strlen(b); snprintf(b + n, sizeof b - n, " page=%d sel=%d", title_page_, title_sel_); }
